@@ -1,0 +1,42 @@
+<dom-module id="app-layout">
+  <template>
+    <style>
+      :host {
+        display: block;
+        height: 100%;
+      }
+    </style>
+
+    <div class="layout horizontal" style="height: 100%">
+      <div>
+        <app-main-menu on-set-page="setPage"></app-main-menu>
+      </div>
+      <div class="flex">
+        <parcel-map id="map" class="page"></parcel-map>
+        <parcel-list id="list" style="display:none" class="page"></parcel-list>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'app-layout',
+
+      ready : function() {
+        DSSDK.init(function(){
+          console.log('budget loaded');
+        });
+      },
+
+      setPage : function(e) {
+        var page = e.detail;
+        $(this).find('.page').hide();
+        this.$[page].style.display = 'block';
+
+        if( this.$[page].onShow ) {
+          this.$[page].onShow();
+        }
+      }
+    });
+  </script>
+</dom-module>

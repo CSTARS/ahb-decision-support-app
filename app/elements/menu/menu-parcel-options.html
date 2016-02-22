@@ -1,0 +1,33 @@
+<dom-module id="menu-parcel-options">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <a class="btn btn-success" on-click="grow" id="growBtn">Grow!</a>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'menu-parcel-options',
+
+      attached : function() {
+        this.list = document.querySelector('parcel-list');
+      },
+
+      grow : function() {
+        this.list.init();
+
+        this.$.growBtn.setAttribute('disabled', 'disabled');
+        this.$.growBtn.innerHTML = 'Growing...';
+
+        DSSDK.grow(function(){
+          this.$.growBtn.removeAttribute('disabled');
+          this.$.growBtn.innerHTML = 'Grow';
+        }.bind(this));
+      }
+    });
+  </script>
+</dom-module>

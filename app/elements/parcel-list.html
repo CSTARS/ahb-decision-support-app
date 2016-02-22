@@ -1,0 +1,63 @@
+<link rel="import" href="parcel-list-item.html" />
+
+<dom-module id="parcel-list">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <template is="dom-repeat" items="{{parcels}}">
+      <parcel-list-item parcel="{{item}}"></parcel-list-item>
+    </template>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'parcel-list',
+
+      ready : function() {
+        DSSDK.datastore.on('weather-retrieved', this.onWeatherFound.bind(this));
+        DSSDK.datastore.on('soil-retrieved', this.onSoilFound.bind(this));
+        DSSDK.model.on('harvests-updated', this.onHarvestUpdated.bind(this));
+      },
+
+      onShow : function() {
+        this.update();
+      },
+
+      init : function() {
+        var eles = this.querySelectorAll('parcel-list-item');
+        for( var i = 0; i < eles.length; i++ ) {
+          eles[i].init();
+        }
+      },
+
+      onWeatherFound : function(e) {
+        var ele = this.querySelector('parcel-list-item[parcel-id="'+e.id+'"]');
+        if( ele ) {
+          ele.onWeatherFound();
+        }
+      },
+
+      onSoilFound : function(e) {
+        var ele = this.querySelector('parcel-list-item[parcel-id="'+e.id+'"]');
+        if( ele ) {
+          ele.onWeatherFound();
+        }
+      },
+
+      onHarvestUpdated : function(e) {
+        var ele = this.querySelector('parcel-list-item[parcel-id="'+e.id+'"]');
+        if( ele ) {
+          ele.onComplete();
+        }
+      },
+
+      update : function() {
+        this.parcels = DSSDK.datastore.selectedParcels;
+      }
+    });
+  </script>
+</dom-module>

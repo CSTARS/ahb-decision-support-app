@@ -1,0 +1,14 @@
+{
+  "name": "ahb-decision-support-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Justin Merz <jrmerz@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "leaflet-canvas-geojson": "github:ucd-cws/leaflet-canvas-geojson"
+  }
+}

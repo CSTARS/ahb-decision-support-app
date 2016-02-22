@@ -1,0 +1,163 @@
+<link rel="import" href="refinery-select-popup.html" />
+
+<dom-module id="parcel-map">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'parcel-map',
+
+      ready : function() {
+        // current modes are 'set' (set refinery location) or 'select' which is select parcel
+        this.mode = 'set';
+        this.radius = 40000;
+        this.rand = 0.8;
+
+        $(window).on('resize', this.onResize.bind(this));
+
+        this.popup = document.createElement('refinery-select-popup');
+        document.body.appendChild(this.popup);
+      },
+
+      setMenu : function(ele) {
+        this.menu = ele;
+        this.menu.setMode(this.mode);
+      },
+
+      attached : function() {
+        if( !this.map ) {
+          this.onResize();
+          this.map = L.map(this).setView([44, -121], 6);
+          this.map.on('click', this.onClick.bind(this));
+          L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(this.map);
+
+          this.canvasLayer = new L.CanvasGeojsonLayer({
+            /*onMouseOver : function(features) {
+              markerSelector.hover(features);
+              updateMouse(markerLayer._container, markerLayer.intersectList);
+            }.bind(this),
+            onMouseOut : function(features) {
+              markerSelector.nohover(features);
+              updateMouse(markerLayer._container, markerLayer.intersectList);
+            }.bind(this),*/
+            onClick : this.onFeaturesClicked.bind(this)
+          });
+          this.canvasLayer.addTo(this.map);
+        }
+      },
+
+      onResize : function() {
+        this.style.height = $(window).height()+'px';
+      },
+
+      onClick : function(e) {
+        if( this.mode != 'set' ) {
+          return;
+        }
+
+        this.ll = e.latlng;
+        this.popup.show(this.ll.lat, this.ll.lng, this.findParcels.bind(this));
+      },
+
+      findParcels : function(radius, percent) {
+        this.radius = radius*1000;
+        this.rand = percent;
+
+        if( this.rand < 0 ) this.rand = 1;
+        if( this.rand > 100 ) this.rand = 100;
+        this.rand = 1 - (this.rand / 100);
+
+        if( this.radius < 1000 ) this.radius = 1000;
+        if( this.radius > 50000 ) this.radius = 50000;
+
+        console.log('Finding parcels '+this.ll.lat+', '+this.ll.lng+' @ '+(this.radius/1000)+'km radius ...');
+        DSSDK.datastore.getParcels(this.ll.lat, this.ll.lng, this.radius, function(err, parcels){
+          if( err ) {
+            console.log(err);
+          }
+
+          DSSDK.datastore.randomizeSelected(this.rand);
+
+          console.log('Total Parcels: '+DSSDK.datastore.parcels.length);
+          console.log('Selected Parcels: '+DSSDK.datastore.selectedParcels.length);
+
+          this.canvasLayer.features = [];
+          DSSDK.datastore.parcels.forEach(function(parcel){
+            this.canvasLayer.addFeature(this.canvasLayerFeature(parcel));
+          }.bind(this));
+          this.canvasLayer.render();
+
+          this.mode = 'select';
+          this.menu.setMode(this.mode);
+          this.popup.hide();
+        }.bind(this), this.onParcelQueryUpdate.bind(this));
+      },
+
+      onParcelQueryUpdate : function(percent) {
+        this.popup.updateStatus(percent);
+      },
+
+      onFeaturesClicked : function(features) {
+        if( this.mode != 'select' ) return;
+
+        features.forEach(function(feature){
+          feature.properties.ucd.render.selected = !feature.properties.ucd.render.selected;
+        });
+        this.canvasLayer.render();
+      },
+
+      canvasLayerFeature : function(parcel) {
+        if( !parcel.properties.ucd.render ) {
+          parcel.properties.ucd.render = {};
+        }
+        if( DSSDK.datastore.selectedParcels.indexOf(parcel) > -1 ) {
+          parcel.properties.ucd.render.selected = true;
+        } else {
+          parcel.properties.ucd.render.selected = false;
+        }
+
+        return {
+          geojson : parcel,
+          render : this.polyRenderer.bind(this)
+        };
+      },
+
+      polyRenderer : function(ctx, xyPoints, map, feature) {
+        var render = feature.geojson.properties.ucd.render;
+
+        var point;
+        if( xyPoints.length <= 1 ) return;
+
+        ctx.beginPath();
+
+        point = xyPoints[0];
+        ctx.moveTo(point.x, point.y);
+        for( var i = 1; i < xyPoints.length; i++ ) {
+          ctx.lineTo(xyPoints[i].x, xyPoints[i].y);
+        }
+        ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
+
+        /*if( render.selected ) {
+          ctx.strokeStyle =  'rgba(0,0,255,.8)';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+        }*/
+
+        ctx.fillStyle = render.selected ? 'rgba(0,0,255,.4)' : 'rgba(200,200,200,.4)' ;
+        ctx.fill();
+      },
+
+      setMode : function(mode) {
+        this.mode = mode;
+      }
+    });
+  </script>
+</dom-module>

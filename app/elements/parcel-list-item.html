@@ -1,0 +1,62 @@
+<dom-module id="parcel-list-item">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div class="layout horizontal">
+      <div>{{parcel.properties.PolyID}}</div>
+      <div id="status" class="flex"></div>
+      <div id="total"></div>
+    </div>
+
+    <div id="details">
+      <div>
+        Size: <span>{{parcel.properties.GISAcres}}</span>,
+        % Available: <span>{{parcel.properties.PotentiallySuitPctOfParcel}}</span>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'parcel-list-item',
+
+      properties : {
+        parcel : {
+          type : Object,
+          observer : 'onParcelUpdate'
+        },
+        parcelId : {
+          type : String,
+          reflectToAttribute : true
+        }
+      },
+
+      onParcelUpdate : function() {
+        if( !this.parcel ) return;
+        this.parcelId = this.parcel.properties.PolyID;
+      },
+
+      init : function() {
+        this.$.details.style.display = 'none';
+        this.$.status.innerHTML = 'Finding Weather...';
+      },
+
+      onWeatherFound : function() {
+        this.$.status.innerHTML = 'Finding Soil...';
+      },
+
+      onSoilFound : function() {
+        this.$.status.innerHTML = 'Growing Poplar...';
+      },
+
+      onComplete : function() {
+        this.$.status.innerHTML = '';
+        this.$.total.innerHTML = this.parcel.properties.ucd.harvest.totalHarvest;
+      }
+    });
+  </script>
+</dom-module>

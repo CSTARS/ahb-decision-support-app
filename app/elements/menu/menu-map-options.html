@@ -1,0 +1,41 @@
+<dom-module id="menu-map-options">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" id="mode" on-click="updateMode"> Select Refinery Location Mode
+      </label>
+      <p class="help-block">When checked, clicking map will set biorefinery location.</p>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'menu-map-options',
+
+      attached : function() {
+        this.mapElement = document.querySelector('parcel-map');
+        this.mapElement.setMenu(this);
+      },
+
+      setMode : function(mode) {
+        this.mode = mode;
+        if( this.mode === 'set' ) {
+          this.$.mode.checked = true;
+        } else {
+          this.$.mode.checked = false;
+        }
+      },
+
+      updateMode : function() {
+        this.mode = this.$.mode.checked ? 'set' : 'select';
+        this.mapElement.setMode(this.mode);
+      }
+    });
+  </script>
+</dom-module>

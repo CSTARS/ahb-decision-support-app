@@ -1,0 +1,95 @@
+<dom-module id="refinery-select-popup">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div class="modal fade" id="popup">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-label="Close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="title">Select Refinery Location</h4>
+          </div>
+          <div class="modal-body">
+
+
+
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label for="radiusInput" class="col-sm-3 control-label">Lat, Lng</label>
+                <div class="col-sm-9">
+                  <span id="ll"></span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="radiusInput" class="col-sm-3 control-label">Radius (km)</label>
+                <div class="col-sm-9">
+                  <input type="number" id="radiusInput" class="form-control" value="5" />
+                  <div class="help-block">Query radius from selected biorefinery location to lookup parcels for.</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="percentInput" class="col-sm-3 control-label">Parcel Selection (%)</label>
+                <div class="col-sm-9">
+                  <input type="number" id="percentInput" class="form-control" placeholder="%" value="30" />
+                  <div class="help-block">When parcels are loaded, percentage of parcels to randomly select for use with
+                    the biorefinery.</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align: center">
+              <a class="btn btn-success btn-lg" on-click="query" id="go">Go</a>
+            </div>
+
+          </div> <!-- end body -->
+
+        </div>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'refinery-select-popup',
+      ready : function() {
+        this.popup = $(this.$.popup).remove();
+        $('body').append(this.popup);
+        this.popup.modal({show: false});
+      },
+
+      show : function(lat, lng, goHandler) {
+        this.resetGoBtn();
+        this.popup.modal('show');
+        this.$.ll.innerHTML = lat.toFixed(4)+', '+lng.toFixed(4);
+        this.handler = goHandler;
+      },
+
+      hide : function() {
+        this.popup.modal('hide');
+      },
+
+      resetGoBtn : function() {
+        this.$.go.removeAttribute('disabled');
+        this.$.go.innerHTML = 'Go';
+      },
+
+      query : function() {
+        this.$.go.setAttribute('disabled', 'disabled');
+        this.$.go.innerHTML = 'Go';
+
+        this.handler(parseInt(this.$.radiusInput.value), parseInt(this.$.percentInput.value));
+      },
+
+      updateStatus : function(status) {
+        this.$.go.innerHTML = 'Querying... '+status+'% Complete';
+      }
+
+    })
+  </script>
+</dom-module>

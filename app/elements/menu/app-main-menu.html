@@ -1,0 +1,57 @@
+<link rel="import" href="menu-map-options.html" />
+<link rel="import" href="menu-parcel-options.html" />
+
+<dom-module id="app-main-menu">
+  <template>
+    <style>
+      :host {
+        display: block;
+        width: 320px;
+      }
+      .content {
+        padding: 5px;
+        display: none;
+        overflow: auto;
+      }
+      .content.selected {
+        display: block;
+      }
+      .header {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        padding: 15px;
+      }
+      .header.selected {
+        border-top: 1px solid #fff;
+        border-bottom: 1px solid #fff;
+        box-shadow: 0 0 5px;
+      }
+    </style>
+
+    <div class="layout vertical">
+      <div id="map-header" class="header selected" on-click="setPage" page="map">
+        <h4>Map</h4>
+      </div>
+      <div id="map-content" class="content flex selected">
+        <menu-map-options></menu-map-options>
+      </div>
+      <div id="map-header" class="header" on-click="setPage" page="list">
+        <h4>Parcels</h4>
+      </div>
+      <div id="map-content" class="content flex selected">
+        <menu-parcel-options></menu-parcel-options>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'app-main-menu',
+
+      setPage : function(e) {
+        var page = e.currentTarget.getAttribute('page');
+        this.fire('set-page', page);
+      }
+    });
+  </script>
+</dom-module>
