@@ -6,27 +6,72 @@
       }
     </style>
 
-    <a class="btn btn-success" on-click="grow" id="growBtn">Grow!</a>
+    <div class="form-group">
+      <label for="poplarPriceInput"><b>Poplar Price Per Mg ($)</b></label>
+      <input type="number" class="form-control" id="poplarPriceInput" placeholder="$" value="24" on-change="onPriceChange">
+    </div>
+
+    <div style="text-align:center;margin: 10px 0 20px 0">
+      <a class="btn btn-success btn-lg" on-click="grow" id="growBtn">Grow Poplar!</a>
+    </div>
 
   </template>
   <script>
     Polymer({
       is: 'menu-parcel-options',
 
+      ready : function() {
+        DSSDK.model.on('harvests-updated', this.onHarvestUpdated.bind(this));
+        DSSDK.datastore.on('weather-retrieved', this.onWeatherFound.bind(this));
+        DSSDK.datastore.on('soil-retrieved', this.onSoilFound.bind(this));
+      },
+
       attached : function() {
         this.list = document.querySelector('parcel-list');
+      },
+
+      onShow : function() {
+        if( DSSDK.datastore.selectedParcels.length > 0 ) {
+          this.$.growBtn.remove('disabled');
+        } else {
+          this.$.growBtn.setAttribute('disabled', 'disabled');
+        }
       },
 
       grow : function() {
         this.list.init();
 
         this.$.growBtn.setAttribute('disabled', 'disabled');
-        this.$.growBtn.innerHTML = 'Growing...';
+        this.$.growBtn.innerHTML = 'Starting...';
 
-        DSSDK.grow(function(){
+        this.total = DSSDK.datastore.selectedParcels.length;
+        this.processed = 0;
+        this.water = 0;
+        this.soil = 0;
+
+        DSSDK.app.grow(function(){
           this.$.growBtn.removeAttribute('disabled');
           this.$.growBtn.innerHTML = 'Grow';
         }.bind(this));
+      },
+
+      onPriceChange : function() {
+        DSSDK.app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
+      },
+
+      onWeatherFound : function(e) {
+        this.water++;
+        this.$.growBtn.innerHTML = 'Weather Lookup... '+Math.floor((this.water / this.total)*100)+'%';
+      },
+
+      onSoilFound : function(e) {
+        this.soil++;
+        this.$.growBtn.innerHTML = 'Soil Lookup... '+Math.floor((this.soil / this.total)*100)+'%';
+      },
+
+      onHarvestUpdated : function() {
+        this.processed++;
+        this.$.growBtn.innerHTML = 'Growing... '+Math.floor((this.processed / this.total)*100)+'%';
       }
     });
   </script>

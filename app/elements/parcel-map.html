@@ -78,6 +78,8 @@
         if( this.radius < 1000 ) this.radius = 1000;
         if( this.radius > 50000 ) this.radius = 50000;
 
+        this.menu.setInfo(this.ll.lat, this.ll.lng, this.radius);
+
         console.log('Finding parcels '+this.ll.lat+', '+this.ll.lng+' @ '+(this.radius/1000)+'km radius ...');
         DSSDK.datastore.getParcels(this.ll.lat, this.ll.lng, this.radius, function(err, parcels){
           if( err ) {
@@ -95,8 +97,12 @@
           }.bind(this));
           this.canvasLayer.render();
 
-          this.mode = 'select';
-          this.menu.setMode(this.mode);
+          if( DSSDK.datastore.parcels.length.length > 0 ) {
+            this.mode = 'select';
+            this.menu.setMode(this.mode);
+          }
+
+          this.menu.updateSelected();
           this.popup.hide();
         }.bind(this), this.onParcelQueryUpdate.bind(this));
       },
@@ -109,15 +115,33 @@
         if( this.mode != 'select' ) return;
 
         features.forEach(function(feature){
-          feature.properties.ucd.render.selected = !feature.properties.ucd.render.selected;
+          var selected = feature.properties.ucd.render.selected;
+
+          if( selected ) {
+            var index = DSSDK.datastore.selectedParcels.indexOf(feature);
+            DSSDK.datastore.splice(selected, 1);
+          } else {
+            DSSDK.datastore.selectedParcels.push(feature);
+          }
+
+          feature.properties.ucd.render.selected = !selected;
         });
+
+        var newArray = [];
+        DSSDK.datastore.selectedParcels.forEach(function(f){
+          newArray.push(f);
+        });
+        DSSDK.datastore.selectedParcels = newArray;
+
         this.canvasLayer.render();
+        this.menu.updateSelected();
       },
 
       canvasLayerFeature : function(parcel) {
         if( !parcel.properties.ucd.render ) {
           parcel.properties.ucd.render = {};
         }
+
         if( DSSDK.datastore.selectedParcels.indexOf(parcel) > -1 ) {
           parcel.properties.ucd.render.selected = true;
         } else {
@@ -145,11 +169,9 @@
         }
         ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-        /*if( render.selected ) {
-          ctx.strokeStyle =  'rgba(0,0,255,.8)';
-          ctx.lineWidth = 4;
-          ctx.stroke();
-        }*/
+        ctx.strokeStyle = 'rgba(255,255,255,.8)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
         ctx.fillStyle = render.selected ? 'rgba(0,0,255,.4)' : 'rgba(200,200,200,.4)' ;
         ctx.fill();

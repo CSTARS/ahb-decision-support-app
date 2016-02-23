@@ -8,12 +8,13 @@
     </style>
 
     <div class="layout horizontal" style="height: 100%">
-      <div>
+      <div style="overflow-y:auto; overflow-x: hidden">
         <app-main-menu on-set-page="setPage"></app-main-menu>
       </div>
-      <div class="flex">
+      <div class="flex" style="overflow:auto">
         <parcel-map id="map" class="page"></parcel-map>
         <parcel-list id="list" style="display:none" class="page"></parcel-list>
+        <div id="results" style="display:none" class="page"></div>
       </div>
     </div>
 

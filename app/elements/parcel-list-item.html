@@ -3,20 +3,64 @@
     <style>
       :host {
         display: block;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+      }
+      #expand {
+        display:block;
+        padding: 5px;
+        cursor: pointer;
+
+        transition: transform 300ms linear;
+        -webkit-transition: transform 300ms linear;
+        -ms-transition: transform 300ms linear;
+        -moz-transition: transform 300ms linear;
+
+        transform : rotate(0);
+        -webkit-transform : rotate(0);
+        -ms-transform : rotate(0);
+        -moz-transform : rotate(0);
+      }
+      #expand.open {
+        transform : rotate(90deg);
+        -webkit-transform : rotate(90deg);
+        -ms-transform : rotate(90deg);
+        -moz-transform : rotate(90deg);
+      }
+      .nlabel {
+        font-weight: bold;
       }
     </style>
 
-    <div class="layout horizontal">
-      <div>{{parcel.properties.PolyID}}</div>
-      <div id="status" class="flex"></div>
-      <div id="total"></div>
-    </div>
-
-    <div id="details">
-      <div>
-        Size: <span>{{parcel.properties.GISAcres}}</span>,
-        % Available: <span>{{parcel.properties.PotentiallySuitPctOfParcel}}</span>
+    <h5>
+      <div class="layout horizontal center">
+        <div>
+          <a id="expand" on-click="toggle"><i class="fa fa-chevron-circle-right"></i></a>
+        </div>
+        <div id="name"></div>
+        <div id="inner" class="flex"></div>
+        <div id="total"><span class="label label-warning">Not Grown</span></div>
       </div>
+    </h5>
+
+    <div id="details" style="display:none">
+      <table class="table">
+        <tr>
+          <td class="nlabel">Parcel Size:</td>
+          <td><span id="size"></span> acres</td>
+        </tr>
+        <tr>
+          <td class="nlabel">% Size Available:</td>
+          <td><span id="potential"></span>% (<span id="asize"></span>) acres</td>
+        </tr>
+        <tr>
+          <td class="nlabel">Harvest Data:</td>
+          <td style="width: 80%">
+            <div id="duration">You must grow the plants first :)</div>
+            <div id="chart"></div>
+          </td>
+        </tr>
+      </table>
     </div>
 
   </template>
@@ -35,27 +79,103 @@
         }
       },
 
+      ready : function() {
+        this.open = false;
+      },
+
       onParcelUpdate : function() {
         if( !this.parcel ) return;
         this.parcelId = this.parcel.properties.PolyID;
+
+        var name = ['Parcel ID: '+this.parcel.properties.PolyID];
+        if( this.parcel.properties.SiteAddressFull && this.parcel.properties.SiteAddressFull.trim() ) {
+          name.push(this.parcel.properties.SiteAddressFull);
+        }
+        if( this.parcel.properties.Township && this.parcel.properties.Township.trim() ) {
+          name.push(this.parcel.properties.Township);
+        }
+        this.$.name.innerHTML = name.join(', ');
+
+        this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
+        this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
+        this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
       },
 
       init : function() {
-        this.$.details.style.display = 'none';
-        this.$.status.innerHTML = 'Finding Weather...';
+        this.$.duration.innerHTML = '';
+        this.$.total.innerHTML = '<span class="label label-default">Finding Weather...</span>';
       },
 
       onWeatherFound : function() {
-        this.$.status.innerHTML = 'Finding Soil...';
+        this.$.total.innerHTML = '<span class="label label-default">Finding Soil...</span>';
       },
 
       onSoilFound : function() {
-        this.$.status.innerHTML = 'Growing Poplar...';
+        this.$.total.innerHTML = '<span class="label label-default">Growing Poplar...</span>';
       },
 
       onComplete : function() {
-        this.$.status.innerHTML = '';
-        this.$.total.innerHTML = this.parcel.properties.ucd.harvest.totalHarvest;
+        this.$.total.innerHTML = '<span class="label label-success">Total Harvest: ' +
+          Math.round(this.parcel.properties.ucd.harvest.totalHarvest)+' Mg, $'+
+          (this.parcel.properties.ucd.harvest.totalHarvest * DSSDK.app.getPoplarPrice()).toFixed(2)+'</span>';
+
+        if( this.open && !this.chart ) {
+          this.updateChart();
+        }
+      },
+
+      toggle : function(e) {
+        $(e.currentTarget).toggleClass('open');
+        $(this.$.details).toggle('slow', function(){
+          if( this.open && !this.chart ) {
+            setTimeout(this.updateChart.bind(this), 300);
+          }
+        }.bind(this));
+        this.open = !this.open;
+      },
+
+      updateChart : function() {
+        if( !this.parcel.properties.ucd.harvest ) return;
+
+        var dt = new google.visualization.DataTable();
+        dt.addColumn('string', 'Year'); // Implicit domain label col.
+        dt.addColumn('number', 'Yield');
+        dt.addColumn({type: 'string', role: 'tooltip'});
+
+        var id = this.parcel.properties.ucd.modelProfileId;
+        var poplarConfig = DSSDK.model.profiles[id].config;
+        if( !id ) return;
+        var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
+        var startYear = d.getFullYear();
+
+        var data = [];
+        var price = DSSDK.app.getPoplarPrice();
+        var c = 1;
+
+        this.parcel.properties.ucd.harvest.harvests.forEach(function(h){
+          data.push([d.toLocaleDateString(), h, 'Yield: '+h+', $'+(h*price)]);
+          d.setFullYear(d.getFullYear()+2);
+        });
+        dt.addRows(data);
+
+        this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
+
+        var options = {
+          series: {
+            0: {targetAxisIndex: 0},
+            1: {targetAxisIndex: 1}
+          },
+          width : $(this.$.chart).parent().width(),
+          height: 300
+        };
+        var chart = new google.visualization.LineChart(this.$.chart);
+        chart.draw(dt, options);
+
+        setTimeout(function(){
+          options.width = $(this.$.chart).parent().width();
+          var chart = new google.visualization.LineChart(this.$.chart);
+          chart.draw(dt, options);
+        }.bind(this), 500);
       }
     });
   </script>

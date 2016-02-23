@@ -13,6 +13,23 @@
       <p class="help-block">When checked, clicking map will set biorefinery location.</p>
     </div>
 
+    <div id="info" style="display:none">
+      <table class="table">
+        <tr>
+          <td><b>Refinery Location<b></td>
+          <td id="ll"></td>
+        </tr>
+        <tr>
+          <td><b>Refinery Radius</b></td>
+          <td id="radius"></td>
+        </tr>
+        <tr>
+          <td><b>Selected Parcels</b></td>
+          <td id="parcels"></td>
+        </tr>
+      </table>
+    </div>
+
   </template>
   <script>
     Polymer({
@@ -35,6 +52,17 @@
       updateMode : function() {
         this.mode = this.$.mode.checked ? 'set' : 'select';
         this.mapElement.setMode(this.mode);
+      },
+
+      setInfo : function(lat, lng, radius) {
+        this.$.info.style.display = 'block';
+        this.$.ll.innerHTML = lat.toFixed(4)+', '+lng.toFixed(4);
+        this.$.radius.innerHTML = radius/1000+'km';
+      },
+
+      updateSelected : function() {
+        this.$.parcels.innerHTML = DSSDK.datastore.selectedParcels.length + ' of ' +
+                          DSSDK.datastore.parcels.length;
       }
     });
   </script>

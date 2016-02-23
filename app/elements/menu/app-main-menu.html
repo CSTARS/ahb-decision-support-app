@@ -7,19 +7,22 @@
       :host {
         display: block;
         width: 320px;
+        border-right: 1px solid #ccc;
       }
       .content {
         padding: 5px;
         display: none;
         overflow: auto;
       }
-      .content.selected {
-        display: block;
-      }
       .header {
         border-top: 1px solid #ccc;
         border-bottom: 1px solid #ccc;
         padding: 15px;
+        cursor: pointer;
+        background-color: white;
+      }
+      .header:hover {
+        background-color: #f8f8f8;
       }
       .header.selected {
         border-top: 1px solid #fff;
@@ -30,16 +33,22 @@
 
     <div class="layout vertical">
       <div id="map-header" class="header selected" on-click="setPage" page="map">
-        <h4>Map</h4>
+        <h4><i class="fa fa-map-marker"></i> Select Location</h4>
       </div>
-      <div id="map-content" class="content flex selected">
+      <div id="map-content" class="content flex" style="display:block">
         <menu-map-options></menu-map-options>
       </div>
-      <div id="map-header" class="header" on-click="setPage" page="list">
-        <h4>Parcels</h4>
+      <div id="list-header" class="header" on-click="setPage" page="list">
+        <h4><i class="fa fa-leaf"></i> Grow</h4>
       </div>
-      <div id="map-content" class="content flex selected">
+      <div id="list-content" class="content flex">
         <menu-parcel-options></menu-parcel-options>
+      </div>
+      <div id="results-header" class="header" on-click="setPage" page="results">
+        <h4><i class="fa fa-flag-checkered"></i> Results</h4>
+      </div>
+      <div id="results-content" class="content flex">
+        <div></div>
       </div>
     </div>
 
@@ -48,8 +57,33 @@
     Polymer({
       is: 'app-main-menu',
 
+      ready : function() {
+        this.page = "map";
+        $(window).on('resize', this.resize.bind(this));
+        this.resize();
+      },
+
+      resize : function() {
+        this.style.height = $(window).height()+'px';
+      },
+
       setPage : function(e) {
         var page = e.currentTarget.getAttribute('page');
+        if( page === this.page ) return;
+        this.page = page;
+
+        var $this = $(this);
+
+        $this.find('.header').removeClass('selected');
+        this.$[page+'-header'].classList.add('selected');
+
+        $this.find('.content').hide('slow');
+        $this.find('#'+page+'-content').show('slow');
+
+        if( this.$[page+'-content'].children[0].onShow ) {
+          this.$[page+'-content'].children[0].onShow();
+        }
+
         this.fire('set-page', page);
       }
     });

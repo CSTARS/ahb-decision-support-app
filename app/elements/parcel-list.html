@@ -8,6 +8,13 @@
       }
     </style>
 
+    <div style="padding:20px; display:none" id="noResults">
+      <div class="alert alert-warning">
+        <i class="fa fa-warning"></i> You have not selected any parcels. Click 'Select Location' and set your
+        biorefinery location first.
+      </div>
+    </div>
+
     <template is="dom-repeat" items="{{parcels}}">
       <parcel-list-item parcel="{{item}}"></parcel-list-item>
     </template>
@@ -24,6 +31,12 @@
       },
 
       onShow : function() {
+        if( DSSDK.datastore.selectedParcels.length === 0 ) {
+          this.$.noResults.style.display = 'block';
+        } else {
+          this.$.noResults.style.display = 'none';
+        }
+
         this.update();
       },
 
@@ -44,7 +57,7 @@
       onSoilFound : function(e) {
         var ele = this.querySelector('parcel-list-item[parcel-id="'+e.id+'"]');
         if( ele ) {
-          ele.onWeatherFound();
+          ele.onSoilFound();
         }
       },
 
