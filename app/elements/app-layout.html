@@ -5,10 +5,50 @@
         display: block;
         height: 100%;
       }
+      #header {
+        border-bottom: 1px solid #888;
+      }
+
+      #menu {
+        position: absolute;
+        left: -320px;
+        background-color: white;
+        z-index: 200;
+
+        transition: left 300ms linear;
+        -webit-transition: left 300ms linear;
+        -ms-transition: left 300ms linear;
+        -moz-transition: left 300ms linear;
+      }
+
+      #menu.open {
+        position: absolute;
+        left: 0px;
+        background-color: white;
+        z-index: 2001;
+      }
+
+      @media(min-width: 678px) {
+        #menu {
+          position: relative;
+          left: 0;
+        }
+        #menu.open {
+          left: 0;
+        }
+      }
     </style>
 
-    <div class="layout horizontal" style="height: 100%">
-      <div style="overflow-y:auto; overflow-x: hidden">
+    <div id="header">
+      <h4>
+        <a class="btn btn-default visible-sm-inline visible-xs-inline" on-click="toggleMenu">
+          <i class="fa fa-bars"></i>
+        </a>
+        Advanced Hardwood Biofuels <small>Decision Support Tool</small>
+      </h4>
+    </div>
+    <div class="layout horizontal">
+      <div style="overflow-y:auto; overflow-x: hidden" id="menu">
         <app-main-menu on-set-page="setPage"></app-main-menu>
       </div>
       <div class="flex" style="overflow:auto">
@@ -37,6 +77,10 @@
         if( this.$[page].onShow ) {
           this.$[page].onShow();
         }
+      },
+
+      toggleMenu : function() {
+        $(this.$.menu).toggleClass('open');
       }
     });
   </script>

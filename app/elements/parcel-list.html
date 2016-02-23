@@ -69,7 +69,11 @@
       },
 
       update : function() {
-        this.parcels = DSSDK.datastore.selectedParcels;
+        var tmp = [];
+        DSSDK.datastore.selectedParcels.forEach(function(f){
+          tmp.push(f);
+        });
+        this.parcels = tmp;
       }
     });
   </script>
