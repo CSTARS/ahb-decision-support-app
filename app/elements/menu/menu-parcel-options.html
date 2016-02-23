@@ -32,7 +32,7 @@
 
       onShow : function() {
         if( DSSDK.datastore.selectedParcels.length > 0 ) {
-          this.$.growBtn.remove('disabled');
+          this.$.growBtn.removeAttribute('disabled');
         } else {
           this.$.growBtn.setAttribute('disabled', 'disabled');
         }

@@ -6,10 +6,61 @@
       }
     </style>
 
+    <table class="table">
+      <tr>
+        <td>Parcels</td>
+        <td id="parcelCount"></td>
+      </tr>
+      <tr>
+        <td>Total Acres</td>
+        <td id="acreCount"></td>
+      </tr>
+      <tr>
+        <td>Total Harvested <span id="runtime"></span></td>
+        <td id="harvestTotal"></td>
+      </tr>
+      <tr>
+        <td>Average Yearly Harvest</td>
+        <td id="avgPerYear"></td>
+      </tr>
+    </table>
+
   </template>
   <script>
     Polymer({
-      is: 'results-panel'
+      is: 'results-panel',
+
+      ready : function() {
+        DSSDK.model.on('harvests-complete', this.update.bind(this));
+      },
+
+      update : function() {
+
+        this.$.parcelCount.innerHTML = DSSDK.datastore.selectedParcels.length;
+
+        var totalAcres = 0;
+        var totalHarvested = 0;
+        var years = DSSDK.model.monthsToRun / 12;
+
+        this.$.runtime.innerHTML = '('+years+' Years)';
+
+        DSSDK.datastore.selectedParcels.forEach(function(parcel){
+          var harvest = parcel.properties.ucd.harvest;
+          if( !harvest ) return;
+
+          totalAcres += harvest.growArea;
+          totalHarvested += harvest.totalHarvest;
+        });
+
+        this.$.acreCount.innerHTML = this.getAmountLabel(totalAcres);
+        this.$.harvestTotal.innerHTML = this.getAmountLabel(totalHarvested)+' Mg';
+        this.$.avgPerYear.innerHTML = this.getAmountLabel(totalHarvested / years)+' Mg';
+      },
+
+      getAmountLabel : function(val) {
+        val = Math.floor(val)+'';
+        return val.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+      }
     });
   </script>
 </dom-module>

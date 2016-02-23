@@ -25,6 +25,12 @@
         document.body.appendChild(this.popup);
       },
 
+      onShow : function() {
+        if( this.map ) {
+          this.map.invalidateSize();
+        }
+      },
+
       setMenu : function(ele) {
         this.menu = ele;
         this.menu.setMode(this.mode);
@@ -97,7 +103,7 @@
           }.bind(this));
           this.canvasLayer.render();
 
-          if( DSSDK.datastore.parcels.length.length > 0 ) {
+          if( DSSDK.datastore.selectedParcels.length > 0 ) {
             this.mode = 'select';
             this.menu.setMode(this.mode);
           }
