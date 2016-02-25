@@ -8,6 +8,10 @@
 
     <table class="table">
       <tr>
+        <td>Adoption</td>
+        <td id="parcelPercent"></td>
+      </tr>
+      <tr>
         <td>Parcels</td>
         <td id="parcelCount"></td>
       </tr>
@@ -35,7 +39,7 @@
       },
 
       update : function() {
-
+        this.$.parcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.parcels.length))+'%';
         this.$.parcelCount.innerHTML = DSSDK.datastore.selectedParcels.length;
 
         var totalAcres = 0;

@@ -23,6 +23,8 @@
 
         this.popup = document.createElement('refinery-select-popup');
         document.body.appendChild(this.popup);
+
+        DSSDK.model.on('harvests-complete', this.onSelectedUpdated.bind(this));
       },
 
       onShow : function() {
@@ -54,7 +56,7 @@
               markerSelector.nohover(features);
               updateMouse(markerLayer._container, markerLayer.intersectList);
             }.bind(this),*/
-            onClick : this.onFeaturesClicked.bind(this)
+            //onClick : this.onFeaturesClicked.bind(this)
           });
           this.canvasLayer.addTo(this.map);
         }
@@ -73,13 +75,31 @@
         this.popup.show(this.ll.lat, this.ll.lng, this.findParcels.bind(this));
       },
 
-      findParcels : function(radius, percent) {
-        this.radius = radius*1000;
-        this.rand = percent;
+      onSelectedUpdated : function() {
+        for( var i = this.canvasLayer.features.length-1; i >= 0; i-- ) {
+          var geo = this.canvasLayer.features[i].geojson.geometry;
+          if( geo.type === 'LineString' ){
+            this.canvasLayer.features.splice(i, 1);
+          }
+        }
 
-        if( this.rand < 0 ) this.rand = 1;
-        if( this.rand > 100 ) this.rand = 100;
-        this.rand = 1 - (this.rand / 100);
+        DSSDK.datastore.parcels.forEach(function(parcel){
+          if( DSSDK.datastore.selectedParcels.indexOf(parcel) > -1 ) {
+            parcel.properties.ucd.render.selected = true;
+            this.canvasLayer.addFeature({
+              geojson : parcel.properties.ucd.transportation,
+              render : this.lineRenderer.bind(this)
+            });
+          } else {
+            parcel.properties.ucd.render.selected = false;
+          }
+        }.bind(this));
+
+        this.menu.updateSelected();
+      },
+
+      findParcels : function(radius) {
+        this.radius = radius*1000;
 
         if( this.radius < 1000 ) this.radius = 1000;
         if( this.radius > 50000 ) this.radius = 50000;
@@ -92,10 +112,10 @@
             console.log(err);
           }
 
-          DSSDK.datastore.randomizeSelected(this.rand);
+          //DSSDK.datastore.randomizeSelected(this.rand);
 
           console.log('Total Parcels: '+DSSDK.datastore.parcels.length);
-          console.log('Selected Parcels: '+DSSDK.datastore.selectedParcels.length);
+          //console.log('Selected Parcels: '+DSSDK.datastore.selectedParcels.length);
 
           this.canvasLayer.features = [];
           DSSDK.datastore.parcels.forEach(function(parcel){
@@ -103,7 +123,7 @@
           }.bind(this));
           this.canvasLayer.render();
 
-          if( DSSDK.datastore.selectedParcels.length > 0 ) {
+          if( DSSDK.datastore.parcels.length > 0 ) {
             this.mode = 'select';
             this.menu.setMode(this.mode);
           }
@@ -181,6 +201,24 @@
 
         ctx.fillStyle = render.selected ? 'rgba(0,0,255,.4)' : 'rgba(200,200,200,.4)' ;
         ctx.fill();
+      },
+
+      lineRenderer : function(ctx, xyPoints, map, feature) {
+        var point;
+        if( xyPoints.length <= 1 ) return;
+
+        ctx.beginPath();
+
+        point = xyPoints[0];
+        ctx.moveTo(point.x, point.y);
+        for( var i = 1; i < xyPoints.length; i++ ) {
+          ctx.lineTo(xyPoints[i].x, xyPoints[i].y);
+        }
+        ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
+
+        ctx.strokeStyle = 'rgba(255,0,0,.8)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       },
 
       setMode : function(mode) {

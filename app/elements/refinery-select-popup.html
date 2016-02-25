@@ -28,23 +28,15 @@
               <div class="form-group">
                 <label for="radiusInput" class="col-sm-3 control-label">Radius (km)</label>
                 <div class="col-sm-9">
-                  <input type="number" id="radiusInput" class="form-control" value="25" />
+                  <input type="number" id="radiusInput" class="form-control" value="20" />
                   <div class="help-block">Query radius from selected biorefinery location to lookup parcels for.</div>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label for="percentInput" class="col-sm-3 control-label">Parcel Selection (%)</label>
-                <div class="col-sm-9">
-                  <input type="number" id="percentInput" class="form-control" placeholder="%" value="30" />
-                  <div class="help-block">When parcels are loaded, percentage of parcels to randomly select for use with
-                    the biorefinery.</div>
-                </div>
-              </div>
             </div>
 
             <div style="text-align: center">
-              <a class="btn btn-success btn-lg" on-click="query" id="go">Go</a>
+              <a class="btn btn-success btn-lg" on-click="query" id="go">Find Parcels</a>
             </div>
 
           </div> <!-- end body -->
@@ -76,14 +68,14 @@
 
       resetGoBtn : function() {
         this.$.go.removeAttribute('disabled');
-        this.$.go.innerHTML = 'Go';
+        this.$.go.innerHTML = 'Find Parcels';
       },
 
       query : function() {
         this.$.go.setAttribute('disabled', 'disabled');
-        this.$.go.innerHTML = 'Go';
+        this.$.go.innerHTML = 'Find Parcels';
 
-        this.handler(parseInt(this.$.radiusInput.value), parseInt(this.$.percentInput.value));
+        this.handler(parseInt(this.$.radiusInput.value));
       },
 
       updateStatus : function(status) {

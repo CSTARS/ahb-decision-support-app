@@ -31,7 +31,7 @@
       },
 
       onShow : function() {
-        if( DSSDK.datastore.selectedParcels.length === 0 ) {
+        if( DSSDK.datastore.parcels.length === 0 ) {
           this.$.noResults.style.display = 'block';
         } else {
           this.$.noResults.style.display = 'none';
@@ -70,7 +70,7 @@
 
       update : function() {
         var tmp = [];
-        DSSDK.datastore.selectedParcels.forEach(function(f){
+        DSSDK.datastore.parcels.forEach(function(f){
           tmp.push(f);
         });
         this.parcels = tmp;

@@ -54,6 +54,14 @@
           <td><span id="potential"></span>% (<span id="asize"></span>) acres</td>
         </tr>
         <tr>
+          <td class="nlabel">Current Crop</td>
+          <td id="currentCrop"></td>
+        </tr>
+        <tr>
+          <td class="nlabel">Current Crop Total</td>
+          <td id="currentCropTotal"></td>
+        </tr>
+        <tr>
           <td class="nlabel">Harvest Data:</td>
           <td style="width: 80%">
             <div id="duration">You must grow the plants first :)</div>
@@ -115,9 +123,18 @@
       },
 
       onComplete : function() {
-        this.$.total.innerHTML = '<span class="label label-success">Total Harvest: ' +
+        var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * DSSDK.app.getPoplarPrice();
+
+        var label = 'success';
+        if( poplarTotal < this.parcel.properties.ucd.crop.total ) {
+          label = 'primary';
+        } else {
+          DSSDK.datastore.selectParcel(this.parcel);
+        }
+
+        this.$.total.innerHTML = '<span class="label label-'+label+'">Total Harvest: ' +
           Math.round(this.parcel.properties.ucd.harvest.totalHarvest)+' Mg, $'+
-          (this.parcel.properties.ucd.harvest.totalHarvest * DSSDK.app.getPoplarPrice()).toFixed(2)+'</span>';
+          (poplarTotal).toFixed(2)+'</span>';
 
         if( this.open && !this.chart ) {
           this.updateChart();
@@ -137,9 +154,19 @@
       updateChart : function() {
         if( !this.parcel.properties.ucd.harvest ) return;
 
+        var crop = this.parcel.properties.ucd.crop;
+
+        this.$.currentCrop.innerHTML = crop.name+', yield='+crop.yield+' '+crop.units+' , @ $'+crop.price+'/'+crop.units;
+        this.$.currentCropTotal.innerHTML = crop.total;
+
+        // over two years
+        var cropYield = crop.yield * this.parcel.properties.ucd.harvest.growArea * 2;
+
         var dt = new google.visualization.DataTable();
         dt.addColumn('string', 'Year'); // Implicit domain label col.
-        dt.addColumn('number', 'Yield');
+        dt.addColumn('number', '$ Poplar');
+        dt.addColumn({type: 'string', role: 'tooltip'});
+        dt.addColumn('number', '$ '+crop.name);
         dt.addColumn({type: 'string', role: 'tooltip'});
 
         var id = this.parcel.properties.ucd.modelProfileId;
@@ -153,7 +180,13 @@
         var c = 1;
 
         this.parcel.properties.ucd.harvest.harvests.forEach(function(h){
-          data.push([d.toLocaleDateString(), h, 'Yield: '+h+', $'+(h*price)]);
+          data.push([
+            d.toLocaleDateString(),
+            h*price,
+            'Yield: '+h+', $'+(h*price),
+            cropYield*crop.price,
+            'Yield: '+cropYield+', $'+(cropYield*crop.price)
+          ]);
           d.setFullYear(d.getFullYear()+2);
         });
         dt.addRows(data);
@@ -161,10 +194,6 @@
         this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
 
         var options = {
-          series: {
-            0: {targetAxisIndex: 0},
-            1: {targetAxisIndex: 1}
-          },
           width : $(this.$.chart).parent().width(),
           height: 300
         };

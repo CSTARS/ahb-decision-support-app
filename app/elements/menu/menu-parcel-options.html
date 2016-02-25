@@ -31,7 +31,7 @@
       },
 
       onShow : function() {
-        if( DSSDK.datastore.selectedParcels.length > 0 ) {
+        if( DSSDK.datastore.parcels.length > 0 ) {
           this.$.growBtn.removeAttribute('disabled');
         } else {
           this.$.growBtn.setAttribute('disabled', 'disabled');
@@ -44,7 +44,7 @@
         this.$.growBtn.setAttribute('disabled', 'disabled');
         this.$.growBtn.innerHTML = 'Starting...';
 
-        this.total = DSSDK.datastore.selectedParcels.length;
+        this.total = DSSDK.datastore.parcels.length;
         this.processed = 0;
         this.water = 0;
         this.soil = 0;
