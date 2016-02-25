@@ -123,6 +123,7 @@
       },
 
       onComplete : function() {
+        if( !this.parcel.properties.ucd.harvest ) return;
         var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * DSSDK.app.getPoplarPrice();
 
         var label = 'success';
@@ -135,6 +136,8 @@
         this.$.total.innerHTML = '<span class="label label-'+label+'">Total Harvest: ' +
           Math.round(this.parcel.properties.ucd.harvest.totalHarvest)+' Mg, $'+
           (poplarTotal).toFixed(2)+'</span>';
+
+        this.$.inner.innerHTML = '&nbsp;<span style="color:#888">'+this.parcel.properties.ucd.crop.name+"</span>";
 
         if( this.open && !this.chart ) {
           this.updateChart();

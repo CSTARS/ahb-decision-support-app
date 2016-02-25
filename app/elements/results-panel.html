@@ -8,8 +8,13 @@
 
     <table class="table">
       <tr>
-        <td>Adoption</td>
-        <td id="parcelPercent"></td>
+        <td style="width: 150px">Adoption</td>
+        <td>
+          <div class="layout horizontal">
+            <div id="parcelPercent"></div>
+            <div id="chart"></div>
+          </div>
+        </td>
       </tr>
       <tr>
         <td>Parcels</td>
@@ -48,17 +53,39 @@
 
         this.$.runtime.innerHTML = '('+years+' Years)';
 
+        var cropCounts = {};
+
         DSSDK.datastore.selectedParcels.forEach(function(parcel){
           var harvest = parcel.properties.ucd.harvest;
           if( !harvest ) return;
 
           totalAcres += harvest.growArea;
           totalHarvested += harvest.totalHarvest;
+
+          var crop = parcel.properties.ucd.crop;
+          if( cropCounts[crop.name] === undefined ) {
+            cropCounts[crop.name] = 0;
+          }
+          cropCounts[crop.name]++;
         });
 
         this.$.acreCount.innerHTML = this.getAmountLabel(totalAcres);
         this.$.harvestTotal.innerHTML = this.getAmountLabel(totalHarvested)+' Mg';
         this.$.avgPerYear.innerHTML = this.getAmountLabel(totalHarvested / years)+' Mg';
+
+        var data = [['Crop', 'Parcel Adoption']];
+        for( var key in cropCounts ) {
+          data.push([key, cropCounts[key]]);
+        }
+        console.log(data);
+
+        data = google.visualization.arrayToDataTable(data);
+        var options = {
+          title: 'Adoption By Crop',
+          height: 350
+        };
+        var chart = new google.visualization.PieChart(this.$.chart);
+        chart.draw(data, options);
       },
 
       getAmountLabel : function(val) {

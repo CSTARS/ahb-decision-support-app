@@ -96,6 +96,7 @@
         }.bind(this));
 
         this.menu.updateSelected();
+        this.canvasLayer.render();
       },
 
       findParcels : function(radius) {
@@ -216,8 +217,8 @@
         }
         ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-        ctx.strokeStyle = 'rgba(255,0,0,.8)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(255,0,0,.1)';
+        ctx.lineWidth = 1;
         ctx.stroke();
       },
 
