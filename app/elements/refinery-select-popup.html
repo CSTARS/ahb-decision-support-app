@@ -53,10 +53,10 @@
         this.popup = $(this.$.popup).remove();
         $('body').append(this.popup);
         this.popup.modal({show: false});
+        this.active = false;
       },
 
       show : function(lat, lng, goHandler) {
-        this.resetGoBtn();
         this.popup.modal('show');
         this.$.ll.innerHTML = lat.toFixed(4)+', '+lng.toFixed(4);
         this.handler = goHandler;
@@ -66,16 +66,20 @@
         this.popup.modal('hide');
       },
 
-      resetGoBtn : function() {
-        this.$.go.removeAttribute('disabled');
-        this.$.go.innerHTML = 'Find Parcels';
-      },
-
       query : function() {
+        if( this.active ) return;
+        
+        this.active = true;
         this.$.go.setAttribute('disabled', 'disabled');
         this.$.go.innerHTML = 'Find Parcels';
 
         this.handler(parseInt(this.$.radiusInput.value));
+      },
+
+      onQueryComplete : function() {
+        this.active = false;
+        this.$.go.removeAttribute('disabled');
+        this.$.go.innerHTML = 'Find Parcels';
       },
 
       updateStatus : function(status) {

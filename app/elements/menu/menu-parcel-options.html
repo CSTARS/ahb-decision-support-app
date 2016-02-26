@@ -59,6 +59,10 @@
         DSSDK.app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
       },
 
+      setPoplarPrice : function(price) {
+        this.$.poplarPriceInput.value = price;
+      },
+
       onWeatherFound : function(e) {
         this.water++;
         this.$.growBtn.innerHTML = 'Weather Lookup... '+Math.floor((this.water / this.total)*100)+'%';

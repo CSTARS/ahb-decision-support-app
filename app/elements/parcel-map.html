@@ -47,6 +47,11 @@
               attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
 
+          L.esri.dynamicMapLayer({
+            url: 'https://conifer.gis.washington.edu/arcgis/rest/services/AHBNW/AHBNW_20151009_parcel_featureAccess/MapServer',
+            opacity: 0.5
+          }).addTo(this.map);
+
           this.canvasLayer = new L.CanvasGeojsonLayer({
             /*onMouseOver : function(features) {
               markerSelector.hover(features);
@@ -130,6 +135,7 @@
           }
 
           this.menu.updateSelected();
+          this.popup.onQueryComplete();
           this.popup.hide();
         }.bind(this), this.onParcelQueryUpdate.bind(this));
       },
@@ -183,6 +189,7 @@
 
       polyRenderer : function(ctx, xyPoints, map, feature) {
         var render = feature.geojson.properties.ucd.render;
+        if( !render.selected ) return;
 
         var point;
         if( xyPoints.length <= 1 ) return;
@@ -196,11 +203,11 @@
         }
         ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-        ctx.strokeStyle = 'rgba(255,255,255,.8)';
+        ctx.strokeStyle = 'rgba(255,0,0,.6)';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.fillStyle = render.selected ? 'rgba(0,0,255,.4)' : 'rgba(200,200,200,.4)' ;
+        ctx.fillStyle = 'rgba(255,255,255,.6)';
         ctx.fill();
       },
 

@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <template is="dom-repeat" items="{{parcels}}">
+    <template is="dom-repeat" items="{{parcels}}" id="list" initial-count="20">
       <parcel-list-item parcel="{{item}}"></parcel-list-item>
     </template>
 
@@ -69,11 +69,7 @@
       },
 
       update : function() {
-        var tmp = [];
-        DSSDK.datastore.parcels.forEach(function(f){
-          tmp.push(f);
-        });
-        this.parcels = tmp;
+        this.set('parcels', DSSDK.datastore.parcels);
       }
     });
   </script>

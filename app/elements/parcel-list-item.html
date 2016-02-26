@@ -107,6 +107,12 @@
         this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
         this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
+
+        if( this.parcel.properties.ucd && this.parcel.properties.ucd.modelProfileId ) {
+          this.onComplete();
+        } else {
+          this.$.total.innerHTML = '<span class="label label-warning">Not Grown</span>';
+        }
       },
 
       init : function() {
@@ -123,7 +129,7 @@
       },
 
       onComplete : function() {
-        if( !this.parcel.properties.ucd.harvest ) return;
+        if( !this.parcel.properties.ucd.modelProfileId ) return;
         var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * DSSDK.app.getPoplarPrice();
 
         var label = 'success';
@@ -155,7 +161,7 @@
       },
 
       updateChart : function() {
-        if( !this.parcel.properties.ucd.harvest ) return;
+        if( !this.parcel.properties.ucd.harvest.modelProfileId ) return;
 
         var crop = this.parcel.properties.ucd.crop;
 

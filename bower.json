@@ -16,6 +16,7 @@
     "polymer": "~1.2.4",
     "leaflet": "~0.7.7",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#~1.2.3",
-    "bootswatch-dist": "paper"
+    "bootswatch-dist": "paper",
+    "esri-leaflet": "~1.0.3"
   }
 }

@@ -8,6 +8,12 @@
 
     <table class="table">
       <tr>
+        <td style="width: 150px">Price</td>
+        <td>
+          <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
+        </td>
+      </tr>
+      <tr>
         <td style="width: 150px">Adoption</td>
         <td>
           <div class="layout horizontal">
@@ -77,7 +83,6 @@
         for( var key in cropCounts ) {
           data.push([key, cropCounts[key]]);
         }
-        console.log(data);
 
         data = google.visualization.arrayToDataTable(data);
         var options = {
@@ -91,6 +96,14 @@
       getAmountLabel : function(val) {
         val = Math.floor(val)+'';
         return val.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+      },
+
+      onPriceChange : function() {
+        DSSDK.app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
+      },
+
+      setPoplarPrice : function(price) {
+        this.$.poplarPriceInput.value = price;
       }
     });
   </script>

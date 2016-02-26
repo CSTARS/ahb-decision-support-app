@@ -16,6 +16,9 @@ DSSDK.app.grow = function(callback) {
 DSSDK.app.setPoplarPrice = function(price) {
   this.price = price;
 
+  document.querySelector('results-panel').setPoplarPrice(price);
+  document.querySelector('menu-parcel-options').setPoplarPrice(price);
+
   if( this.grown ) {
     DSSDK.datastore.resetSelectedParcels();
     var eles = document.querySelectorAll('parcel-list-item');
