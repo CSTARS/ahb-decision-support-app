@@ -1,0 +1,27 @@
+{
+
+    "middleware": {
+        "static": {
+            "module": {
+                "arguments": [ "path:./dist" ]
+            }
+        },
+
+        "router": {
+            "module": {
+                "arguments": [{ "directory": "path:./controllers" }]
+            }
+        },
+        "appsec": {
+            "module": {
+                "arguments": [{ "csrf":false }]
+            }
+        }
+    },
+
+
+    "postgres" : {
+      "url" : "postgres://username:password@localhost/database",
+      "schema" : "foo"
+    }
+}

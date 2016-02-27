@@ -9,6 +9,8 @@
   "author": "Justin Merz <jrmerz@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.13.4",
+    "kraken-js": "^2.1.0",
     "leaflet-canvas-geojson": "github:ucd-cws/leaflet-canvas-geojson"
   },
   "devDependencies": {
