@@ -11,7 +11,8 @@
   "dependencies": {
     "express": "^4.13.4",
     "kraken-js": "^2.1.0",
-    "leaflet-canvas-geojson": "github:ucd-cws/leaflet-canvas-geojson"
+    "leaflet-canvas-geojson": "github:ucd-cws/leaflet-canvas-geojson",
+    "pg": "^4.5.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
