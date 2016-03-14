@@ -17,7 +17,7 @@ ALL=""
 for i in "${FILES[@]}"
 do
   java -Xmx1408m -jar osm2po/osm2po-core-5.1.0-signed.jar cmd=c workDir=data/$i prefix=$i tileSize=x,c $DATAROOT$i-latest.osm.pbf
-  ALL=$ALL" "$i
+  ALL=$ALL" data/"$i
 done
 
 # merge each state into $DEST.  fires up test server when completed
