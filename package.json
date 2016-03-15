@@ -5,17 +5,20 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev" : "node index.js --dev",
-    "build" : "grunt build",
-    "prod" : "node index.js"
+    "dev": "node index.js --dev",
+    "build": "grunt build",
+    "prod": "node index.js"
   },
   "author": "Justin Merz <jrmerz@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "async": "^1.5.2",
     "express": "^4.13.4",
+    "extend": "^3.0.0",
     "kraken-js": "^2.1.0",
     "leaflet-canvas-geojson": "github:ucd-cws/leaflet-canvas-geojson",
-    "pg": "^4.5.1"
+    "pg": "^4.5.1",
+    "superagent": "^1.8.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

@@ -1,7 +1,7 @@
 app/bower_components
 transportation/data/*
 transportation/osm2po/*
-
+transportation/server/*
 
 # Logs
 logs

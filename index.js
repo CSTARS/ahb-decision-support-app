@@ -1,8 +1,10 @@
 'use strict';
 
 var express = require('express');
+var bodyParser = require('body-parser');
 var kraken = require('kraken-js');
 var fs = require('fs');
+var configmodule = require('./lib/config');
 
 var options, app;
 
@@ -20,12 +22,16 @@ options = {
           console.log('Servering ./app');
         }
 
+        // set a global accessable module
+        configmodule.set(config);
+
         next(null, config);
     }
 };
 
 app = express();
 app.use(kraken(options));
+app.use(bodyParser.json({limit: '150mb'}));
 app.on('start', function () {
     console.log('Application ready to serve requests.');
     console.log('Environment: %s', app.kraken.get('env:env'));
@@ -34,6 +40,7 @@ app.on('start', function () {
 var http = require('http');
 var server = http.createServer(app);
 server.listen(process.env.PORT || 8000);
+server.timeout = 5 * 60 * 1000;
 server.on('listening', function () {
     console.log('Server listening on http://localhost:%d', this.address().port);
 });

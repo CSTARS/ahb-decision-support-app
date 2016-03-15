@@ -1,14 +1,38 @@
 DSSDK.app = {};
 
+(function(){
+  var listeners = [];
+  DSSDK.app.setOnCompleteListener = function(fn) {
+    listeners.push(fn);
+  };
+  DSSDK.app.getOnCompleteListeners = function() {
+    return listeners;
+  };
+})();
+
 DSSDK.app.grow = function(callback) {
+  var c = 0;
+  function onComplete() {
+    c++;
+    if( c === 2 ) {
+      DSSDK.app.grown = true;
+      DSSDK.app.getOnCompleteListeners().forEach(function(fn){
+        fn();
+      });
+      callback();
+    }
+  }
+
+  DSSDK.datastore.getTransportation(onComplete);
+
+  // run at the same time as transportation
   DSSDK.datastore.getWeather(function(weather){
     DSSDK.datastore.getSoil(function(soil){
-      DSSDK.datastore.getTransportation(function(){
-        DSSDK.datastore.getCropTypes(function(){
-          DSSDK.model.growAll(true, callback);
-          DSSDK.app.grown = true;
-        });
+      
+      DSSDK.datastore.getCropTypes(function(){
+        DSSDK.model.growAll(true, onComplete);
       });
+
     });
   });
 };

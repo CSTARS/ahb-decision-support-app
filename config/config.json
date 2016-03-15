@@ -23,5 +23,10 @@
     "postgres" : {
       "url" : "postgres://username:password@localhost/database",
       "schema" : "foo"
+    },
+
+    "osm2po" : {
+      "host" : "http://localhost",
+      "port" : 5001
     }
 }

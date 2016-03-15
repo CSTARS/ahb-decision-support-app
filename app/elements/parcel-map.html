@@ -24,7 +24,8 @@
         this.popup = document.createElement('refinery-select-popup');
         document.body.appendChild(this.popup);
 
-        DSSDK.model.on('harvests-complete', this.onSelectedUpdated.bind(this));
+        //DSSDK.model.on('harvests-complete', this.onSelectedUpdated.bind(this));
+        DSSDK.app.setOnCompleteListener(this.onSelectedUpdated.bind(this));
       },
 
       onShow : function() {
@@ -53,10 +54,10 @@
           }).addTo(this.map);
 
           this.canvasLayer = new L.CanvasGeojsonLayer({
-            /*onMouseOver : function(features) {
-              markerSelector.hover(features);
-              updateMouse(markerLayer._container, markerLayer.intersectList);
-            }.bind(this),
+            /*,onMouseOver : function(features) {
+              //markerSelector.hover(features);
+              //updateMouse(markerLayer._container, markerLayer.intersectList);
+            }.bind(this)
             onMouseOut : function(features) {
               markerSelector.nohover(features);
               updateMouse(markerLayer._container, markerLayer.intersectList);
@@ -80,6 +81,8 @@
         this.popup.show(this.ll.lat, this.ll.lng, this.findParcels.bind(this));
       },
 
+      // TODO: bind to this
+      // DSSDK.datastore.on('transportation-updated', this.renderRoads);
       onSelectedUpdated : function() {
         for( var i = this.canvasLayer.features.length-1; i >= 0; i-- ) {
           var geo = this.canvasLayer.features[i].geojson.geometry;
@@ -88,17 +91,66 @@
           }
         }
 
+        this.currentNetwork = {};
         DSSDK.datastore.parcels.forEach(function(parcel){
           if( DSSDK.datastore.selectedParcels.indexOf(parcel) > -1 ) {
             parcel.properties.ucd.render.selected = true;
-            this.canvasLayer.addFeature({
-              geojson : parcel.properties.ucd.transportation,
-              render : this.lineRenderer.bind(this)
-            });
           } else {
             parcel.properties.ucd.render.selected = false;
+            return;
           }
+
+          if( parcel.properties.ucd.transportation.properties.error ) {
+            return;
+          }
+
+          // set the current network
+          var path = parcel.properties.ucd.transportation.properties.path;
+          path.forEach(function(id){
+            if( this.currentNetwork[id] === undefined ) {
+              this.currentNetwork[id] = 1;
+            } else {
+              this.currentNetwork[id]++;
+            }
+          }.bind(this));
+
+          // render a line for shortest path vertex to feature centroid
+          var f = DSSDK.datastore.network[path[0]];
+          var feature = {
+            type : 'Feature',
+            geometry : {
+              type : 'LineString',
+              coordinates : [
+                f.geometry.coordinates[0],
+                parcel.properties.ucd.center
+              ]
+            },
+            properties : {
+              type : 'start'
+            }
+          };
+
+          if( feature.geometry.coordinates[0] === undefined || feature.geometry.coordinates[1] === undefined ) {
+            console.log(feature);
+            return;
+          }
+
+          this.canvasLayer.addFeature({
+            geojson : feature,
+            render : this.lineRenderer.bind(this)
+          });
         }.bind(this));
+
+        for( var id in this.currentNetwork ) {
+          var feature = DSSDK.datastore.network[id];
+          if( feature.properties.error ) {
+            return;
+          }
+          this.canvasLayer.addFeature({
+            geojson : feature,
+            render : this.lineRenderer.bind(this)
+          });
+        }
 
         this.menu.updateSelected();
         this.canvasLayer.render();
@@ -191,8 +243,21 @@
         var render = feature.geojson.properties.ucd.render;
         if( !render.selected ) return;
 
+        if( feature.geojson.geometry.type === 'MultiPolygon' ) {
+          xyPoints.forEach(function(points){
+            this.drawPolygon(ctx, points, feature);
+          }.bind(this));
+        } else {
+          this.drawPolygon(ctx, xyPoints, feature);
+        }
+      },
+
+      drawPolygon : function(ctx, xyPoints, feature) {
         var point;
-        if( xyPoints.length <= 1 ) return;
+        if( xyPoints.length <= 1 ) {
+          console.log('1 point path!');
+          return;
+        }
 
         ctx.beginPath();
 
@@ -203,7 +268,12 @@
         }
         ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-        ctx.strokeStyle = 'rgba(255,0,0,.6)';
+        if( feature.geojson.properties.ucd.transportation.properties.error ) {
+          ctx.strokeStyle = 'rgba(255,0,0,.6)';
+        } else {
+          ctx.strokeStyle = 'rgba(0,0,255,.6)';
+        }
+
         ctx.lineWidth = 2;
         ctx.stroke();
 
@@ -222,10 +292,23 @@
         for( var i = 1; i < xyPoints.length; i++ ) {
           ctx.lineTo(xyPoints[i].x, xyPoints[i].y);
         }
-        ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-        ctx.strokeStyle = 'rgba(255,0,0,.1)';
-        ctx.lineWidth = 1;
+        if( feature.geojson.properties.type === 'start') {
+          ctx.strokeStyle = 'rgba(100,100,100,.6)';
+        } else {
+          var use = DSSDK.datastore.networkUse[feature.geojson.properties.id];
+          var p = use / DSSDK.datastore.maxNetworkUse;
+
+          if( p < 0.333 ) {
+            ctx.strokeStyle = 'rgba(0,255,0,.6)';
+          } else if ( p > 0.666 ) {
+            ctx.strokeStyle = 'rgba(255,0,0,.6)';
+          } else {
+            ctx.strokeStyle = 'rgba(255,255,0,.6';
+          }
+        }
+
+        ctx.lineWidth = 4;
         ctx.stroke();
       },
 
