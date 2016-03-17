@@ -4,7 +4,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var kraken = require('kraken-js');
 var fs = require('fs');
-var configmodule = require('./lib/config');
 
 var options, app;
 
@@ -23,9 +22,11 @@ options = {
         }
 
         // set a global accessable module
-        configmodule.set(config);
-
-        next(null, config);
+        require('./lib/config').set(config);
+        require('./lib/pg').connect(function(){
+          var model = require('./models/weather')();
+          next(null, config);
+        });
     }
 };
 

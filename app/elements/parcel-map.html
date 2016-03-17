@@ -282,15 +282,21 @@
       },
 
       lineRenderer : function(ctx, xyPoints, map, feature) {
-        var point;
+        var point, last;
         if( xyPoints.length <= 1 ) return;
 
         ctx.beginPath();
 
         point = xyPoints[0];
         ctx.moveTo(point.x, point.y);
+        last = point;
         for( var i = 1; i < xyPoints.length; i++ ) {
-          ctx.lineTo(xyPoints[i].x, xyPoints[i].y);
+          point = xyPoints[i];
+          if( point.x === last.x && point.y === last.y ) {
+            continue;
+          }
+          ctx.lineTo(point.x, point.y);
+          last = point;
         }
 
         if( feature.geojson.properties.type === 'start') {
