@@ -13,7 +13,7 @@ DSSDK.app = {};
 DSSDK.app.run = function(lat, lng, radius, callback) {
 
   // open a socket for transportation updates
-  var socket = io.connect('http://localhost:8000');
+  var socket = io.connect('http://'+window.location.host);
 
   DSSDK.app.runConsole.onStart(lat, lng, radius, socket);
 
