@@ -33,17 +33,14 @@
     </style>
 
     <h5>
+      <div id="name"></div>
       <div class="layout horizontal center">
-        <div>
-          <a id="expand" on-click="toggle"><i class="fa fa-chevron-circle-right"></i></a>
-        </div>
-        <div id="name"></div>
         <div id="inner" class="flex"></div>
         <div id="total"><span class="label label-warning">Not Grown</span></div>
       </div>
     </h5>
 
-    <div id="details" style="display:none">
+    <div id="details" >
       <table class="table">
         <tr>
           <td class="nlabel">Parcel Size:</td>
@@ -87,10 +84,6 @@
         }
       },
 
-      ready : function() {
-        this.open = false;
-      },
-
       onParcelUpdate : function() {
         if( !this.parcel ) return;
         this.parcelId = this.parcel.properties.PolyID;
@@ -115,19 +108,6 @@
         }
       },
 
-      init : function() {
-        this.$.duration.innerHTML = '';
-        this.$.total.innerHTML = '<span class="label label-default">Finding Weather...</span>';
-      },
-
-      onWeatherFound : function() {
-        this.$.total.innerHTML = '<span class="label label-default">Finding Soil...</span>';
-      },
-
-      onSoilFound : function() {
-        this.$.total.innerHTML = '<span class="label label-default">Growing Poplar...</span>';
-      },
-
       onComplete : function() {
         if( !this.parcel.properties.ucd.modelProfileId ) return;
         var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * DSSDK.app.getPoplarPrice();
@@ -145,19 +125,7 @@
 
         this.$.inner.innerHTML = '&nbsp;<span style="color:#888">'+this.parcel.properties.ucd.crop.name+"</span>";
 
-        if( this.open && !this.chart ) {
-          this.updateChart();
-        }
-      },
-
-      toggle : function(e) {
-        $(e.currentTarget).toggleClass('open');
-        $(this.$.details).toggle('slow', function(){
-          if( this.open && !this.chart ) {
-            setTimeout(this.updateChart.bind(this), 300);
-          }
-        }.bind(this));
-        this.open = !this.open;
+        setTimeout(this.updateChart.bind(this), 300);
       },
 
       updateChart : function() {
@@ -165,8 +133,8 @@
 
         var crop = this.parcel.properties.ucd.crop;
 
-        this.$.currentCrop.innerHTML = crop.name+', yield='+crop.yield+' '+crop.units+' , @ $'+crop.price+'/'+crop.units;
-        this.$.currentCropTotal.innerHTML = crop.total;
+        this.$.currentCrop.innerHTML = crop.name+', yield='+crop.yield.toFixed(2)+' '+crop.units+' , @ $'+crop.price.toFixed(2)+'/'+crop.units;
+        this.$.currentCropTotal.innerHTML = crop.total.toFixed(2);
 
         // over two years
         var cropYield = crop.yield * this.parcel.properties.ucd.harvest.growArea * 2;
@@ -204,7 +172,10 @@
 
         var options = {
           width : $(this.$.chart).parent().width(),
-          height: 300
+          height: 300,
+          legend : {
+            position: 'top'
+          }
         };
         var chart = new google.visualization.LineChart(this.$.chart);
         chart.draw(dt, options);

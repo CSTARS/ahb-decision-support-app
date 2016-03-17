@@ -10,31 +10,47 @@ DSSDK.app = {};
   };
 })();
 
-DSSDK.app.grow = function(callback) {
+DSSDK.app.run = function(lat, lng, radius, callback) {
+
+  // open a socket for transportation updates
+  var socket = io.connect('http://localhost:8000');
+
+  DSSDK.app.runConsole.onStart(lat, lng, radius, socket);
+
   var c = 0;
   function onComplete() {
     c++;
     if( c === 2 ) {
       DSSDK.app.grown = true;
+
+      DSSDK.datastore.selectParcels();
+
       DSSDK.app.getOnCompleteListeners().forEach(function(fn){
         fn();
       });
+
+      socket.disconnect();
+      DSSDK.app.runConsole.onEnd();
       callback();
     }
   }
 
-  DSSDK.datastore.getTransportation(onComplete);
+  DSSDK.datastore.getParcels(lat, lng, radius, function(){
+    DSSDK.datastore.getTransportation(socket.id, onComplete);
 
-  // run at the same time as transportation
-  DSSDK.datastore.getWeather(function(weather){
-    DSSDK.datastore.getSoil(function(soil){
-      
-      DSSDK.datastore.getCropTypes(function(){
-        DSSDK.model.growAll(true, onComplete);
+    // run at the same time as transportation
+    DSSDK.datastore.getWeather(function(weather){
+      DSSDK.datastore.getSoil(function(soil){
+
+        DSSDK.datastore.getCropTypes(function(){
+          DSSDK.model.growAll(true, onComplete);
+        });
+
       });
-
     });
   });
+
+
 };
 
 DSSDK.app.setPoplarPrice = function(price) {

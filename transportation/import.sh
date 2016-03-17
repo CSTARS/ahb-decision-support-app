@@ -28,7 +28,7 @@ fi
 ALL=""
 for i in "${FILES[@]}"
 do
-  $EXEC cmd=tj workDir=data/$i prefix=$i tileSize=x,c $DATAROOT$i-latest.osm.pbf
+#  $EXEC cmd=tj workDir=data/$i prefix=$i tileSize=x,c $DATAROOT$i-latest.osm.pbf
   ALL=$ALL" data/"$i
 done
 

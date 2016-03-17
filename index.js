@@ -42,6 +42,9 @@ var http = require('http');
 var server = http.createServer(app);
 server.listen(process.env.PORT || 8000);
 server.timeout = 5 * 60 * 1000;
+
+require('./lib/socket').init(server);
+
 server.on('listening', function () {
     console.log('Server listening on http://localhost:%d', this.address().port);
 });

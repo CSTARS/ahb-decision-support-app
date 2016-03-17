@@ -1,6 +1,7 @@
 var async = require('async');
 var extend = require('extend');
 var proxy = require('./proxy');
+var socket = require('../../lib/socket');
 
 module.exports = function() {
   return {
@@ -16,7 +17,16 @@ module.exports = function() {
 function getRoutes(sources, destination, options, callback) {
   var result = init();
   var destinationVertex;
-  var ids = {};
+  var ids = {}, currentSocket;
+
+  if( options.socketId ) {
+    var s = socket.get(options.socketId);
+    if( s ) {
+      currentSocket = s;
+    } else {
+      console.log('SocketId not found: '+options.socketId);
+    }
+  }
 
   proxy.findClosestVertex(destination.geometry, function(err, vertex){
     if( err ) {
@@ -25,11 +35,16 @@ function getRoutes(sources, destination, options, callback) {
 
     destinationVertex = vertex;
     var cache = {};
+    var c = 0;
 
     async.eachSeries(
       sources.features,
       function(source, next) {
         findPath(source, destinationVertex, cache, function(err, pathresult){
+
+          c++;
+          sendUpdate(c, sources.features.length, currentSocket);
+
           if( err ) {
             result.paths.features.push(createErrorFeature(err));
             return next();
@@ -186,4 +201,20 @@ function init() {
       features : []
     }
   };
+}
+
+function sendUpdate(c, total, currentSocket) {
+  if( !currentSocket ) return;
+  if( c % 100 !== 0 ) return;
+  try {
+    var p = Math.floor((c/total) * 100);
+    currentSocket.emit('transportation-update', {
+      complete: c,
+      total : total,
+      percent : p
+    });
+  } catch(e) {
+
+  }
+
 }

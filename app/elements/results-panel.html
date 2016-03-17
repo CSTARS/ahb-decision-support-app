@@ -46,7 +46,7 @@
       is: 'results-panel',
 
       ready : function() {
-        DSSDK.model.on('harvests-complete', this.update.bind(this));
+        DSSDK.app.setOnCompleteListener(this.update.bind(this));
       },
 
       update : function() {

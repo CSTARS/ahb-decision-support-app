@@ -24,8 +24,11 @@
         this.popup = document.createElement('refinery-select-popup');
         document.body.appendChild(this.popup);
 
-        //DSSDK.model.on('harvests-complete', this.onSelectedUpdated.bind(this));
+        this.parcelPopup = document.createElement('parcel-info-popup');
+        document.body.appendChild(this.parcelPopup);
+
         DSSDK.app.setOnCompleteListener(this.onSelectedUpdated.bind(this));
+        DSSDK.datastore.on('parcels-update-end', this.onParcelsLoaded.bind(this));
       },
 
       onShow : function() {
@@ -48,10 +51,12 @@
               attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
 
-          L.esri.dynamicMapLayer({
+          var layer = L.esri.dynamicMapLayer({
             url: 'https://conifer.gis.washington.edu/arcgis/rest/services/AHBNW/AHBNW_20151009_parcel_featureAccess/MapServer',
             opacity: 0.5
           }).addTo(this.map);
+
+          L.control.layers({}, {Parcels: layer}).addTo(this.map);
 
           this.canvasLayer = new L.CanvasGeojsonLayer({
             /*,onMouseOver : function(features) {
@@ -62,7 +67,7 @@
               markerSelector.nohover(features);
               updateMouse(markerLayer._container, markerLayer.intersectList);
             }.bind(this),*/
-            //onClick : this.onFeaturesClicked.bind(this)
+            onClick : this.onFeaturesClicked.bind(this)
           });
           this.canvasLayer.addTo(this.map);
         }
@@ -72,13 +77,24 @@
         this.style.height = ($(window).height()-50)+'px';
       },
 
+      onFeaturesClicked : function(features) {
+        if( this.mode === 'set' ) return;
+
+        for( var i = 0; i < features.length; i++ ) {
+          if( features[i].properties.ucd ) {
+            this.parcelPopup.show(features[i]);
+            return;
+          }
+        }
+      },
+
       onClick : function(e) {
         if( this.mode != 'set' ) {
           return;
         }
 
         this.ll = e.latlng;
-        this.popup.show(this.ll.lat, this.ll.lng, this.findParcels.bind(this));
+        this.popup.show(this.ll.lat, this.ll.lng);
       },
 
       // TODO: bind to this
@@ -90,6 +106,15 @@
             this.canvasLayer.features.splice(i, 1);
           }
         }
+
+        // actually hide the parcel at the canvas layer... thus no geometry recalc
+        this.canvasLayer.features.forEach(function(clFeature){
+          if( DSSDK.datastore.selectedParcels.indexOf(clFeature.geojson) === -1 ) {
+            clFeature.visible = false;
+          } else {
+            clFeature.visible = true;
+          }
+        });
 
         this.currentNetwork = {};
         DSSDK.datastore.parcels.forEach(function(parcel){
@@ -156,70 +181,25 @@
         this.canvasLayer.render();
       },
 
-      findParcels : function(radius) {
-        this.radius = radius*1000;
+      onParcelsLoaded : function() {
+        this.canvasLayer.features = [];
 
-        if( this.radius < 1000 ) this.radius = 1000;
-        if( this.radius > 50000 ) this.radius = 50000;
+        DSSDK.datastore.parcels.forEach(function(parcel){
+          this.canvasLayer.addFeature(this.canvasLayerFeature(parcel));
+        }.bind(this));
 
-        this.menu.setInfo(this.ll.lat, this.ll.lng, this.radius);
+        this.canvasLayer.render();
 
-        console.log('Finding parcels '+this.ll.lat+', '+this.ll.lng+' @ '+(this.radius/1000)+'km radius ...');
-        DSSDK.datastore.getParcels(this.ll.lat, this.ll.lng, this.radius, function(err, parcels){
-          if( err ) {
-            console.log(err);
-          }
+        if( DSSDK.datastore.parcels.length > 0 ) {
+          this.mode = 'select';
+          this.menu.setMode(this.mode);
+        }
 
-          //DSSDK.datastore.randomizeSelected(this.rand);
-
-          console.log('Total Parcels: '+DSSDK.datastore.parcels.length);
-          //console.log('Selected Parcels: '+DSSDK.datastore.selectedParcels.length);
-
-          this.canvasLayer.features = [];
-          DSSDK.datastore.parcels.forEach(function(parcel){
-            this.canvasLayer.addFeature(this.canvasLayerFeature(parcel));
-          }.bind(this));
-          this.canvasLayer.render();
-
-          if( DSSDK.datastore.parcels.length > 0 ) {
-            this.mode = 'select';
-            this.menu.setMode(this.mode);
-          }
-
-          this.menu.updateSelected();
-          this.popup.onQueryComplete();
-          this.popup.hide();
-        }.bind(this), this.onParcelQueryUpdate.bind(this));
+        this.menu.updateSelected();
       },
 
       onParcelQueryUpdate : function(percent) {
         this.popup.updateStatus(percent);
-      },
-
-      onFeaturesClicked : function(features) {
-        if( this.mode != 'select' ) return;
-
-        features.forEach(function(feature){
-          var selected = feature.properties.ucd.render.selected;
-
-          if( selected ) {
-            var index = DSSDK.datastore.selectedParcels.indexOf(feature);
-            DSSDK.datastore.splice(selected, 1);
-          } else {
-            DSSDK.datastore.selectedParcels.push(feature);
-          }
-
-          feature.properties.ucd.render.selected = !selected;
-        });
-
-        var newArray = [];
-        DSSDK.datastore.selectedParcels.forEach(function(f){
-          newArray.push(f);
-        });
-        DSSDK.datastore.selectedParcels = newArray;
-
-        this.canvasLayer.render();
-        this.menu.updateSelected();
       },
 
       canvasLayerFeature : function(parcel) {
@@ -227,21 +207,19 @@
           parcel.properties.ucd.render = {};
         }
 
-        if( DSSDK.datastore.selectedParcels.indexOf(parcel) > -1 ) {
-          parcel.properties.ucd.render.selected = true;
-        } else {
-          parcel.properties.ucd.render.selected = false;
-        }
-
         return {
           geojson : parcel,
-          render : this.polyRenderer.bind(this)
+          render : this.polyRenderer.bind(this),
+          visible : false
         };
       },
 
       polyRenderer : function(ctx, xyPoints, map, feature) {
         var render = feature.geojson.properties.ucd.render;
-        if( !render.selected ) return;
+        if( !render.selected ) {
+          console.log(feature.geojson);
+          return;
+        }
 
         if( feature.geojson.geometry.type === 'MultiPolygon' ) {
           xyPoints.forEach(function(points){

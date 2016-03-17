@@ -1,0 +1,116 @@
+<dom-module id="model-run-console">
+  <template>
+    <style>
+      :host {
+        display: none;
+        border: 1px solid #aaa;
+        padding: 10px;
+        background-color: #333;
+        color: white;
+      }
+    </style>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'model-run-console',
+
+      ready : function() {
+        DSSDK.app.runConsole = this;
+        this.lines = {};
+
+        DSSDK.datastore.on('transportation-update-start', this.onTransportationStart.bind(this));
+        DSSDK.datastore.on('transportation-update-end', this.onTransportationEnd.bind(this));
+        DSSDK.datastore.on('weather-update-start', this.onWeatherStart.bind(this));
+        DSSDK.datastore.on('weather-update-end', this.onWeatherEnd.bind(this));
+        DSSDK.datastore.on('soil-update-start', this.onSoilStart.bind(this));
+        DSSDK.datastore.on('soil-update-end', this.onSoilEnd.bind(this));
+        DSSDK.datastore.on('parcels-update-start', this.onParcelStart.bind(this));
+        DSSDK.datastore.on('parcels-update-end', this.onParcelEnd.bind(this));
+        DSSDK.model.on('harvests-start', this.onHarvestsStart.bind(this));
+        DSSDK.model.on('harvests-updated', this.onHarvestsUpdated.bind(this));
+        DSSDK.model.on('harvests-end', this.onHarvestsEnd.bind(this));
+      },
+
+      onStart : function(lat, lng, radius, socket) {
+        this.innerHTML = '';
+        this.style.display = 'block';
+        this.createLine('start', 'Starting Model Run @ '+lat.toFixed(4)+','+lng.toFixed()+' radius='+(radius/1000)+'km');
+
+        socket.on('transportation-update', this.onTransportationUpdate.bind(this));
+      },
+
+      onEnd : function() {
+        this.createLine('end', 'Finished.');
+      },
+
+      onHarvestsStart : function() {
+        this.createLine('harvest', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Growing Poplar %0</span>');
+      },
+
+      onHarvestsUpdated : function(e) {
+        this.updateLine('harvest', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Growing Poplar %'+e.percent+'</span>');
+      },
+
+      onHarvestsEnd : function() {
+        this.updateLine('harvest', '<span class="text text-success"><i class="fa fa-check"></i> Poplar grown</span>');
+      },
+
+      onParcelStart : function() {
+        this.createLine('parcel', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Finding available parcels</span>');
+      },
+
+      onParcelEnd : function(e) {
+        this.updateLine('parcel', '<span class="text text-success"><i class="fa fa-check"></i> Parcels loaded. '+e.length+' Found.</span>');
+      },
+
+      onTransportationStart : function() {
+        this.createLine('transportation', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up transportation routes %0</span>');
+      },
+
+      onTransportationUpdate : function(e) {
+        this.updateLine('transportation', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up transportation routes %'+e.percent+'</span>');
+      },
+
+      onTransportationEnd : function() {
+        this.updateLine('transportation', '<span class="text text-success"><i class="fa fa-check"></i> Transportation routes loaded</span>');
+      },
+
+      onWeatherStart : function() {
+        this.createLine('weather', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Loading weather data</span>');
+      },
+
+      onWeatherEnd : function() {
+        this.updateLine('weather', '<span class="text text-success"><i class="fa fa-check"></i> Weather loaded</span>');
+      },
+
+      onSoilStart : function() {
+        this.createLine('soil', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Loading soil data</span>');
+      },
+
+      onSoilEnd : function() {
+        this.updateLine('soil', '<span class="text text-success"><i class="fa fa-check"></i> Soil loaded</span>');
+      },
+
+      createLine : function(id, msg) {
+        if( msg === undefined ) {
+          var ele = document.createElement('div');
+          ele.innerHTML = id;
+          this.appendChild(ele);
+        }
+
+        this.lines[id] = document.createElement('div');
+        this.lines[id].innerHTML = msg;
+        this.appendChild(this.lines[id]);
+      },
+
+      updateLine : function(id, msg) {
+        if( !this.lines[id] ) {
+          return;
+        }
+        this.lines[id].innerHTML = msg;
+      }
+    });
+  </script>
+</dom-module>
+soil

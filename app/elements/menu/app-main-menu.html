@@ -1,5 +1,4 @@
 <link rel="import" href="menu-map-options.html" />
-<link rel="import" href="menu-parcel-options.html" />
 
 <dom-module id="app-main-menu">
   <template>
@@ -37,12 +36,7 @@
       <div id="map-content" class="content flex" style="display:block">
         <menu-map-options></menu-map-options>
       </div>
-      <div id="list-header" class="header" on-click="setPage" page="list">
-        <h4><i class="fa fa-leaf"></i> Grow</h4>
-      </div>
-      <div id="list-content" class="content flex">
-        <menu-parcel-options></menu-parcel-options>
-      </div>
+
       <div id="results-header" class="header" on-click="setPage" page="results">
         <h4><i class="fa fa-flag-checkered"></i> Results</h4>
       </div>
