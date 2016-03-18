@@ -1,0 +1,20 @@
+
+build
+
+```bash
+docker build -t ahbpnw/ahb-decision-support-app:v0.1 .
+```
+
+run
+
+```bash
+docker run -d --name=ahb-dst -p 8000:8000 -v /etc/ahb-decision-support-app:/etc/ahb-decision-support-app ahbpnw/ahb-decision-support-app:v0.1
+```
+
+
+
+OS X needs to mount /Users volumn
+
+Very wonky right now.
+Then exec, open tunnel to db server.
+Then start node server.

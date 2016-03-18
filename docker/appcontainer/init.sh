@@ -14,3 +14,4 @@ cd /ahb-decision-support-app && npm install --production
 
 
 cd / && unzip transportation-service.zip -d transportation-service
+rm transportation-service.zip
