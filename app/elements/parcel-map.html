@@ -247,15 +247,15 @@
         ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
         if( feature.geojson.properties.ucd.transportation.properties.error ) {
-          ctx.strokeStyle = 'rgba(255,0,0,.6)';
+          ctx.strokeStyle = 'rgba(255,0,0,.8)';
         } else {
-          ctx.strokeStyle = 'rgba(0,0,255,.6)';
+          ctx.strokeStyle = 'rgba(30,150,243,.8)';
         }
 
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(255,255,255,.6)';
+        ctx.fillStyle = 'rgba(255,255,255,.8)';
         ctx.fill();
       },
 
@@ -278,21 +278,21 @@
         }
 
         if( feature.geojson.properties.type === 'start') {
-          ctx.strokeStyle = 'rgba(100,100,100,.6)';
+          ctx.strokeStyle = 'rgba(200,200,200,.8)';
         } else {
           var use = DSSDK.datastore.networkUse[feature.geojson.properties.id];
           var p = use / DSSDK.datastore.maxNetworkUse;
 
-          if( p < 0.333 ) {
-            ctx.strokeStyle = 'rgba(0,255,0,.6)';
-          } else if ( p > 0.666 ) {
-            ctx.strokeStyle = 'rgba(255,0,0,.6)';
+          if( p < 0.10 ) {
+            ctx.strokeStyle = 'rgba(76,175,80,.8)';
+          } else if ( p > 0.30 ) {
+            ctx.strokeStyle = 'rgba(229,28,35,.6)';
           } else {
-            ctx.strokeStyle = 'rgba(255,255,0,.6';
+            ctx.strokeStyle = 'rgba(206,229,28,.6';
           }
         }
 
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 3;
         ctx.stroke();
       },
 
