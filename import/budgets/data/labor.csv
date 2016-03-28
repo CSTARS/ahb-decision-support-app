@@ -1,0 +1,65 @@
+,ST_FIP,Crop,Machine Hours,Non-machine hours,non-machine cost,machine cost
+California,6,Alfalfa,0.58,1.82,13.195,5.4665
+Idaho,16,Alfalfa,1.62,0,0,16.848
+Washington,53,Alfalfa,0.5,0,0,5.5575
+Oregon,41,Alfalfa,5.04,5.77,48.468,55.0368
+California,6,Alfalfa Hay,0.58,1.82,13.195,5.4665
+Idaho,16,Alfalfa Hay,1.62,0,0,16.848
+Oregon,41,Alfalfa Hay,5.04,5.77,48.468,55.0368
+Washington,53,Alfalfa Hay,0,0,0,0
+California,6,Alfalfa Haylage,0.58,1.82,13.195,5.4665
+Idaho,16,Alfalfa Haylage,1.62,0,0,16.848
+Oregon,41,Alfalfa Haylage,5.04,5.77,48.468,55.0368
+Washington,53,Alfalfa Haylage,1.1,0.91,7.7805,12.2265
+California,6,Barley,1.3,0,0,12.2525
+Idaho,16,Barley,1.62,0,0,16.848
+Oregon,41,Barley,1.3,0,0,14.196
+Washington,53,Barley,0.97,0,0,10.78155
+California,6,"Beans, Dry Edible",3.01,2.75,19.9375,28.36925
+Idaho,16,"Beans, Dry Edible",1.75,1.06,8.48,18.2
+Oregon,41,"Beans, Dry Edible",2.38,1.91,16.044,25.9896
+Washington,53,"Beans, Dry Edible",2.38,1.905,16.28775,26.4537
+Idaho,16,Canola,1.27,0,0,13.208
+Oregon,41,Canola,0.95,25,210,10.374
+Washington,53,Canola,0.99,0,0,11.00385
+California,6,Canola,,,0,0
+California,6,Corn Grain,3.36,1.95,14.1375,31.668
+Idaho,16,Corn Grain,2.6,4.25,34,27.04
+Oregon,41,Corn Grain,2.6,4.25,35.7,28.392
+Washington,53,Corn Grain,2.85,3.48,29.754,31.67775
+California,6,Corn Silage,1.85,0.9,6.525,17.43625
+Idaho,16,Corn Silage,2.6,3.8,30.4,27.04
+Oregon,41,Corn Silage,2.23,2.35,19.74,24.3516
+Washington,53,Corn Silage,2.225,2.35,20.0925,24.730875
+California,6,Grass Hay,2.78,0.5,3.625,26.2015
+Idaho,16,Grass Hay,2.78,0,0,28.912
+Oregon,41,Grass Hay,2.78,0.25,2.1,30.3576
+Washington,53,Grass Hay,2.78,0.25,2.1375,30.8997
+California,6,Grass Haylage,2.78,0.5,3.625,26.2015
+Idaho,16,Grass Haylage,2.78,0,0,28.912
+Oregon,41,Grass Haylage,2.78,0.25,2.1,30.3576
+Washington,53,Grass Haylage,2.78,0.25,2.1375,30.8997
+Idaho,16,Lentils,1.2,0,0,12.48
+Montana,30,Lentils,1.2,0,0,11.31
+Washington,53,Lentils,0.95,0,0,10.55925
+California,6,Lentils,,,0,0
+California,6,Oats,0.92,,0,8.671
+Idaho,16,Oats,1.22,0,0,12.688
+Oregon,41,Oats,0.68,0.21,1.764,7.4256
+Washington,53,Oats,0.94,0.11,0.9405,10.4481
+California,6,Potatoes,10.96,17.97,130.2825,103.298
+Idaho,16,Potatoes,6.3,4.86,38.88,65.52
+Oregon,41,Potatoes,8.63,11.415,95.886,94.2396
+Washington,53,Potatoes,8.63,11.42,97.641,95.92245
+California,6,Spring Wheat,1.92,1.25,9.0625,18.096
+Idaho,16,Spring Wheat,1.1,0.49,3.92,11.44
+Oregon,41,Spring Wheat,0.74,0.21,1.764,8.0808
+Washington,53,Spring Wheat,0.64,0,0,7.1136
+Idaho,16,Sugarbeets,8.25,6.9,55.2,85.8
+Montana,30,Sugarbeets,8.25,6.9,50.025,77.75625
+Oregon,41,Sugarbeets,8.25,6.9,57.96,90.09
+Washington,53,Sugarbeets,1.16,0,0,12.8934
+California,6,Winter Wheat,0.82,0.75,5.4375,7.7285
+Idaho,16,Winter Wheat,1.3,0,0,13.52
+Oregon,41,Winter Wheat,0.9,0.21,1.764,9.828
+Washington,53,Winter Wheat,,,0,0

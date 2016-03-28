@@ -28,6 +28,8 @@ function getRoutes(sources, destination, options, callback) {
     }
   }
 
+  var t = new Date().getTime();
+
   proxy.findClosestVertex(destination.geometry, function(err, vertex){
     if( err ) {
       return callback('Unable to locate vertex for destination.  Please try another location');
@@ -43,7 +45,7 @@ function getRoutes(sources, destination, options, callback) {
         findPath(source, destinationVertex, cache, function(err, pathresult){
 
           c++;
-          sendUpdate(c, sources.features.length, currentSocket);
+          sendUpdate(t, c, sources.features.length, currentSocket);
 
           if( err ) {
             result.paths.features.push(createErrorFeature(err));
@@ -107,7 +109,6 @@ function setClosest(sources, features, index) {
 function distance(start, stop) {
   return Math.sqrt(Math.pow(start[1] - stop[1], 2) +  Math.pow(start[0] - stop[0], 2));
 }
-
 
 function findPath(source, destinationVertex, cache, callback) {
   proxy.findClosestVertex(source.geometry, function(err, sourceVertex){
@@ -203,15 +204,23 @@ function init() {
   };
 }
 
-function sendUpdate(c, total, currentSocket) {
+function sendUpdate(time, count, total, currentSocket) {
   if( !currentSocket ) return;
-  if( c % 100 !== 0 ) return;
+  if( count % 50 !== 0 ) return;
+
+  var t2 = new Date().getTime();
+
   try {
-    var p = Math.floor((c/total) * 100);
+    var p = Math.floor((count/total) * 100);
+
+    var t = (t2 - time) / count; // current average time
+
     currentSocket.emit('transportation-update', {
-      complete: c,
+      complete: count,
       total : total,
-      percent : p
+      percent : p,
+      averageTime : t,
+      timeRemaining : ((total - count) * t)
     });
   } catch(e) {
 

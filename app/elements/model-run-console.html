@@ -69,7 +69,8 @@
       },
 
       onTransportationUpdate : function(e) {
-        this.updateLine('transportation', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up transportation routes %'+e.percent+'</span>');
+        this.updateLine('transportation', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up transportation routes %' +
+        e.percent+' (~'+(e.timeRemaining/1000).toFixed(2)+'s @ '+e.averageTime.toFixed(2)+'ms/route )</span>');
       },
 
       onTransportationEnd : function() {
