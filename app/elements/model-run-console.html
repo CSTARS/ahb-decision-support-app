@@ -21,12 +21,23 @@
 
         DSSDK.datastore.on('transportation-update-start', this.onTransportationStart.bind(this));
         DSSDK.datastore.on('transportation-update-end', this.onTransportationEnd.bind(this));
+
         DSSDK.datastore.on('weather-update-start', this.onWeatherStart.bind(this));
         DSSDK.datastore.on('weather-update-end', this.onWeatherEnd.bind(this));
+
         DSSDK.datastore.on('soil-update-start', this.onSoilStart.bind(this));
         DSSDK.datastore.on('soil-update-end', this.onSoilEnd.bind(this));
+
         DSSDK.datastore.on('parcels-update-start', this.onParcelStart.bind(this));
+        DSSDK.datastore.on('parcels-update-updated', this.onParcelUpdated.bind(this));
         DSSDK.datastore.on('parcels-update-end', this.onParcelEnd.bind(this));
+
+        DSSDK.datastore.on('crops-update-start', this.onCropsStart.bind(this));
+        DSSDK.datastore.on('crops-update-end', this.onCropsEnd.bind(this));
+
+        DSSDK.datastore.on('budgets-update-start', this.onBudgetsStart.bind(this));
+        DSSDK.datastore.on('budgets-update-end', this.onBudgetsEnd.bind(this));
+
         DSSDK.model.on('harvests-start', this.onHarvestsStart.bind(this));
         DSSDK.model.on('harvests-updated', this.onHarvestsUpdated.bind(this));
         DSSDK.model.on('harvests-end', this.onHarvestsEnd.bind(this));
@@ -60,6 +71,10 @@
         this.createLine('parcel', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Finding available parcels</span>');
       },
 
+      onParcelUpdated : function(e) {
+        this.updateLine('parcel', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Finding available parcels %'+e.percent+'</span>');
+      },
+
       onParcelEnd : function(e) {
         this.updateLine('parcel', '<span class="text text-success"><i class="fa fa-check"></i> Parcels loaded. '+e.length+' Found.</span>');
       },
@@ -75,6 +90,22 @@
 
       onTransportationEnd : function() {
         this.updateLine('transportation', '<span class="text text-success"><i class="fa fa-check"></i> Transportation routes loaded</span>');
+      },
+
+      onCropsStart : function() {
+        this.createLine('crops', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up crop type, price and yield</span>');
+      },
+
+      onCropsEnd : function() {
+        this.updateLine('crops', '<span class="text text-success"><i class="fa fa-check"></i> Crop info loaded</span>');
+      },
+
+      onBudgetsStart : function() {
+        this.createLine('budget', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up farm budgets from farmbudgets.org</span>');
+      },
+
+      onBudgetsEnd : function() {
+        this.updateLine('budget', '<span class="text text-success"><i class="fa fa-check"></i> Farm budgets loaded</span>');
       },
 
       onWeatherStart : function() {

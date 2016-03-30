@@ -51,22 +51,28 @@
           <td><span id="potential"></span>% (<span id="asize"></span>) acres</td>
         </tr>
         <tr>
-          <td class="nlabel">Current Crop</td>
-          <td id="currentCrop"></td>
+          <td class="nlabel">Duration</td>
+          <td id="duration"></td>
         </tr>
         <tr>
-          <td class="nlabel">Current Crop Total</td>
-          <td id="currentCropTotal"></td>
+          <td class="nlabel">Current Crops</td>
+          <td id="crops"></td>
         </tr>
         <tr>
-          <td class="nlabel">Harvest Data:</td>
-          <td style="width: 80%">
-            <div id="duration">You must grow the plants first :)</div>
-            <div id="chart"></div>
-          </td>
+          <td class="nlabel">Poplar</td>
+          <td id="poplar"></td>
         </tr>
       </table>
     </div>
+
+    <h4>Revenue / Acre</h4>
+    <div id="revenueChart"></div>
+
+    <h4>Yield / Acre</h4>
+    <div id="yieldChart"></div>
+
+
+
 
   </template>
   <script>
@@ -103,6 +109,7 @@
 
         if( this.parcel.properties.ucd && this.parcel.properties.ucd.modelProfileId ) {
           this.onComplete();
+          this.$.total.innerHTML = '<span class="label label-success">Grown</span>';
         } else {
           this.$.total.innerHTML = '<span class="label label-warning">Not Grown</span>';
         }
@@ -119,31 +126,17 @@
           DSSDK.datastore.selectParcel(this.parcel);
         }
 
-        this.$.total.innerHTML = '<span class="label label-'+label+'">Total Harvest: ' +
-          Math.round(this.parcel.properties.ucd.harvest.totalHarvest)+' Mg, $'+
-          (poplarTotal).toFixed(2)+'</span>';
-
-        this.$.inner.innerHTML = '&nbsp;<span style="color:#888">'+this.parcel.properties.ucd.crop.name+"</span>";
-
         setTimeout(this.updateChart.bind(this), 300);
       },
 
       updateChart : function() {
         if( !this.parcel.properties.ucd.modelProfileId ) return;
 
-        var crop = this.parcel.properties.ucd.crop;
-
-        this.$.currentCrop.innerHTML = crop.name+', yield='+crop.yield.toFixed(2)+' '+crop.units+' , @ $'+crop.price.toFixed(2)+'/'+crop.units;
-        this.$.currentCropTotal.innerHTML = crop.total.toFixed(2);
-
-        // over two years
-        var cropYield = crop.yield * this.parcel.properties.ucd.harvest.growArea * 2;
-
         var dt = new google.visualization.DataTable();
         dt.addColumn('string', 'Year'); // Implicit domain label col.
         dt.addColumn('number', '$ Poplar');
         dt.addColumn({type: 'string', role: 'tooltip'});
-        dt.addColumn('number', '$ '+crop.name);
+        dt.addColumn('number', '$ Current Crop(s)');
         dt.addColumn({type: 'string', role: 'tooltip'});
 
         var id = this.parcel.properties.ucd.modelProfileId;
@@ -153,36 +146,117 @@
         var startYear = d.getFullYear();
 
         var data = [];
-        var price = DSSDK.app.getPoplarPrice();
+//        var price = DSSDK.app.getPoplarPrice();
         var c = 1;
 
-        this.parcel.properties.ucd.harvest.harvests.forEach(function(h){
+        var revenueResults = this.parcel.properties.ucd.revenueResults;
+        var pR = 0;
+        var cR = 0;
+
+        for( var i = 0; i < revenueResults.poplar.length; i++ ) {
+          pR += revenueResults.poplar[i].revenue;
+          cR += revenueResults.crops[i].revenue;
+
           data.push([
             d.toLocaleDateString(),
-            h*price,
-            'Yield: '+h+', $'+(h*price),
-            cropYield*crop.price,
-            'Yield: '+cropYield+', $'+(cropYield*crop.price)
+            pR,
+            '$'+pR,
+            cR,
+            '$'+cR
           ]);
-          d.setFullYear(d.getFullYear()+2);
-        });
-        dt.addRows(data);
+          d.setFullYear(d.getFullYear()+1);
+        }
 
+        dt.addRows(data);
         this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
+        this.$.crops.innerHTML =
+                this.parcel.properties.ucd.crop + ' <a href="http://farmbudgets.org/#link/' +
+                this.parcel.properties.ucd.cropBudget.id+'" target="_blank">Budget</a><br />' +
+                'Cost: $'+this.parcel.properties.ucd.cropBudget.budget.total+' / Acre<br />' +
+                'Price: $'+this.parcel.properties.ucd.price.value+' / '+this.parcel.properties.ucd.price.units;
+
+        this.$.poplar.innerHTML =
+                '<a>Budget</a><br />' +
+                'Cost: $'+DSSDK.datastore.getPoplarTotal()+' / Acre <br />' +
+                'Price: $'+DSSDK.datastore.poplarPrice+' / Mg';
 
         var options = {
-          width : $(this.$.chart).parent().width(),
+          width : $(this.$.revenueChart).parent().width(),
           height: 300,
           legend : {
             position: 'top'
           }
         };
-        var chart = new google.visualization.LineChart(this.$.chart);
+        var chart = new google.visualization.LineChart(this.$.revenueChart);
         chart.draw(dt, options);
 
         setTimeout(function(){
           options.width = $(this.$.chart).parent().width();
-          var chart = new google.visualization.LineChart(this.$.chart);
+          var chart = new google.visualization.LineChart(this.$.revenueChart);
+          chart.draw(dt, options);
+        }.bind(this), 500);
+
+        this.updateYieldChart();
+      },
+
+      updateYieldChart : function() {
+        var dt = new google.visualization.DataTable();
+        dt.addColumn('string', 'Year'); // Implicit domain label col.
+        dt.addColumn('number', 'Poplar');
+        dt.addColumn({type: 'string', role: 'tooltip'});
+        dt.addColumn('number', this.parcel.properties.ucd.crop);
+        dt.addColumn({type: 'string', role: 'tooltip'});
+
+        var id = this.parcel.properties.ucd.modelProfileId;
+        var poplarConfig = DSSDK.model.profiles[id].config;
+        if( !id ) return;
+        var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
+        var startYear = d.getFullYear();
+
+        var data = [];
+        var c = 1;
+
+        var revenueResults = this.parcel.properties.ucd.revenueResults;
+        var pR = 0;
+        var cR = 0;
+
+        for( var i = 0; i < revenueResults.poplar.length; i++ ) {
+
+          var pyield = 0;
+          for( var j = 0; j < revenueResults.poplar[i].breakdown.length; j++ ) {
+            pyield += revenueResults.poplar[i].breakdown[j].yield;
+          }
+
+          var cyield = 0;
+          for( var j = 0; j < revenueResults.crops[i].breakdown.length; j++ ) {
+            cyield += revenueResults.crops[i].breakdown[j].yield;
+          }
+
+          data.push([
+            d.toLocaleDateString(),
+            pyield,
+            pyield+' Mg / Acre',
+            cyield,
+            cyield+' / Acre'
+          ]);
+          d.setFullYear(d.getFullYear()+1);
+        }
+
+        dt.addRows(data);
+
+        var options = {
+          width : $(this.$.yieldChart).parent().width(),
+          height: 300,
+          legend : {
+            position: 'top'
+          }
+        };
+        var chart = new google.visualization.LineChart(this.$.yieldChart);
+        chart.draw(dt, options);
+
+        setTimeout(function(){
+          options.width = $(this.$.chart).parent().width();
+          var chart = new google.visualization.LineChart(this.$.yieldChart);
           chart.draw(dt, options);
         }.bind(this), 500);
       }
