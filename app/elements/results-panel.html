@@ -43,16 +43,28 @@
       </tr>
     </table>
 
+    <div id="adoptionChart"></div>
+
   </template>
   <script>
     Polymer({
       is: 'results-panel',
 
       ready : function() {
+        this.charts = [];
         DSSDK.app.setOnCompleteListener(this.update.bind(this));
       },
 
+      onShow : function() {
+        setTimeout(function(){
+          this.charts.forEach(function(c){
+            c.chart.draw(c.data, c.options);
+          });
+        }.bind(this), 100);
+      },
+
       update : function() {
+        this.charts = [];
         this.$.parcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.parcels.length))+'%';
         this.$.parcelCount.innerHTML = DSSDK.datastore.selectedParcels.length;
 
@@ -89,11 +101,67 @@
 
         data = google.visualization.arrayToDataTable(data);
         var options = {
-          title: 'Adoption By Crop',
+          title: 'Adoption By Crop @ $'+DSSDK.datastore.poplarPrice+' / Mg',
           height: 350
         };
         var chart = new google.visualization.PieChart(this.$.chart);
         chart.draw(data, options);
+
+        this.charts.push({
+          chart : chart,
+          data : data,
+          options: options
+        });
+
+        this.updatePriceBreakdown();
+      },
+
+      updatePriceBreakdown : function() {
+        var breakdown = DSSDK.datastore.getAdoptionBreakdown(23, 43, .5);
+
+        var data = [];
+        var header = ['price'];
+        for( var key in breakdown[0] ) {
+          if( key === 'price' ) continue;
+          header.push(key);
+        }
+
+        breakdown.forEach(function(pricedata){
+          var row = [];
+          for( var i = 0; i < header.length; i++ ) {
+            if( i === 0 ) {
+              row.push(pricedata[header[i]]);
+            } else {
+              row.push(pricedata[header[i]] ? pricedata[header[i]].parcels : 0);
+            }
+          }
+          data.push(row);
+        });
+        debugger;
+        data.unshift(header);
+        data = google.visualization.arrayToDataTable(data);
+
+        var options = {
+          title: 'Adoption By Price',
+          height: 400,
+          legend : {
+            position: 'right'
+          },
+          hAxis : {
+            title: 'Price ($)'
+          },
+          vAxis : {
+            title: 'Parcels (#)'
+          }
+        };
+        var chart = new google.visualization.LineChart(this.$.adoptionChart);
+        chart.draw(data, options);
+
+        this.charts.push({
+          chart : chart,
+          data : data,
+          options: options
+        });
       },
 
       getAmountLabel : function(val) {
