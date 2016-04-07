@@ -172,7 +172,9 @@ function processPath(pathresult, finalresult, ids) {
   var feature = pathresult.path;
   feature.properties.path = path;
   feature.properties.distance = distance;
+  feature.properties.distanceUnit = 'km';
   feature.properties.time = time;
+  feature.properties.timeUnit = 'h';
 
   finalresult.paths.features.push(feature);
 }

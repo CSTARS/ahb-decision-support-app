@@ -24,8 +24,12 @@
         background-color: #f8f8f8;
       }
       .header.selected {
-        border-bottom: 1px solid #fff;
+
+        border-bottom: 1px solid #00BCD4;
         box-shadow: 0 0 5px;
+      }
+      .header.selected h4 {
+        color: #00BCD4;
       }
     </style>
 
@@ -40,9 +44,7 @@
       <div id="results-header" class="header" on-click="setPage" page="results">
         <h4><i class="fa fa-flag-checkered"></i> Results</h4>
       </div>
-      <div id="results-content" class="content flex">
-        <div></div>
-      </div>
+
     </div>
 
   </template>
@@ -57,7 +59,7 @@
       },
 
       resize : function() {
-        this.style.height = ($(window).height()-50)+'px';
+        this.style.height = ($(window).height()-64)+'px';
       },
 
       setPage : function(e) {
@@ -71,11 +73,15 @@
         this.$[page+'-header'].classList.add('selected');
 
         $this.find('.content').hide('slow');
-        $this.find('#'+page+'-content').show('slow');
 
-        if( this.$[page+'-content'].children[0].onShow ) {
-          this.$[page+'-content'].children[0].onShow();
+        if( this.$[page+'-content'] ) {
+          $this.find('#'+page+'-content').show('slow');
+
+          if( this.$[page+'-content'].children[0].onShow ) {
+            this.$[page+'-content'].children[0].onShow();
+          }
         }
+
 
         this.fire('set-page', page);
       }

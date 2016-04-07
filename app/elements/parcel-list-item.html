@@ -150,6 +150,8 @@
         var revenueResults = this.parcel.properties.ucd.revenueResults;
         var pR = 0;
         var cR = 0;
+        var transportationAvg = 0;
+        var tc = 0;
 
         for( var i = 0; i < revenueResults.poplar.length; i++ ) {
           pR += revenueResults.poplar[i].revenue;
@@ -163,7 +165,15 @@
             '$'+cR
           ]);
           d.setFullYear(d.getFullYear()+1);
+
+          if( revenueResults.poplar[i].transportation ) {
+            transportationAvg += revenueResults.poplar[i].transportation;
+            tc++;
+          }
+
         }
+
+        transportationAvg  = transportationAvg / tc;
 
         dt.addRows(data);
         this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
@@ -181,7 +191,9 @@
         this.$.poplar.innerHTML =
                 '<a href="http://farmbudgets.org/#'+DSSDK.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
                 '<b>Cost:</b> $'+DSSDK.datastore.getPoplarTotal().toFixed(2)+' / Acre <br />' +
-                '<b>Price:</b> $'+DSSDK.datastore.poplarPrice+' / Mg';
+                '<b>Price:</b> $'+DSSDK.datastore.poplarPrice+' / Mg<br />'+
+                '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
+                '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.properties.distance*0.621371).toFixed(2)+' mi';
 
         var options = {
           width : $(this.$.revenueChart).parent().width(),
