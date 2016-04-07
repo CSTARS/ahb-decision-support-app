@@ -16,10 +16,11 @@
       <tr>
         <td style="width: 150px">Adoption</td>
         <td>
-          <div class="layout horizontal">
-            <div id="parcelPercent"></div>
+
+            <div><span id="validParcelPercent"></span> Competing Parcels</div>
+            <div><span id="parcelPercent"></span> All Parcels In Area</div>
             <div id="chart"></div>
-          </div>
+
         </td>
       </tr>
     </table>
@@ -65,7 +66,8 @@
 
       update : function() {
         this.charts = [];
-        this.$.parcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.parcels.length))+'%';
+        this.$.parcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.allParcels.length))+'%';
+        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.validParcels.length))+'%';
         this.$.parcelCount.innerHTML = DSSDK.datastore.selectedParcels.length;
 
         var totalAcres = 0;
@@ -83,11 +85,13 @@
           totalAcres += harvest.growArea;
           totalHarvested += harvest.totalHarvest;
 
-          var crop = parcel.properties.ucd.crop;
-          if( cropCounts[crop] === undefined ) {
-            cropCounts[crop] = 0;
-          }
-          cropCounts[crop]++;
+          parcel.properties.ucd.cropInfo.dwr.forEach(function(item){
+            var name = item.crop+' ('+item.label+')';
+            if( cropCounts[name] === undefined ) {
+              cropCounts[name] = 0;
+            }
+            cropCounts[name]++;
+          });
         });
 
         this.$.acreCount.innerHTML = this.getAmountLabel(totalAcres);
@@ -137,7 +141,7 @@
           }
           data.push(row);
         });
-        debugger;
+
         data.unshift(header);
         data = google.visualization.arrayToDataTable(data);
 

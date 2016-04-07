@@ -53,7 +53,7 @@
 
           var layer = L.esri.dynamicMapLayer({
             url: 'https://conifer.gis.washington.edu/arcgis/rest/services/AHBNW/AHBNW_20151009_parcel_featureAccess/MapServer',
-            opacity: 0.5
+            opacity: 0.5,
           }).addTo(this.map);
 
           L.control.layers({}, {Parcels: layer}).addTo(this.map);
@@ -117,7 +117,7 @@
         });
 
         this.currentNetwork = {};
-        DSSDK.datastore.parcels.forEach(function(parcel){
+        DSSDK.datastore.allParcels.forEach(function(parcel){
           if( DSSDK.datastore.selectedParcels.indexOf(parcel) > -1 ) {
             parcel.properties.ucd.render.selected = true;
           } else {
@@ -184,13 +184,13 @@
       onParcelsLoaded : function() {
         this.canvasLayer.features = [];
 
-        DSSDK.datastore.parcels.forEach(function(parcel){
+        DSSDK.datastore.allParcels.forEach(function(parcel){
           this.canvasLayer.addFeature(this.canvasLayerFeature(parcel));
         }.bind(this));
 
         this.canvasLayer.render();
 
-        if( DSSDK.datastore.parcels.length > 0 ) {
+        if( DSSDK.datastore.allParcels.length > 0 ) {
           this.mode = 'select';
           this.menu.setMode(this.mode);
         }
@@ -249,13 +249,15 @@
         if( feature.geojson.properties.ucd.transportation.properties.error ) {
           ctx.strokeStyle = 'rgba(255,0,0,.8)';
         } else {
-          ctx.strokeStyle = 'rgba(30,150,243,.8)';
+          // ctx.strokeStyle = 'rgba(30,150,243,.8)';
+          ctx.strokeStyle = '#00BCD4';
         }
 
         ctx.lineWidth = 3;
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(255,255,255,.8)';
+        // ctx.fillStyle = 'rgba(255,255,255,.8)';
+        ctx.fillStyle = 'rgba(0,188,212,.3)';
         ctx.fill();
       },
 
@@ -278,18 +280,21 @@
         }
 
         if( feature.geojson.properties.type === 'start') {
-          ctx.strokeStyle = 'rgba(200,200,200,.8)';
+          // ctx.strokeStyle = 'rgba(200,200,200,.8)';
+          ctx.strokeStyle = '#CFD8DC';
+          ctx.lineCap = 'round';
         } else {
           var use = DSSDK.datastore.networkUse[feature.geojson.properties.id];
           var p = use / DSSDK.datastore.maxNetworkUse;
 
-          if( p < 0.10 ) {
-            ctx.strokeStyle = 'rgba(76,175,80,.8)';
-          } else if ( p > 0.30 ) {
-            ctx.strokeStyle = 'rgba(229,28,35,.6)';
-          } else {
-            ctx.strokeStyle = 'rgba(206,229,28,.6';
-          }
+          ctx.strokeStyle = '#607D8B';
+          // if( p < 0.10 ) {
+          //   ctx.strokeStyle = 'rgba(76,175,80,.8)';
+          // } else if ( p > 0.30 ) {
+          //   ctx.strokeStyle = 'rgba(229,28,35,.6)';
+          // } else {
+          //   ctx.strokeStyle = 'rgba(206,229,28,.6';
+          // }
         }
 
         ctx.lineWidth = 3;

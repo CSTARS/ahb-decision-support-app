@@ -97,7 +97,9 @@
       },
 
       onCropsEnd : function() {
-        this.updateLine('crops', '<span class="text text-success"><i class="fa fa-check"></i> Crop info loaded</span>');
+        var total = DSSDK.datastore.allParcels.length;
+        var valid = DSSDK.datastore.validParcels.length;
+        this.updateLine('crops', '<span class="text text-success"><i class="fa fa-check"></i> Crop info loaded. '+valid+' of '+total+' parcels have competing crops.</span>');
       },
 
       onBudgetsStart : function() {

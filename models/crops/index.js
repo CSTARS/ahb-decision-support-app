@@ -1,25 +1,117 @@
 var async = require('async');
 var pg = require('../../lib/pg');
 var yields = require('./yields');
+var fs = require('fs');
+var extend = require('extend');
+var md5 = require('md5');
 
 var crops = ['Alfalfa Hay','Alfalfa Haylage','Barley','Beans, Dry Edible',
 'Canola','Corn Grain','Corn Silage','Grass Hay','Grass Haylage','Lentils','Oats',
 'Potatoes','Spring Wheat','Sugarbeets','Winter Wheat'];
 
+
 // no yields: lentils, potatoes
 // prices: 'Corn Grain','Corn Silage','Grass Hay','Grass Haylage','Alfalfa','Alfalfa Haylage'
 
-var query =
-`SELECT state
- FROM national_atlas.state s
- WHERE ST_Contains(
-        s.boundary,
-        ST_Transform(
-          ST_SetSRID(
-            ST_MakePoint($1, $2)
-            ,4326),
-          97260)
-        );`;
+var fips = {
+  '06' : 'California',
+  '16' : 'Idaho',
+  '30' : 'Montana',
+  '53' : 'Washington',
+  '41' : 'Oregon'
+};
+
+var dataMap = {
+  XX : {
+    label : "Unknown",
+  },
+  GR : {
+    label : "Grain",
+    crops : ['Barley', 'Oats', 'Spring Wheat', 'Winter Wheat'],
+    swap : true
+  },
+  RI : {
+    label : "Rice"
+  },
+  CO : {
+    label : "Cotton"
+  },
+  SB : {
+    label : "Sugarbeets",
+    swap : true
+  },
+  CN : {
+    label : "Corn",
+    crops : ["Corn Grain", "Corn Silage"],
+    swap : true
+  },
+  DB : {
+    label : "Beans, Dry Edible",
+    swap : true
+  },
+  SA : {
+    label : "Safflower"
+  },
+  FL : {
+    label : "Other field crops"
+  },
+  AL : {
+    label : "Alfalfa",
+    crops : ['Alfalfa Hay','Alfalfa Haylage'],
+    swap : true
+  },
+  PA : {
+    label : "Pasture",
+    crops : ['Grass Hay','Grass Haylage'],
+    swap : true
+  },
+  TP : {
+    label : "Tomato processing"
+  },
+  TF : {
+    label : "Tomato fresh"
+  },
+  CU : {
+    label : "Cucurbits"
+  },
+  OG : {
+    label : "Onion & garlic"
+  },
+  PO : {
+    label : "Potatoes",
+    swap : true
+  },
+  TR : {
+    label : "Truck_Crops_misc"
+  },
+  AP : {
+    label : "Almond & pistacios"
+  },
+  OR : {
+    label : "Orchard (deciduous)"
+  },
+  CS : {
+    label : "Citrus & subtropical"
+  },
+  VI : {
+    label : "Vineyards"
+  },
+  UR : {
+    label : "Urban landscape"
+  },
+  RV : {
+    label : "Riparian",
+  },
+  NV : {
+    label : "Native vegetation"
+  },
+  WS : {
+    label : "Water surface"
+  },
+  SO : {
+    label : "Soil"
+  }
+};
 
 module.exports = function() {
   return {
@@ -30,16 +122,68 @@ module.exports = function() {
 function getCrops(geometryCollection, callback) {
   var result = [];
 
-  async.eachSeries(
-    geometryCollection.geometries,
-    function(geometry, next){
-      getCrop(geometry, result, next);
-    },
-    function(err) {
-      callback(null, result);
+  pg.willowClient().query('select cdl.land_cover_yield($1)', [JSON.stringify(geometryCollection)], function(err, resp){
+    if( err ) {
+      console.log(err);
+      return callback(err);
     }
-  );
+
+    if( resp.rows && resp.rows.length > 0 )  {
+
+      callback(null, formatReponse(resp.rows[0], geometryCollection.geometries));
+    } else {
+      callback(null, []);
+    }
+  });
 }
+
+function formatReponse(data, geoms) {
+  data.land_cover_yield.forEach(row => {
+    row.dwr = row.dwr.map(code => {
+      if( !dataMap[code] ) {
+        code = 'XX';
+      }
+
+      var item = extend(true, {}, dataMap[code]);
+      if( !item.crops ) {
+        item.crop = item.label;
+      } else {
+        item.crop = item.crops[Math.round(Math.random() * (item.crops.length-1))];
+      }
+
+      return item;
+    });
+
+    row.state = fips[row.fips.substring(0,2)];
+  });
+
+  var resp = data.land_cover_yield;
+
+  var notFound = 0;
+  var duplicates = 0;
+
+  var lookup = {};
+  resp.forEach(function(item){
+    if( lookup[item.id] ) {
+      duplicates++;
+    } else {
+      lookup[item.id] = item;
+    }
+  });
+
+  geoms.forEach(function(geom){
+    var id = md5(JSON.stringify({type: geom.type, coordinates: geom.coordinates}));
+    if( !lookup[id] ) {
+      notFound++;
+    }
+  });
+
+  console.log('notFound='+notFound+' duplicates='+duplicates);
+
+  return resp;
+}
+
+
 
 function getCrop(geometry, result, next) {
   var p;

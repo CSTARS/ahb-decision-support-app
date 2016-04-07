@@ -38,19 +38,20 @@ DSSDK.app.run = function(lat, lng, radius, callback) {
   }
 
   DSSDK.datastore.getParcels(lat, lng, radius, function(){
-    DSSDK.datastore.getTransportation(socket.id, onComplete);
-
-    // run at the same time as transportation
-    DSSDK.datastore.getWeather(function(weather){
-      DSSDK.datastore.getSoil(function(soil){
-        DSSDK.model.growAll(true, onComplete);
-      });
-    });
-
     DSSDK.datastore.getCrops(function(){
+
+      DSSDK.datastore.getTransportation(socket.id, onComplete);
+
+      // run at the same time as transportation
+      DSSDK.datastore.getWeather(function(weather){
+        DSSDK.datastore.getSoil(function(soil){
+          DSSDK.model.growAll(true, onComplete);
+        });
+      });
+
+
       DSSDK.datastore.getBudgets(onComplete);
     });
-
   });
 };
 

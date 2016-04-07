@@ -4,6 +4,9 @@
       :host {
         display: block;
       }
+      label {
+        font-weight: bold;
+      }
     </style>
 
     <div class="modal fade" id="popup">
@@ -20,7 +23,7 @@
             <div class="form-horizontal">
               <div class="form-group">
                 <label for="radiusInput" class="col-sm-3 control-label">Lat, Lng</label>
-                <div class="col-sm-9">
+                <div class="col-sm-9" style="line-height: 35px">
                   <span id="ll"></span>
                 </div>
               </div>
@@ -46,7 +49,7 @@
             <model-run-console></model-run-console>
 
             <div style="text-align: center; margin-top: 25px" id="startBtn">
-              <a class="btn btn-primary btn-lg" on-click="run" id="go"><i class="fa fa-industry"></i> Model Refinery</a>
+              <a class="btn btn-primary btn-lg" on-click="run" id="go"><i class="fa fa-industry"></i> Model <span class="hidden-xs">Refinery</span></a>
               <a style="margin-left: 75px"  class="btn btn-default btn-lg" data-label="Close" data-dismiss="modal"><i class="fa fa-times"></i> Close</a>
             </div>
 

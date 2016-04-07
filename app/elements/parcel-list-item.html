@@ -3,8 +3,6 @@
     <style>
       :host {
         display: block;
-        padding: 15px;
-        border-bottom: 1px solid #eee;
       }
       #expand {
         display:block;
@@ -169,16 +167,21 @@
 
         dt.addRows(data);
         this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
-        this.$.crops.innerHTML =
-                this.parcel.properties.ucd.crop + ' <a href="http://farmbudgets.org/#link/' +
-                this.parcel.properties.ucd.cropBudget.id+'" target="_blank">Budget</a><br />' +
-                'Cost: $'+this.parcel.properties.ucd.cropBudget.budget.total+' / Acre<br />' +
-                'Price: $'+this.parcel.properties.ucd.price.value+' / '+this.parcel.properties.ucd.price.units;
+
+        var html = '';
+        var cropInfo = this.parcel.properties.ucd.cropInfo;
+        for( var i = 0; i < cropInfo.dwr.length; i++ ) {
+          html += '<b>'+cropInfo.dwr[i].crop + '</b> - <a href="http://farmbudgets.org/#' +
+          cropInfo.dwr[i].cropBudget.id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
+          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.dwr[i].cropBudget.budget.total+' / Acre<br />' +
+          '&nbsp;&nbsp;<b>Price:</b> '+cropInfo.yield[i]+' '+cropInfo.price_unit[i];
+        }
+        this.$.crops.innerHTML = html;
 
         this.$.poplar.innerHTML =
-                '<a>Budget</a><br />' +
-                'Cost: $'+DSSDK.datastore.getPoplarTotal()+' / Acre <br />' +
-                'Price: $'+DSSDK.datastore.poplarPrice+' / Mg';
+                '<a href="http://farmbudgets.org/#'+DSSDK.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
+                '<b>Cost:</b> $'+DSSDK.datastore.getPoplarTotal().toFixed(2)+' / Acre <br />' +
+                '<b>Price:</b> $'+DSSDK.datastore.poplarPrice+' / Mg';
 
         var options = {
           width : $(this.$.revenueChart).parent().width(),
@@ -204,7 +207,13 @@
         dt.addColumn('string', 'Year'); // Implicit domain label col.
         dt.addColumn('number', 'Poplar');
         dt.addColumn({type: 'string', role: 'tooltip'});
-        dt.addColumn('number', this.parcel.properties.ucd.crop);
+
+        var crop = this.parcel.properties.ucd.cropInfo.dwr.map(function(item){
+          return item.crop;
+        });
+        crop = crop.join(', ');
+
+        dt.addColumn('number', crop);
         dt.addColumn({type: 'string', role: 'tooltip'});
 
         var id = this.parcel.properties.ucd.modelProfileId;

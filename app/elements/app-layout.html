@@ -5,6 +5,16 @@
         display: block;
         height: 100%;
       }
+
+      .navbar.navbar-inverse {
+        margin: 0 !important;
+        border-radius: 0 !important;
+      }
+
+      .navbar.navbar-inverse h4 {
+        color: white;
+      }
+
       #header {
         border-bottom: 1px solid #888;
       }
@@ -14,6 +24,7 @@
         left: -320px;
         background-color: white;
         z-index: 200;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
 
         transition: left 300ms linear;
         -webit-transition: left 300ms linear;
@@ -28,7 +39,7 @@
         z-index: 2001;
       }
 
-      @media(min-width: 678px) {
+      @media(min-width: 768px) {
         #menu {
           position: relative;
           left: 0;
@@ -39,14 +50,18 @@
       }
     </style>
 
-    <div id="header">
-      <h4>
-        <a class="btn btn-default visible-sm-inline visible-xs-inline" on-click="toggleMenu">
-          <i class="fa fa-bars"></i>
-        </a>
-        Advanced Hardwood Biofuels <small>Decision Support Tool</small>
-      </h4>
+    <div class="navbar navbar-inverse" style="z-index:300">
+      <div class="container-fluid">
+        <h4 style="margin-top: 18px">
+          <a style="margin-right: 20px" class="btn btn-primary visible-xs-inline-block" on-click="toggleMenu">
+            <i class="fa fa-bars"></i>
+          </a>
+          <span class="hidden-xs">Advanced Hardwood Biofuels</span><span class="visible-xs-inline-block">AHB</span>
+          <small>Decision Support Tool</small>
+        </h4>
+      </div>
     </div>
+
     <div class="layout horizontal">
       <div style="overflow-y:auto; overflow-x: hidden" id="menu">
         <app-main-menu on-set-page="setPage"></app-main-menu>
