@@ -180,10 +180,10 @@
 
         var html = '';
         var cropInfo = this.parcel.properties.ucd.cropInfo;
-        for( var i = 0; i < cropInfo.dwr.length; i++ ) {
-          html += '<b>'+cropInfo.dwr[i].crop + '</b> - <a href="http://farmbudgets.org/#' +
-          cropInfo.dwr[i].cropBudget.id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
-          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.dwr[i].cropBudget.budget.total+' / Acre<br />' +
+        for( var i = 0; i < cropInfo.swap.length; i++ ) {
+          html += '<b>'+cropInfo.swap[i] + '</b> - <a href="http://farmbudgets.org/#' +
+          cropInfo.cropBudgets[i].id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
+          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total+' / Acre<br />' +
           '&nbsp;&nbsp;<b>Price:</b> '+cropInfo.yield[i]+' '+cropInfo.price_unit[i];
         }
         this.$.crops.innerHTML = html;
@@ -220,10 +220,7 @@
         dt.addColumn('number', 'Poplar');
         dt.addColumn({type: 'string', role: 'tooltip'});
 
-        var crop = this.parcel.properties.ucd.cropInfo.dwr.map(function(item){
-          return item.crop;
-        });
-        crop = crop.join(', ');
+        crop = this.parcel.properties.ucd.cropInfo.swap.join(', ');
 
         dt.addColumn('number', crop);
         dt.addColumn({type: 'string', role: 'tooltip'});

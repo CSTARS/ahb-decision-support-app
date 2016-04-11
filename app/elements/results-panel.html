@@ -85,8 +85,7 @@
           totalAcres += harvest.growArea;
           totalHarvested += harvest.totalHarvest;
 
-          parcel.properties.ucd.cropInfo.dwr.forEach(function(item){
-            var name = item.crop+' ('+item.label+')';
+          parcel.properties.ucd.cropInfo.swap.forEach(function(name){
             if( cropCounts[name] === undefined ) {
               cropCounts[name] = 0;
             }

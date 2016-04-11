@@ -138,21 +138,22 @@ function getCrops(geometryCollection, callback) {
 }
 
 function formatReponse(data, geoms) {
+  //console.log(data);
   data.land_cover_yield.forEach(row => {
-    row.dwr = row.dwr.map(code => {
-      if( !dataMap[code] ) {
-        code = 'XX';
-      }
-
-      var item = extend(true, {}, dataMap[code]);
-      if( !item.crops ) {
-        item.crop = item.label;
-      } else {
-        item.crop = item.crops[Math.round(Math.random() * (item.crops.length-1))];
-      }
-
-      return item;
-    });
+    // row.swap = row.swap.map(code => {
+    //   if( !dataMap[code] ) {
+    //     code = 'XX';
+    //   }
+    //
+    //   var item = extend(true, {}, dataMap[code]);
+    //   if( !item.crops ) {
+    //     item.crop = item.label;
+    //   } else {
+    //     item.crop = item.crops[Math.round(Math.random() * (item.crops.length-1))];
+    //   }
+    //
+    //   return item;
+    // });
 
     row.state = fips[row.fips.substring(0,2)];
   });
@@ -172,7 +173,8 @@ function formatReponse(data, geoms) {
   });
 
   geoms.forEach(function(geom){
-    var id = md5(JSON.stringify({type: geom.type, coordinates: geom.coordinates}));
+    // var id = md5(JSON.stringify({type: geom.type, coordinates: geom.coordinates}));
+    var id = md5(JSON.stringify(geom));
     if( !lookup[id] ) {
       notFound++;
     }
