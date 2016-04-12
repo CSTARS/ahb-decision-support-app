@@ -4,9 +4,21 @@
   <template>
     <style>
       :host {
+        position: relative;
         display: block;
       }
+      #info {
+        position: absolute;
+        z-index: 1000;
+        bottom: 0;
+        left: 0;
+        background: white;
+        padding: 5px;
+        display:none;
+      }
     </style>
+
+    <div id="info">Click parcel to view details.</div>
 
   </template>
   <script>
@@ -51,10 +63,11 @@
               attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
 
+          L.Icon.Default.imagePath = '/images/leaflet';
           var layer = L.esri.dynamicMapLayer({
             url: 'https://conifer.gis.washington.edu/arcgis/rest/services/AHBNW/AHBNW_20151009_parcel_featureAccess/MapServer',
             opacity: 0.5,
-          }).addTo(this.map);
+          });
 
           L.control.layers({}, {Parcels: layer}).addTo(this.map);
 
@@ -94,6 +107,13 @@
         }
 
         this.ll = e.latlng;
+
+        if( this.marker ) {
+          this.map.removeLayer(this.marker);
+        }
+
+        this.marker = L.marker(e.latlng).addTo(this.map);
+
         this.popup.show(this.ll.lat, this.ll.lng);
       },
 
@@ -193,6 +213,7 @@
         if( DSSDK.datastore.allParcels.length > 0 ) {
           this.mode = 'select';
           this.menu.setMode(this.mode);
+          this.$.info.style.display = 'block';
         }
 
         this.menu.updateSelected();
