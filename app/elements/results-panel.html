@@ -4,28 +4,23 @@
       :host {
         display: block;
       }
+      .page-header {
+        border-bottom: 1px solid #eee;
+      }
     </style>
+
+
+    <div style="padding: 0 10px">
+
+    <h4>Overview</h4>
 
     <table class="table">
       <tr>
-        <td style="width: 150px">Price</td>
+        <td style="width: 150px">Price ($ / Mg)</td>
         <td>
           <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
         </td>
       </tr>
-      <tr>
-        <td style="width: 150px">Adoption</td>
-        <td>
-
-            <div><span id="validParcelPercent"></span> Competing Parcels</div>
-            <div><span id="parcelPercent"></span> All Parcels In Area</div>
-            <div id="chart"></div>
-
-        </td>
-      </tr>
-    </table>
-
-    <table class="table">
       <tr>
         <td>Parcels</td>
         <td id="parcelCount"></td>
@@ -35,16 +30,32 @@
         <td id="acreCount"></td>
       </tr>
       <tr>
-        <td>Total Poplar Harvested <span id="runtime"></span></td>
+        <td>Total Poplar Harvested <span id="runtime"></span>*</td>
         <td id="harvestTotal"></td>
       </tr>
       <tr>
-        <td>Average Yearly Poplar Harvest</td>
+        <td>Average Yearly Poplar Harvest*</td>
         <td id="avgPerYear"></td>
+      </tr>
+      <tr>
+        <td colspan="2"><div class="help-block">*Based on adoption % below.</div></td>
       </tr>
     </table>
 
+
+    <h4 class="page-header">Adoption <span id="adoptionAmount"></span></h4>
+
+    <div><span id="validParcelPercent"></span> Competing crop parcels adopted.</div>
+    <div><span id="parcelPercent"></span> All parcels in area adopted.</div>
+
+
+    <div id="chart"></div>
+
+    <h4 class="page-header">Adoption By Price</h4>
+
     <div id="adoptionChart"></div>
+
+    </div>
 
   </template>
   <script>
@@ -52,16 +63,36 @@
       is: 'results-panel',
 
       ready : function() {
+        this.breakdownRendered = false;
         this.charts = [];
+        this.resizeTimer = -1;
         DSSDK.app.setOnCompleteListener(this.update.bind(this));
+        $(window).on('resize', this.resize.bind(this));
+      },
+
+      resize : function() {
+        if( this.resizeTimer !== -1 ) {
+          clearTimeout(this.resizeTimer);
+        }
+
+        this.resizeTimer = setTimeout(function(){
+          this.resizeTimer = -1;
+          this._resize();
+        }.bind(this), 100);
+      },
+
+      _resize : function() {
+        var w = $(this).width();
+        this.$.chart.style.width = w+'px';
+        this.$.adoptionChart.style.width = w+'px';
+
+        this.charts.forEach(function(c){
+          c.chart.draw(c.data, c.options);
+        });
       },
 
       onShow : function() {
-        setTimeout(function(){
-          this.charts.forEach(function(c){
-            c.chart.draw(c.data, c.options);
-          });
-        }.bind(this), 100);
+        this.resize();
       },
 
       update : function() {
@@ -116,10 +147,16 @@
           options: options
         });
 
+        this.$.adoptionAmount.innerHTML = ' @ $'+DSSDK.datastore.poplarPrice+' / Mg';
+
         this.updatePriceBreakdown();
       },
 
       updatePriceBreakdown : function() {
+        if( this.breakdownRendered ) {
+          return;
+        }
+
         var breakdown = DSSDK.datastore.getAdoptionBreakdown(23, 43, .5);
 
         var data = [];
@@ -145,7 +182,7 @@
         data = google.visualization.arrayToDataTable(data);
 
         var options = {
-          title: 'Adoption By Price',
+          title: '',
           height: 400,
           legend : {
             position: 'right'
@@ -165,6 +202,8 @@
           data : data,
           options: options
         });
+
+        this.breakdownRendered = true;
       },
 
       getAmountLabel : function(val) {

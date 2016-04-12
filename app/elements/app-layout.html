@@ -50,7 +50,7 @@
       }
     </style>
 
-    <div class="navbar navbar-inverse" style="z-index:300">
+    <div class="navbar navbar-inverse" style="z-index:300" id="header">
       <div class="container-fluid">
         <h4 style="margin-top: 18px">
           <a style="margin-right: 20px" class="btn btn-primary visible-xs-inline-block" on-click="toggleMenu">
@@ -66,7 +66,7 @@
       <div style="overflow-y:auto; overflow-x: hidden" id="menu">
         <app-main-menu on-set-page="setPage"></app-main-menu>
       </div>
-      <div class="flex" style="overflow:auto">
+      <div class="flex" style="overflow:auto" id="content">
         <parcel-map id="map" class="page"></parcel-map>
         <results-panel id="results" style="display:none" class="page"></results-panel>
       </div>
@@ -81,6 +81,17 @@
         DSSDK.init(function(){
           console.log('budget loaded');
         });
+
+        $(window).on('resize', this.resize.bind(this));
+      },
+
+      attached : function() {
+        this.resize();
+      },
+
+      resize : function() {
+        var h = $(this.$.header).height();
+        this.$.content.style.height = ($(window).height() - h) + 'px';
       },
 
       setPage : function(e) {
