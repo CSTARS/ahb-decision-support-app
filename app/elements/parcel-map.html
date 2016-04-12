@@ -18,7 +18,13 @@
       }
     </style>
 
-    <div id="info">Click parcel to view details.</div>
+    <div id="info">
+      <div>
+        <b>Filter Parcels</b>
+        <div id="filters"></div>
+      </div>
+      Click parcel to view details.
+    </div>
 
   </template>
   <script>
@@ -26,6 +32,10 @@
       is: 'parcel-map',
 
       ready : function() {
+        //this.filters = ['Oats'];
+        this.filters = [];
+        this.cropTypes = [];
+
         // current modes are 'set' (set refinery location) or 'select' which is select parcel
         this.mode = 'set';
         this.radius = 40000;
@@ -120,6 +130,45 @@
       // TODO: bind to this
       // DSSDK.datastore.on('transportation-updated', this.renderRoads);
       onSelectedUpdated : function() {
+        var cropTypes = {};
+        DSSDK.datastore.selectedParcels.forEach(function(parcel){
+          parcel.properties.ucd.cropInfo.swap.forEach(function(crop){
+            cropTypes[crop] = 1;
+          });
+        });
+        this.cropTypes = Object.keys(cropTypes);
+        this.filters = [];
+
+        var html = '';
+        for( var i = 0; i < this.cropTypes.length; i++ ) {
+          html += '<div><input type="checkbox" value="'+this.cropTypes[i]+'" /> '+this.cropTypes[i]+'</div>';
+        }
+
+        this.$.filters.innerHTML = html;
+        $(this.$.filters)
+          .find('input')
+          .on('click', function(e){
+            var crop = e.currentTarget.getAttribute('value');
+            var index = this.filters.indexOf(crop);
+
+            if( e.currentTarget.checked ) {
+              if( index === -1 ) {
+                this.filters.push(crop);
+              }
+            } else {
+              if( index > -1 ) {
+                this.filters.splice(index, 1);
+              }
+            }
+
+            this.reset();
+            this.filter();
+          }.bind(this));
+
+        this.filter();
+      },
+
+      filter : function() {
         for( var i = this.canvasLayer.features.length-1; i >= 0; i-- ) {
           var geo = this.canvasLayer.features[i].geojson.geometry;
           if( geo.type === 'LineString' ){
@@ -129,16 +178,16 @@
 
         // actually hide the parcel at the canvas layer... thus no geometry recalc
         this.canvasLayer.features.forEach(function(clFeature){
-          if( DSSDK.datastore.selectedParcels.indexOf(clFeature.geojson) === -1 ) {
-            clFeature.visible = false;
-          } else {
+          if( this.showParcel(clFeature.geojson) ) {
             clFeature.visible = true;
+          } else {
+            clFeature.visible = false;
           }
-        });
+        }.bind(this));
 
         this.currentNetwork = {};
         DSSDK.datastore.allParcels.forEach(function(parcel){
-          if( DSSDK.datastore.selectedParcels.indexOf(parcel) > -1 ) {
+          if( this.showParcel(parcel)  ) {
             parcel.properties.ucd.render.selected = true;
           } else {
             parcel.properties.ucd.render.selected = false;
@@ -201,7 +250,29 @@
         this.canvasLayer.render();
       },
 
-      onParcelsLoaded : function() {
+      showParcel : function(parcel) {
+        if( DSSDK.datastore.selectedParcels.indexOf(parcel) === -1 ) {
+          return false;
+        }
+
+        if( !parcel.properties.ucd.cropInfo ) {
+          return false;
+        }
+
+        if( this.filters.length === 0 ) {
+          return true;
+        }
+
+        for( var i = 0; i < parcel.properties.ucd.cropInfo.swap.length; i++ ) {
+          if( this.filters.indexOf(parcel.properties.ucd.cropInfo.swap[i]) > -1 ) {
+            return true;
+          }
+        }
+
+        return false;
+      },
+
+      reset : function() {
         this.canvasLayer.features = [];
 
         DSSDK.datastore.allParcels.forEach(function(parcel){
@@ -215,6 +286,10 @@
           this.menu.setMode(this.mode);
           this.$.info.style.display = 'block';
         }
+      },
+
+      onParcelsLoaded : function() {
+        this.reset();
 
         this.menu.updateSelected();
       },

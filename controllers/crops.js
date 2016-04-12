@@ -13,4 +13,16 @@ module.exports = function(router) {
       res.send(result);
     });
   });
+
+  router.post('/priceAndYield', function(req, res){
+    var query = req.body;
+
+    model.getPriceAndYield(query, function(err, result){
+      if( err ){
+        return res.send({error: true, message: err});
+      }
+
+      res.send(result);
+    });
+  });
 };

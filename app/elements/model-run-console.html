@@ -35,6 +35,9 @@
         DSSDK.datastore.on('crops-update-start', this.onCropsStart.bind(this));
         DSSDK.datastore.on('crops-update-end', this.onCropsEnd.bind(this));
 
+        DSSDK.datastore.on('crop-priceyield-update-start', this.onCropPriceYieldStart.bind(this));
+        DSSDK.datastore.on('crop-priceyield-update-end', this.onCropPriceYieldEnd.bind(this));
+
         DSSDK.datastore.on('budgets-update-start', this.onBudgetsStart.bind(this));
         DSSDK.datastore.on('budgets-update-end', this.onBudgetsEnd.bind(this));
 
@@ -93,13 +96,21 @@
       },
 
       onCropsStart : function() {
-        this.createLine('crops', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up crop type, price and yield</span>');
+        this.createLine('crops', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up crop type for parcels.</span>');
       },
 
       onCropsEnd : function() {
         var total = DSSDK.datastore.allParcels.length;
         var valid = DSSDK.datastore.validParcels.length;
-        this.updateLine('crops', '<span class="text text-success"><i class="fa fa-check"></i> Crop info loaded. '+valid+' of '+total+' parcels have competing crops.</span>');
+        this.updateLine('crops', '<span class="text text-success"><i class="fa fa-check"></i> Crop type loaded. '+valid+' of '+total+' parcels have competing crops.</span>');
+      },
+
+      onCropPriceYieldStart : function() {
+        this.createLine('cropPriceYield', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up crop price and yield</span>');
+      },
+
+      onCropPriceYieldEnd : function() {
+        this.updateLine('cropPriceYield', '<span class="text text-success"><i class="fa fa-check"></i> Crop price and yield loaded.</span>');
       },
 
       onBudgetsStart : function() {

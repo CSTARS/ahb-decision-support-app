@@ -183,8 +183,9 @@
         for( var i = 0; i < cropInfo.swap.length; i++ ) {
           html += '<b>'+cropInfo.swap[i] + '</b> - <a href="http://farmbudgets.org/#' +
           cropInfo.cropBudgets[i].id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
-          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total+' / Acre<br />' +
-          '&nbsp;&nbsp;<b>Price:</b> '+cropInfo.yield[i]+' '+cropInfo.price_unit[i];
+          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total.toFixed(2)+' / Acre<br />' +
+          '&nbsp;&nbsp;<b>Price:</b> '+cropInfo.priceYield[i].price.price+' '+cropInfo.priceYield[i].price.unit+'<br />'+
+          '&nbsp;&nbsp;<b>Yield:</b> '+(cropInfo.priceYield[i].yield.unspecified || cropInfo.priceYield[i].yield['non-irrigated'])+' '+cropInfo.priceYield[i].yield.unit;
         }
         this.$.crops.innerHTML = html;
 

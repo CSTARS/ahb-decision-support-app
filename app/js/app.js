@@ -22,10 +22,10 @@ DSSDK.app.run = function(lat, lng, radius, callback) {
   var c = 0;
   function onComplete() {
     c++;
-    if( c === 3 ) {
+    if( c === 4 ) {
       DSSDK.app.grown = true;
 
-      DSSDK.datastore.selectParcels();
+      DSSDK.adoption.selectParcels();
 
       DSSDK.app.getOnCompleteListeners().forEach(function(fn){
         fn();
@@ -41,6 +41,8 @@ DSSDK.app.run = function(lat, lng, radius, callback) {
     DSSDK.datastore.getCrops(function(){
 
       DSSDK.datastore.getTransportation(socket.id, onComplete);
+
+      DSSDK.datastore.getCropPriceAndYield(onComplete);
 
       // run at the same time as transportation
       DSSDK.datastore.getWeather(function(weather){
@@ -62,7 +64,7 @@ DSSDK.app.setPoplarPrice = function(price) {
 //  document.querySelector('menu-parcel-options').setPoplarPrice(price);
 
   if( this.grown ) {
-    DSSDK.datastore.selectParcels();
+    DSSDK.adoption.selectParcels();
     DSSDK.app.getOnCompleteListeners().forEach(function(fn){
       fn();
     });
