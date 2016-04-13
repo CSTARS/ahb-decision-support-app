@@ -25,7 +25,7 @@ function getCrops(geometryCollection, callback) {
       return callback(err);
     }
 
-    if( resp.rows && resp.rows.length > 0 )  {
+    if( resp.rows && resp.rows.length > 0 && resp.rows[0].land_cover_yield )  {
 
       callback(null, formatReponse(resp.rows[0], geometryCollection.geometries));
     } else {
