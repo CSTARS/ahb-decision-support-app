@@ -158,11 +158,11 @@
           cR += revenueResults.crops[i].revenue;
 
           data.push([
-            d.toLocaleDateString(),
+            d.getFullYear()+'',
             pR,
-            '$'+pR,
+            '$'+pR.toFixed(2),
             cR,
-            '$'+cR
+            '$'+cR.toFixed(2)
           ]);
           d.setFullYear(d.getFullYear()+1);
 
@@ -181,17 +181,17 @@
         var html = '';
         var cropInfo = this.parcel.properties.ucd.cropInfo;
         for( var i = 0; i < cropInfo.swap.length; i++ ) {
-          html += '<b>'+cropInfo.swap[i] + '</b> - <a href="http://farmbudgets.org/#' +
+          html += '<b>'+cropInfo.swap[i] + '</b><br />'+
+          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total.toFixed(2)+' / Acre - <a href="http://farmbudgets.org/#' +
           cropInfo.cropBudgets[i].id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
-          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total.toFixed(2)+' / Acre<br />' +
           '&nbsp;&nbsp;<b>Price:</b> '+cropInfo.priceYield[i].price.price+' '+cropInfo.priceYield[i].price.unit+'<br />'+
           '&nbsp;&nbsp;<b>Yield:</b> '+(cropInfo.priceYield[i].yield.unspecified || cropInfo.priceYield[i].yield['non-irrigated'])+' '+cropInfo.priceYield[i].yield.unit;
         }
         this.$.crops.innerHTML = html;
 
         this.$.poplar.innerHTML =
-                '<a href="http://farmbudgets.org/#'+DSSDK.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
-                '<b>Cost:</b> $'+DSSDK.datastore.getPoplarTotal().toFixed(2)+' / Acre <br />' +
+                '<b>Cost:</b> $'+DSSDK.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
+                ' - <a href="http://farmbudgets.org/#'+DSSDK.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
                 '<b>Price:</b> $'+DSSDK.datastore.poplarPrice+' / Mg<br />'+
                 '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
                 '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.properties.distance*0.621371).toFixed(2)+' mi';
@@ -201,6 +201,10 @@
           height: 300,
           legend : {
             position: 'top'
+          },
+          hAxis : {
+            slantedText:true,
+            slantedTextAngle:45
           }
         };
         var chart = new google.visualization.LineChart(this.$.revenueChart);
@@ -218,17 +222,14 @@
       updateYieldChart : function() {
         var dt = new google.visualization.DataTable();
         dt.addColumn('string', 'Year'); // Implicit domain label col.
-        dt.addColumn('number', 'Poplar');
+        dt.addColumn('number', 'Poplar (Mg / Acre)');
         dt.addColumn({type: 'string', role: 'tooltip'});
 
-        crop = this.parcel.properties.ucd.cropInfo.swap.join(', ');
-
-        dt.addColumn('number', crop);
-        dt.addColumn({type: 'string', role: 'tooltip'});
 
         var id = this.parcel.properties.ucd.modelProfileId;
         var poplarConfig = DSSDK.model.profiles[id].config;
         if( !id ) return;
+
         var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
         var startYear = d.getFullYear();
 
@@ -236,28 +237,50 @@
         var c = 1;
 
         var revenueResults = this.parcel.properties.ucd.revenueResults;
-        var pR = 0;
-        var cR = 0;
+
+
+        var crops = [];
+        var included = {};
+        for( var i = 0; i < revenueResults.crops.length; i++ ) {
+          var yearData = revenueResults.crops[i].breakdown;
+          for( var j = 0; j < yearData.length; j++ ) {
+            if( !included[yearData[j].crop] ) {
+              crops.push({
+                crop : yearData[j].crop,
+                units : yearData[j].yieldUnits
+              });
+              included[yearData[j].crop] = true;
+
+              dt.addColumn('number', yearData[j].crop+' ('+yearData[j].yieldUnits+')');
+              dt.addColumn({type: 'string', role: 'tooltip'});
+            }
+          }
+        }
 
         for( var i = 0; i < revenueResults.poplar.length; i++ ) {
-
           var pyield = 0;
           for( var j = 0; j < revenueResults.poplar[i].breakdown.length; j++ ) {
             pyield += revenueResults.poplar[i].breakdown[j].yield;
           }
 
+          var rowdata = [
+            d.getFullYear()+'',
+            pyield,
+            pyield.toFixed(2)+' (Mg / Acre)'
+          ];
+
           var cyield = 0;
           for( var j = 0; j < revenueResults.crops[i].breakdown.length; j++ ) {
-            cyield += revenueResults.crops[i].breakdown[j].yield;
+            var yearData = revenueResults.crops[i].breakdown;
+
+            crops.forEach(function(cropInfo){
+              var d = this.getYearData(cropInfo, yearData);
+              rowdata.push(d.yield);
+              rowdata.push(d.yield.toFixed(2)+' ('+d.yieldUnits+')');
+            }.bind(this));
           }
 
-          data.push([
-            d.toLocaleDateString(),
-            pyield,
-            pyield+' Mg / Acre',
-            cyield,
-            cyield+' / Acre'
-          ]);
+          data.push(rowdata);
           d.setFullYear(d.getFullYear()+1);
         }
 
@@ -268,16 +291,34 @@
           height: 300,
           legend : {
             position: 'top'
+          },
+          hAxis : {
+            slantedText:true,
+            slantedTextAngle:45
           }
         };
-        var chart = new google.visualization.LineChart(this.$.yieldChart);
+        var chart = new google.visualization.ColumnChart(this.$.yieldChart);
         chart.draw(dt, options);
 
         setTimeout(function(){
           options.width = $(this.$.chart).parent().width();
-          var chart = new google.visualization.LineChart(this.$.yieldChart);
+          var chart = new google.visualization.ColumnChart(this.$.yieldChart);
           chart.draw(dt, options);
         }.bind(this), 500);
+      },
+
+      getYearData : function(cropInfo, yearData) {
+        for( var i = 0; i < yearData.length; i++ ) {
+          if( yearData[i].crop === cropInfo.crop ) {
+            return yearData[i];
+          }
+        }
+
+        return {
+          crop : cropInfo.crop,
+          yieldUnits : cropInfo.units,
+          yield : 0
+        }
       }
     });
   </script>
