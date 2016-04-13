@@ -45,9 +45,11 @@
 
     <h4 class="page-header">Adoption <span id="adoptionAmount"></span></h4>
 
-    <div><span id="validParcelPercent"></span> Competing crop parcels adopted.</div>
-    <div><span id="parcelPercent"></span> All parcels in area adopted.</div>
 
+    <div><span id="parcelPercent"></span> All parcels in area adopted.</div>
+    <div><span id="validParcelPercent"></span> Competing crop parcels adopted.</div>
+
+    <div id="overviewChart"></div>
 
     <div id="chart"></div>
 
@@ -101,6 +103,27 @@
         this.$.validParcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.validParcels.length))+'%';
         this.$.parcelCount.innerHTML = DSSDK.datastore.selectedParcels.length;
 
+        var data = [
+          ['Parcel Type', 'Parcel Number'],
+          ['Adopted', DSSDK.datastore.selectedParcels.length],
+          ['Not Adopted', DSSDK.datastore.validParcels.length - DSSDK.datastore.selectedParcels.length]
+        ];
+
+
+        data = google.visualization.arrayToDataTable(data);
+        var options = {
+          title: 'Adoption of Competing Parcels @ $'+DSSDK.datastore.poplarPrice+' / Mg',
+          height: 350
+        };
+        var chart = new google.visualization.PieChart(this.$.overviewChart);
+        chart.draw(data, options);
+
+        this.charts.push({
+          chart : chart,
+          data : data,
+          options: options
+        });
+
         var totalAcres = 0;
         var totalHarvested = 0;
         var years = DSSDK.model.monthsToRun / 12;
@@ -128,17 +151,17 @@
         this.$.harvestTotal.innerHTML = this.getAmountLabel(totalHarvested)+' Mg';
         this.$.avgPerYear.innerHTML = this.getAmountLabel(totalHarvested / years)+' Mg';
 
-        var data = [['Crop', 'Parcel Adoption']];
+        data = [['Crop', 'Parcel Adoption']];
         for( var key in cropCounts ) {
           data.push([key, cropCounts[key]]);
         }
 
         data = google.visualization.arrayToDataTable(data);
-        var options = {
+        options = {
           title: 'Adoption By Crop @ $'+DSSDK.datastore.poplarPrice+' / Mg',
           height: 350
         };
-        var chart = new google.visualization.PieChart(this.$.chart);
+        chart = new google.visualization.PieChart(this.$.chart);
         chart.draw(data, options);
 
         this.charts.push({
@@ -153,36 +176,59 @@
       },
 
       updatePriceBreakdown : function() {
-        if( this.breakdownRendered ) {
-          return;
+        if( !this.breakdownRendered ) {
+          //var breakdown = DSSDK.adoption.breakdown(23, 43, .5);
+          this.breakdown = DSSDK.adoption.breakdown(0, 30, .5);
         }
+        var breakdown = this.breakdown;
 
-        //var breakdown = DSSDK.adoption.breakdown(23, 43, .5);
-        var breakdown = DSSDK.adoption.breakdown(0, 30, 1);
+
+        var dt = new google.visualization.DataTable();
 
         var data = [];
         var header = ['price'];
+        dt.addColumn({id:'price', label: 'Price', type:'number'});
+
         for( var key in breakdown[0] ) {
           if( key === 'price' ) continue;
           header.push(key);
+          dt.addColumn({id:key, label:key, type:'number'});
         }
+        dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
+        dt.addColumn({id: 'tooltip', type: 'string', role:'tooltip'});
 
+
+        var max = 0;
         breakdown.forEach(function(pricedata){
           var row = [];
           for( var i = 0; i < header.length; i++ ) {
             if( i === 0 ) {
               row.push(pricedata[header[i]]);
             } else {
-              row.push(pricedata[header[i]] ? pricedata[header[i]].parcels : 0);
+              var count = pricedata[header[i]] ? pricedata[header[i]].parcels : 0;
+              row.push(count);
+              if( count > max ) {
+                max = count;
+              }
             }
           }
+          row.push(null);
+          row.push(null);
           data.push(row);
         });
 
-        data.unshift(header);
-        data = google.visualization.arrayToDataTable(data);
+        // add current line bar
+        row = [DSSDK.datastore.poplarPrice];
+        for( var i = 1; i < header.length; i++ ) {
+          row.push(null);
+        }
+        row.push(max+20);
+        row.push('Current Price: '+DSSDK.datastore.poplarPrice+' $ / Mg');
+        data.push(row);
 
-        var options = {
+        dt.addRows(data);
+
+        /*var options = {
           title: '',
           height: 400,
           legend : {
@@ -195,12 +241,37 @@
             title: 'Parcels (#)'
           }
         };
-        var chart = new google.visualization.LineChart(this.$.adoptionChart);
-        chart.draw(data, options);
+        var chart = new google.visualization.LineChart(this.$.adoptionChart);*/
+
+        var options = {
+          hAxis : {
+            title : 'Price ($)'
+          },
+          height: 400,
+          vAxis : {
+            title : 'Parcels (#)'
+          },
+          seriesType: "bars",
+          series :{},
+          interpolateNulls : true,
+          legend : {
+            position: 'top'
+          }
+        }
+        var chart = new google.visualization.ComboChart(this.$.adoptionChart);
+
+        for( var i = 0; i < header.length-2; i++ ) {
+          options.series[i] = {
+            type : 'line',
+            targetAxisIndex : 0
+          }
+        }
+
+        chart.draw(dt, options);
 
         this.charts.push({
           chart : chart,
-          data : data,
+          data : dt,
           options: options
         });
 
