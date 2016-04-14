@@ -173,7 +173,10 @@
 
         }
 
-        transportationAvg  = transportationAvg / tc;
+        if( tc > 0 ) {
+          transportationAvg  = transportationAvg / tc;
+        }
+
 
         dt.addRows(data);
         this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
@@ -185,7 +188,7 @@
           '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total.toFixed(2)+' / Acre - <a href="http://farmbudgets.org/#' +
           cropInfo.cropBudgets[i].id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
           '&nbsp;&nbsp;<b>Price:</b> '+cropInfo.priceYield[i].price.price+' '+cropInfo.priceYield[i].price.unit+'<br />'+
-          '&nbsp;&nbsp;<b>Yield:</b> '+(cropInfo.priceYield[i].yield.unspecified || cropInfo.priceYield[i].yield['non-irrigated'])+' '+cropInfo.priceYield[i].yield.unit;
+          '&nbsp;&nbsp;<b>Yield:</b> '+(cropInfo.priceYield[i].yield.yield)+' '+cropInfo.priceYield[i].yield.unit;
         }
         this.$.crops.innerHTML = html;
 

@@ -9,6 +9,7 @@
       }
     </style>
 
+    <price-yield-popup id="priceYieldPopup" on-yield-price-change="onPriceYieldChange"></price-yield-popup>
 
     <div style="padding: 0 10px">
 
@@ -19,6 +20,12 @@
         <td style="width: 150px">Price ($ / Mg)</td>
         <td>
           <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 150px">Crop Price/Yield</td>
+        <td>
+          <a class="btn btn-link" on-click="showPriceYieldPopup">Change</a>
         </td>
       </tr>
       <tr>
@@ -178,7 +185,7 @@
       updatePriceBreakdown : function() {
         if( !this.breakdownRendered ) {
           //var breakdown = DSSDK.adoption.breakdown(23, 43, .5);
-          this.breakdown = DSSDK.adoption.breakdown(0, 30, .5);
+          this.breakdown = DSSDK.adoption.breakdown(0, 50, 1);
         }
         var breakdown = this.breakdown;
 
@@ -287,8 +294,20 @@
         DSSDK.app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
       },
 
+      onPriceYieldChange : function(e) {
+        e = e.detail;
+        DSSDK.datastore.priceYield.currentValues[e.crop][e.type][e.type] = e.value;
+
+        this.breakdownRendered = false;
+        DSSDK.app.setPoplarPrice(DSSDK.datastore.poplarPrice);
+      },
+
       setPoplarPrice : function(price) {
         this.$.poplarPriceInput.value = price;
+      },
+
+      showPriceYieldPopup : function() {
+        this.$.priceYieldPopup.show();
       }
     });
   </script>

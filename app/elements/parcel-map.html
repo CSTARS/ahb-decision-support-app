@@ -371,10 +371,11 @@
         }
         ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-        if( !feature.geojson.properties.ucd.render.selected ) {
+        if( feature.geojson.properties.ucd.transportation.properties.error || feature.geojson.properties.ucd.poplarGrowthError ) {
           ctx.strokeStyle = 'rgba(255,0,0,.8)';
+        } else if( !feature.geojson.properties.ucd.render.selected ) {
+          ctx.strokeStyle = 'rgba(255, 152, 0,.8)';
         } else {
-          // ctx.strokeStyle = 'rgba(30,150,243,.8)';
           ctx.strokeStyle = '#00BCD4';
         }
 
