@@ -73,7 +73,7 @@
 
       ready : function() {
         this.breakdownRendered = false;
-        this.charts = [];
+        this.charts = {};
         this.resizeTimer = -1;
         DSSDK.app.setOnCompleteListener(this.update.bind(this));
         $(window).on('resize', this.resize.bind(this));
@@ -95,9 +95,10 @@
         this.$.chart.style.width = w+'px';
         this.$.adoptionChart.style.width = w+'px';
 
-        this.charts.forEach(function(c){
+        for( var key in this.charts ) {
+          var c = this.charts[key];
           c.chart.draw(c.data, c.options);
-        });
+        }
       },
 
       onShow : function() {
@@ -105,7 +106,7 @@
       },
 
       update : function() {
-        this.charts = [];
+        //this.charts = {};
         this.$.parcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.allParcels.length))+'%';
         this.$.validParcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.validParcels.length))+'%';
         this.$.parcelCount.innerHTML = DSSDK.datastore.selectedParcels.length;
@@ -120,16 +121,14 @@
         data = google.visualization.arrayToDataTable(data);
         var options = {
           title: 'Adoption of Competing Parcels @ $'+DSSDK.datastore.poplarPrice+' / Mg',
+          animation:{
+            duration: 1000,
+            easing: 'out',
+          },
           height: 350
         };
-        var chart = new google.visualization.PieChart(this.$.overviewChart);
-        chart.draw(data, options);
 
-        this.charts.push({
-          chart : chart,
-          data : data,
-          options: options
-        });
+        this.drawChart('overviewChart', data, options, this.$.overviewChart, 'PieChart');
 
         var totalAcres = 0;
         var totalHarvested = 0;
@@ -166,29 +165,52 @@
         data = google.visualization.arrayToDataTable(data);
         options = {
           title: 'Adoption By Crop @ $'+DSSDK.datastore.poplarPrice+' / Mg',
+          animation:{
+            duration: 1000,
+            easing: 'out',
+          },
           height: 350
         };
-        chart = new google.visualization.PieChart(this.$.chart);
-        chart.draw(data, options);
 
-        this.charts.push({
-          chart : chart,
-          data : data,
-          options: options
-        });
+        this.drawChart('cropAdoption', data, options, this.$.chart, 'PieChart');
 
         this.$.adoptionAmount.innerHTML = ' @ $'+DSSDK.datastore.poplarPrice+' / Mg';
 
         this.updatePriceBreakdown();
       },
 
+      drawChart : function(name, data, options, ele, type) {
+        if( this.charts[name] ) {
+          this.charts[name].chart.draw(data, options);
+          this.charts[name].data = data;
+          this.charts[name].options = options;
+          return;
+        }
+
+        var chart = new google.visualization[type](ele);
+        chart.draw(data, options);
+
+        this.charts[name] = {
+          chart : chart,
+          data : data,
+          options : options
+        }
+      },
+
       updatePriceBreakdown : function() {
         if( !this.breakdownRendered ) {
           //var breakdown = DSSDK.adoption.breakdown(23, 43, .5);
-          this.breakdown = DSSDK.adoption.breakdown(0, 50, 1);
+          DSSDK.adoption.breakdown(0, 50, 1, function(breakdown){
+            this.breakdown = breakdown;
+            this.renderBreakdown();
+          }.bind(this));
+        } else {
+          this.renderBreakdown();
         }
-        var breakdown = this.breakdown;
+      },
 
+      renderBreakdown : function() {
+        var breakdown = this.breakdown;
 
         var dt = new google.visualization.DataTable();
 
@@ -235,22 +257,11 @@
 
         dt.addRows(data);
 
-        /*var options = {
-          title: '',
-          height: 400,
-          legend : {
-            position: 'right'
-          },
-          hAxis : {
-            title: 'Price ($)'
-          },
-          vAxis : {
-            title: 'Parcels (#)'
-          }
-        };
-        var chart = new google.visualization.LineChart(this.$.adoptionChart);*/
-
         var options = {
+          animation:{
+            duration: 1000,
+            easing: 'out',
+          },
           hAxis : {
             title : 'Price ($)'
           },
@@ -265,7 +276,6 @@
             position: 'top'
           }
         }
-        var chart = new google.visualization.ComboChart(this.$.adoptionChart);
 
         for( var i = 0; i < header.length-1; i++ ) {
           options.series[i] = {
@@ -274,13 +284,7 @@
           }
         }
 
-        chart.draw(dt, options);
-
-        this.charts.push({
-          chart : chart,
-          data : dt,
-          options: options
-        });
+        this.drawChart('adoptionChart', dt, options, this.$.adoptionChart, 'ComboChart');
 
         this.breakdownRendered = true;
       },
@@ -296,7 +300,9 @@
 
       onPriceYieldChange : function(e) {
         e = e.detail;
-        DSSDK.datastore.priceYield.currentValues[e.crop][e.type][e.type] = e.value;
+        if( e.crop ) {
+          DSSDK.datastore.priceYield.currentValues[e.crop][e.type][e.type] = e.value;
+        }
 
         this.breakdownRendered = false;
         DSSDK.app.setPoplarPrice(DSSDK.datastore.poplarPrice);

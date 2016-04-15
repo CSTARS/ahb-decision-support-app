@@ -15,60 +15,58 @@
           </div>
           <div class="modal-body">
 
+            <div style="text-align:right">
+              <h5>Set all to:</h5>
+              <div class="btn-group">
+                <a class="btn btn-default" on-click="setMin">Min</a>
+                <a class="btn btn-default" on-click="setAverage">Average</a>
+                <a class="btn btn-default" on-click="setMax">Max</a>
+              </div>
+            </div>
+
             <template is="dom-repeat" items="{{data}}">
               <h4>{{item.crop}}</h4>
 
-              <div class="row">
-                <div class="col-sm-2">Price</div>
-                <div class="col-sm-10">
-
-                  <div class="layout horizontal">
-                    <div class="flex">
+              <table class="table">
+                <tr>
+                  <td>
+                    <b>Price</b> <span>{{item.price.units}}</span>
+                    <div>
                       <input type="number" class="form-control" value="{{item.price.value}}" crop$="{{item.crop}}" ctype="price" on-change="fireChange"/>
-                    </div>
-                    <div>{{item.price.units}}</div>
-                  </div>
 
-                  <div class="layout horizontal">
-                    <div class="flex">
-                      <span class="label label-danger">Min <span>{{item.price.min}}</span></span>
+                      <div class="layout horizontal">
+                        <div class="flex">
+                          <span class="text text-danger">Min <span>{{item.price.min}}</span></span>
+                        </div>
+                        <div class="flex" style="text-align:center">
+                          <span class="text text-warning">Average <span>{{item.price.average}}</span></span>
+                        </div>
+                        <div class="flex" style="text-align:right">
+                          <span class="text text-success">Max <span>{{item.price.max}}</span></span>
+                        </div>
+                      </div>
                     </div>
-                    <div class="flex" style="text-align:center">
-                      <span class="label label-warning">Average <span>{{item.price.average}}</span></span>
-                    </div>
-                    <div class="flex" style="text-align:right">
-                      <span class="label label-success">Max <span>{{item.price.max}}</span></span>
-                    </div>
-                  </div>
+                  </td>
 
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-sm-2">Yield</div>
-                <div class="col-sm-10">
-
-                  <div class="layout horizontal">
-                    <div class="flex">
+                  <td>
+                    <b>Yield</b> <span>{{item.yield.units}}</span>
+                    <div>
                       <input type="number" class="form-control" value="{{item.yield.value}}" crop$="{{item.crop}}" ctype="yield" on-change="fireChange" />
+                      <div class="layout horizontal">
+                        <div class="flex">
+                          <span class="text text-danger">Min <span>{{item.yield.min}}</span></span>
+                        </div>
+                        <div class="flex" style="text-align:center">
+                          <span class="text text-warning">Average <span>{{item.yield.average}}</span></span>
+                        </div>
+                        <div class="flex" style="text-align:right">
+                          <span class="text text-success">Max <span>{{item.yield.max}}</span></span>
+                        </div>
+                      </div>
                     </div>
-                    <div>{{item.yield.units}}</div>
-                  </div>
-
-                  <div class="layout horizontal">
-                    <div class="flex">
-                      <span class="label label-danger">Min <span>{{item.yield.min}}</span></span>
-                    </div>
-                    <div class="flex" style="text-align:center">
-                      <span class="label label-warning">Average <span>{{item.yield.average}}</span></span>
-                    </div>
-                    <div class="flex" style="text-align:right">
-                      <span class="label label-success">Max <span>{{item.yield.max}}</span></span>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
+                  </td>
+                </tr>
+              </table>
             </template>
 
           </div> <!-- end body -->
@@ -91,7 +89,14 @@
 
       show : function() {
         this.popup.modal('show');
+        this.render();
+      },
 
+      hide : function() {
+        this.popup.modal('hide');
+      },
+
+      render : function() {
         var array = [];
         var priceYield = DSSDK.datastore.priceYield;
 
@@ -118,10 +123,6 @@
         this.data = array;
       },
 
-      hide : function() {
-        this.popup.modal('hide');
-      },
-
       fireChange : function(e) {
         var value = parseFloat(e.currentTarget.value);
         var crop = e.currentTarget.getAttribute('crop');
@@ -132,6 +133,24 @@
           crop : crop,
           type : type
         })
+      },
+
+      setMin : function() {
+        DSSDK.datastore.setPriceAndYield('min');
+        this.render();
+        this.fire('yield-price-change',{});
+      },
+
+      setMax : function() {
+        DSSDK.datastore.setPriceAndYield('max');
+        this.render();
+        this.fire('yield-price-change',{});
+      },
+
+      setAverage : function() {
+        DSSDK.datastore.setPriceAndYield('average');
+        this.render();
+        this.fire('yield-price-change',{});
       }
 
     })
