@@ -1,5 +1,6 @@
 var pg = require('../../lib/pg');
 var md5 = require('md5');
+var fs = require('fs');
 
 var fips = {
   '06' : 'California',
@@ -22,11 +23,11 @@ function getCrops(geometryCollection, callback) {
   pg.willowClient().query('select cdl.land_cover_yield($1)', [JSON.stringify(geometryCollection)], function(err, resp){
     if( err ) {
       console.log(err);
+      //fs.writeFileSync('tmp.json', JSON.stringify(geometryCollection));
       return callback(err);
     }
 
     if( resp.rows && resp.rows.length > 0 && resp.rows[0].land_cover_yield )  {
-
       callback(null, formatReponse(resp.rows[0], geometryCollection.geometries));
     } else {
       callback(null, []);

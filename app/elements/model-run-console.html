@@ -33,6 +33,7 @@
         DSSDK.datastore.on('parcels-update-end', this.onParcelEnd.bind(this));
 
         DSSDK.datastore.on('crops-update-start', this.onCropsStart.bind(this));
+        DSSDK.datastore.on('crops-update-updated', this.onCropsUpdated.bind(this));
         DSSDK.datastore.on('crops-update-end', this.onCropsEnd.bind(this));
 
         DSSDK.datastore.on('crop-priceyield-update-start', this.onCropPriceYieldStart.bind(this));
@@ -59,103 +60,148 @@
       },
 
       onHarvestsStart : function() {
-        this.createLine('harvest', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Growing Poplar %0</span>');
+        this.createLine('harvest', 'Growing Poplar %0','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
       },
 
       onHarvestsUpdated : function(e) {
-        this.updateLine('harvest', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Growing Poplar %'+e.percent+'</span>');
+        this.updateLine('harvest', 'Growing Poplar %'+e.percent);
       },
 
       onHarvestsEnd : function() {
-        this.updateLine('harvest', '<span class="text text-success"><i class="fa fa-check"></i> Poplar grown</span>');
+        this.updateLine('harvest', 'Poplar grown','text text-success','<i class="fa fa-check"></i>');
       },
 
       onParcelStart : function() {
-        this.createLine('parcel', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Finding available parcels</span>');
+        this.createLine('parcel', 'Finding available parcels','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
       },
 
       onParcelUpdated : function(e) {
-        this.updateLine('parcel', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Finding available parcels %'+e.percent+'</span>');
+        this.updateLine('parcel', 'Finding available parcels %'+e.percent);
       },
 
       onParcelEnd : function(e) {
-        this.updateLine('parcel', '<span class="text text-success"><i class="fa fa-check"></i> Parcels loaded. '+e.length+' Found.</span>');
+        this.updateLine('parcel', 'Parcels loaded. '+e.length,'text text-success','<i class="fa fa-check"></i>');
       },
 
       onTransportationStart : function() {
-        this.createLine('transportation', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up transportation routes %0</span>');
+        this.createLine('transportation', 'Looking up transportation routes %0','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
       },
 
       onTransportationUpdate : function(e) {
-        this.updateLine('transportation', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up transportation routes %' +
-        e.percent+' (~'+(e.timeRemaining/1000).toFixed(2)+'s @ '+e.averageTime.toFixed(2)+'ms/route )</span>');
+        this.updateLine('transportation', 'Looking up transportation routes %' +
+        e.percent+' (~'+(e.timeRemaining/1000).toFixed(2)+'s @ '+e.averageTime.toFixed(2)+'ms/route)');
       },
 
       onTransportationEnd : function() {
-        this.updateLine('transportation', '<span class="text text-success"><i class="fa fa-check"></i> Transportation routes loaded</span>');
+        this.updateLine('transportation', 'Transportation routes loaded','text text-success','<i class="fa fa-check"></i>');
       },
 
       onCropsStart : function() {
-        this.createLine('crops', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up crop type for parcels.</span>');
+        this.createLine('crops', 'Looking up crop type for parcels.','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+      },
+
+      onCropsUpdated : function(e) {
+        this.updateLine('crops', 'Looking up crop type for parcels %'+e.percent);
       },
 
       onCropsEnd : function() {
         var total = DSSDK.datastore.allParcels.length;
         var valid = DSSDK.datastore.validParcels.length;
-        this.updateLine('crops', '<span class="text text-success"><i class="fa fa-check"></i> Crop type loaded. '+valid+' of '+total+' parcels have competing crops.</span>');
+        this.updateLine('crops', 'Crop type loaded. '+valid+' of '+total+' parcels have competing crops.','text text-success','<i class="fa fa-check"></i>');
       },
 
       onCropPriceYieldStart : function() {
-        this.createLine('cropPriceYield', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up crop price and yield</span>');
+        this.createLine('cropPriceYield', 'Looking up crop price and yield','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
       },
 
       onCropPriceYieldEnd : function() {
-        this.updateLine('cropPriceYield', '<span class="text text-success"><i class="fa fa-check"></i> Crop price and yield loaded.</span>');
+        this.updateLine('cropPriceYield', 'Crop price and yield loaded.','text text-success','<i class="fa fa-check"></i>');
       },
 
       onBudgetsStart : function() {
-        this.createLine('budget', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Looking up farm budgets from farmbudgets.org</span>');
+        this.createLine('budget', 'Looking up farm budgets from farmbudgets.org','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
       },
 
       onBudgetsEnd : function() {
-        this.updateLine('budget', '<span class="text text-success"><i class="fa fa-check"></i> Farm budgets loaded</span>');
+        this.updateLine('budget', 'Farm budgets loaded','text text-success','<i class="fa fa-check"></i>');
       },
 
       onWeatherStart : function() {
-        this.createLine('weather', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Loading weather data</span>');
+        this.createLine('weather', 'Loading weather data','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
       },
 
       onWeatherEnd : function() {
-        this.updateLine('weather', '<span class="text text-success"><i class="fa fa-check"></i> Weather loaded</span>');
+        this.updateLine('weather', 'Weather loaded','text text-success','<i class="fa fa-check"></i>');
       },
 
       onSoilStart : function() {
-        this.createLine('soil', '<span class="text text-warning"><i class="fa fa-spin fa-circle-o-notch"></i> Loading soil data</span>');
+        this.createLine('soil', 'Loading soil data','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
       },
 
       onSoilEnd : function() {
-        this.updateLine('soil', '<span class="text text-success"><i class="fa fa-check"></i> Soil loaded</span>');
+        this.updateLine('soil', 'Soil loaded','text text-success','<i class="fa fa-check"></i>');
       },
 
-      createLine : function(id, msg) {
-        if( msg === undefined ) {
-          var ele = document.createElement('div');
-          ele.innerHTML = id;
-          this.appendChild(ele);
+      createLine : function(id, msg, className, icon) {
+        var line = document.createElement('module-run-console-line');
+        line.setText(msg);
+        line.setIcon(icon);
+        if( className !== undefined ) {
+          line.className = className;
         }
 
-        this.lines[id] = document.createElement('div');
-        this.lines[id].innerHTML = msg;
-        this.appendChild(this.lines[id]);
+
+        this.lines[id] = line;
+        this.appendChild(line);
       },
 
-      updateLine : function(id, msg) {
+      updateLine : function(id, msg, className, icon) {
         if( !this.lines[id] ) {
           return;
         }
-        this.lines[id].innerHTML = msg;
+
+        var line = this.lines[id];
+
+        line.setText(msg);
+        line.setIcon(icon);
+
+        if( className !== undefined ) {
+          line.className = className;
+        }
       }
     });
   </script>
 </dom-module>
-soil
+
+<dom-module id="module-run-console-line">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div class="layout horizontal">
+      <div id="icon"></div>
+      <div id="text" class="flex"></div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'module-run-console-line',
+
+      setText : function(txt) {
+        if( txt === undefined ) return;
+        this.$.text.innerHTML = txt;
+      },
+
+      setIcon : function(icon) {
+        if( icon === undefined ) return;
+        this.$.icon.style.paddingRight = '15px';
+        this.$.icon.innerHTML = icon;
+      }
+
+    });
+  </script>
+</dom-module>

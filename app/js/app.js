@@ -40,6 +40,7 @@ DSSDK.app.run = function(lat, lng, radius, callback) {
   DSSDK.datastore.getParcels(lat, lng, radius, function(){
     DSSDK.datastore.getCrops(function(){
 
+
       DSSDK.datastore.getTransportation(socket.id, onComplete);
 
       DSSDK.datastore.getCropPriceAndYield(onComplete);
@@ -51,8 +52,11 @@ DSSDK.app.run = function(lat, lng, radius, callback) {
         });
       });
 
-
       DSSDK.datastore.getBudgets(onComplete);
+
+      if( DSSDK.datastore.errorFetchingCropTypes ) {
+        alert('Error fetching parcel crop types');
+      }
     });
   });
 };

@@ -17,7 +17,7 @@
     "extend": "^3.0.0",
     "farm-budgets-sdk": "0.0.9",
     "kraken-js": "^2.1.0",
-    "leaflet-canvas-geojson": "github:ucd-cws/leaflet-canvas-geojson",
+    "leaflet-canvas-geojson": "0.0.6",
     "md5": "^2.1.0",
     "pg": "^4.5.1",
     "socket.io": "^1.4.5",

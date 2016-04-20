@@ -32,10 +32,7 @@
 
     <h5>
       <div id="name"></div>
-      <div class="layout horizontal center">
-        <div id="inner" class="flex"></div>
-        <div id="total"><span class="label label-warning">Not Grown</span></div>
-      </div>
+      <div id="inner" ></div>
     </h5>
 
     <div id="details" >
@@ -107,9 +104,6 @@
 
         if( this.parcel.properties.ucd && this.parcel.properties.ucd.modelProfileId ) {
           this.onComplete();
-          this.$.total.innerHTML = '<span class="label label-success">Grown</span>';
-        } else {
-          this.$.total.innerHTML = '<span class="label label-warning">Not Grown</span>';
         }
       },
 
@@ -192,12 +186,16 @@
         }
         this.$.crops.innerHTML = html;
 
-        this.$.poplar.innerHTML =
-                '<b>Cost:</b> $'+DSSDK.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
-                ' - <a href="http://farmbudgets.org/#'+DSSDK.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
-                '<b>Price:</b> $'+DSSDK.datastore.poplarPrice+' / Mg<br />'+
-                '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
-                '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.properties.distance*0.621371).toFixed(2)+' mi';
+        if( this.parcel.properties.ucd.harvest.growthError ) {
+          this.$.poplar.innerHTML = '<div class="alert alert-danger"><i class="fa fa-warning"></i> Failed to grow poplar :(</div>';
+        } else {
+          this.$.poplar.innerHTML =
+                  '<b>Cost:</b> $'+DSSDK.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
+                  ' - <a href="http://farmbudgets.org/#'+DSSDK.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
+                  '<b>Price:</b> $'+DSSDK.datastore.poplarPrice+' / Mg<br />'+
+                  '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
+                  '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.properties.distance*0.621371).toFixed(2)+' mi';
+        }
 
         var options = {
           width : $(this.$.revenueChart).parent().width(),
