@@ -48,15 +48,16 @@
       },
 
       onStart : function(lat, lng, radius, socket) {
+        this.startTime = new Date().getTime();
         this.innerHTML = '';
         this.style.display = 'block';
-        this.createLine('start', 'Starting Model Run @ '+lat.toFixed(4)+','+lng.toFixed()+' radius='+(radius/1000)+'km');
+        this.createLine('start', 'Starting Model Run @ '+lat.toFixed(4)+', '+lng.toFixed(4)+' Radius: '+(radius/1000)+'km');
 
         socket.on('transportation-update', this.onTransportationUpdate.bind(this));
       },
 
       onEnd : function() {
-        this.createLine('end', 'Finished.');
+        this.createLine('end', 'Finished. Execution Time: '+((new Date().getTime() - this.startTime) / 1000).toFixed(2)+'s');
       },
 
       onHarvestsStart : function() {
