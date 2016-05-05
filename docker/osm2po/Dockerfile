@@ -9,4 +9,4 @@ ADD run.sh /
 CMD /run.sh
 
 # default port
-EXPOSE 5001
+EXPOSE 8889

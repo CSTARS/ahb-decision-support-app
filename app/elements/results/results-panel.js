@@ -1,5 +1,6 @@
 var app = require('../app');
 var sdk = require('../sdk');
+var utils = require('../utils');
 var datastore = sdk.datastore;
 
     Polymer({
@@ -70,18 +71,18 @@ var datastore = sdk.datastore;
         var totals = sdk.datastore.totals;
         
         this.$.runtime.innerHTML = '('+totals.years+' Years)';
-        this.$.acreCount.innerHTML = this.getAmountLabel(totals.acres);
-        var harvestTotal = this.getAmountLabel(totals.harvested);
+        this.$.acreCount.innerHTML = utils.formatAmount(totals.acres);
+        var harvestTotal = utils.formatAmount(totals.harvested);
         this.$.harvestTotal.innerHTML = harvestTotal+' Mg';
         
         var yieldRequired = sdk.datastore.selectedRefinery.feedstockCapacity.value;
-        var html = this.getAmountLabel(totals.avgYearHarvest)+' Mg.<br /><span class="text ';
+        var html = utils.formatAmount(totals.avgYearHarvest)+' Mg.<br /><span class="text ';
         if( totals.avgYearHarvest < yieldRequired ) {
           html += 'text-danger';
         } else {
           html += 'text-success';
         }
-        html += '">'+this.getAmountLabel(yieldRequired)+' Mg required to run refinery</span>';
+        html += '">'+utils.formatAmount(yieldRequired)+' Mg required to run refinery</span>';
         this.$.avgPerYear.innerHTML = html;
         
         // render refinery data
@@ -94,13 +95,13 @@ var datastore = sdk.datastore;
 
         
         this.$.refineryType.innerHTML = r.name;
-        this.$.refineryCapitalCost.innerHTML = '$'+this.getAmountLabel(r.capitalCost);
-        this.$.refineryOperatingCost.innerHTML = '$'+this.getAmountLabel(operatingCost);
-        this.$.refineryPoplarCost.innerHTML = '$'+this.getAmountLabel(poplarCost);
+        this.$.refineryCapitalCost.innerHTML = '$'+utils.formatAmount(r.capitalCost);
+        this.$.refineryOperatingCost.innerHTML = '$'+utils.formatAmount(operatingCost);
+        this.$.refineryPoplarCost.innerHTML = '$'+utils.formatAmount(poplarCost);
         var totalCost = r.capitalCost + operatingCost + poplarCost;
-        this.$.refineryTotalCost.innerHTML = '$'+this.getAmountLabel(totalCost);
+        this.$.refineryTotalCost.innerHTML = '$'+utils.formatAmount(totalCost);
         this.$.refineryProduct.innerHTML = r.product.name;
-        this.$.refineryIncome.innerHTML = '$'+this.getAmountLabel(refineryIncome)+
+        this.$.refineryIncome.innerHTML = '$'+utils.formatAmount(refineryIncome)+
                                            `<div class="help-block">
                                               (${r.yield.value} ${r.yield.units}) x
                                               (${r.product.price} ${r.product.units}) x
@@ -108,8 +109,14 @@ var datastore = sdk.datastore;
                                            </div>`;
         
         var net = refineryIncome - (totalCost);
-        var roi = 100 * (net / (totalCost));
-        this.$.refineryRoi.innerHTML = '$'+this.getAmountLabel(net)+'<br />  ROI: %'+roi.toFixed(0);
+        var roi;
+        if( totalCost > net ) {
+          roi = 100 * (net / totalCost);
+        } else {
+          roi = 100 * (totalCost / net);
+        }
+         
+        this.$.refineryRoi.innerHTML = '$'+utils.formatAmount(net)+'<br />  ROI: %'+roi.toFixed(0);
 
         data = [['Crop', 'Parcel Adoption']];
         for( var key in totals.cropCounts ) {
@@ -202,19 +209,8 @@ var datastore = sdk.datastore;
             row.push(null);
           }
           
-          //row.push(null);
-          //row.push(null);
           data.push(row);
         });
-
-        // add current line bar
-        // row = [sdk.datastore.poplarPrice+''];
-        // for( var i = 1; i < header.length; i++ ) {
-        //   row.push(null);
-        // }
-        // row.push(max+20);
-        // row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
-        // data.push(row);
 
         dt.addRows(data);
 
@@ -250,13 +246,12 @@ var datastore = sdk.datastore;
         this.breakdownRendered = true;
       },
 
-      getAmountLabel : function(val) {
-        val = Math.floor(val)+'';
-        return val.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-      },
-
       onPriceChange : function() {
-        app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
+        sdk.datastore.poplarPrice = parseFloat(this.$.poplarPriceInput.value);
+        this.breakdownRendered = false;
+        sdk.adoption.selectParcels();
+        datastore.setTotals();
+        this.update();
       },
 
       onPriceYieldChange : function(e) {
@@ -266,7 +261,7 @@ var datastore = sdk.datastore;
         }
 
         this.breakdownRendered = false;
-        app.setPoplarPrice(sdk.datastore.poplarPrice);
+        app.recalc();
       },
 
       setPoplarPrice : function(price) {

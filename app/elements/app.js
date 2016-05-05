@@ -34,6 +34,26 @@ function App() {
     this.registerRunConsole = function(rc) {
         runConsole = rc;
     }
+    
+    this.recalc = function(callback) {
+        if( !grown ) {
+            if( callback ) callback();
+            return;
+        }
+        
+        // find selected parcels at price $0 to $50, $1 step
+        sdk.adoption.breakdown(0, 50, 1, (breakdown) => {
+            this.breakdown = breakdown;
+            
+            datastore.setTotals();
+
+            this.getOnCompleteListeners().forEach(function(fn){
+                fn();
+            });
+
+            if( callback ) callback();
+        });
+    }
 
     this.run = function(options, callback) {
 
@@ -48,19 +68,7 @@ function App() {
             c++;
             if( c === 4 ) {
                 grown = true;
-
-                //adoption.selectParcels();
-                
-                // find selected parcels at price $0 to $50, $1 step
-                sdk.adoption.breakdown(0, 50, 1, (breakdown) => {
-                    $self.breakdown = breakdown;
-                    
-                    datastore.setTotals();
-
-                    $self.getOnCompleteListeners().forEach(function(fn){
-                        fn();
-                    });
-
+                $self.recalc(() => {
                     socket.disconnect();
                     runConsole.onEnd();
                     callback();

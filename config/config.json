@@ -27,6 +27,6 @@
 
     "osm2po" : {
       "host" : "http://localhost",
-      "port" : 5001
+      "port" : 8889
     }
 }

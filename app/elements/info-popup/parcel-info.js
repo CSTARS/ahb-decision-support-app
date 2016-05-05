@@ -62,13 +62,12 @@ var app = require('../app');
         dt.addColumn({type: 'string', role: 'tooltip'});
 
         var id = this.parcel.properties.ucd.modelProfileId;
-        var poplarConfig = sdk.model.profiles[id].config;
+        var poplarConfig = sdk.poplarModel.profiles[id].config;
         if( !id ) return;
         var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
         var startYear = d.getFullYear();
 
         var data = [];
-//        var price = sdk.app.getPoplarPrice();
         var c = 1;
 
         var revenueResults = this.parcel.properties.ucd.revenueResults;

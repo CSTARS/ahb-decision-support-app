@@ -1,5 +1,7 @@
 var app = require('../app');
 var sdk = require('../sdk');
+var utils = require('../utils');
+
 
     Polymer({
       is: 'refinery-select-popup',
@@ -53,10 +55,12 @@ var sdk = require('../sdk');
         
         
         this.$.refineryInfo.innerHTML = `
-          <div>Capital Cost: $${r.capitalCost}</div>
-          <div>Operating Cost: ${r.operatingCost.value} (${r.operatingCost.units})</div>
-          <div>${r.product.name} Yield: ${r.yield.value} (${r.yield.units})</div>
-          <div>Feedstock Capacity: ${r.feedstockCapacity.value} (${r.feedstockCapacity.units})</div>
+          <table class="table">
+            <tr><td><b>Capital Cost:</b></td><td>$${utils.formatAmount(r.capitalCost)}</td></tr>
+            <tr><td><b>Operating Cost:</b></td><td>${utils.formatAmount(r.operatingCost.value)} (${r.operatingCost.units})</td></tr>
+            <tr><td><b>${r.product.name} Yield:</b></td><td>${r.yield.value} (${r.yield.units})</td></tr>
+            <tr><td><b>Feedstock Capacity:</b></td><td>${utils.formatAmount(r.feedstockCapacity.value)} (${r.feedstockCapacity.units})</td></tr>
+          </table>
         `;
         
       },

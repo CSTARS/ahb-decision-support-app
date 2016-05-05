@@ -1,5 +1,6 @@
 var sdk = require('../sdk');
 var app = require('../app');
+var utils = require('../utils');
 
 var datastore = sdk.datastore;
 var model = sdk.poplarModel;
@@ -63,7 +64,7 @@ Polymer({
         
         if( ayield < yieldRequired ) {
             this.createLine('warning', 
-                `The current run only produced ${ayield} Mg or Poplar.  ${yieldRequired} Mg is required for the selected refinery`,
+                `The current run only produced ${utils.formatAmount(ayield)} Mg/Year or Poplar.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery`,
                 'text text-danger','<i class="fa fa-warning"></i>');
         }
     },

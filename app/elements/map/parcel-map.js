@@ -6,7 +6,6 @@ var sdk = require('../sdk');
       is: 'parcel-map',
 
       ready : function() {
-
         // map render/filter stuff
         this.filters = [];
         this.showAllParcels = false;
@@ -50,6 +49,8 @@ var sdk = require('../sdk');
 
       attached : function() {
         if( !this.map ) {
+          L.Icon.Default.imagePath = '/images/leaflet';
+          
           this.onResize();
           this.map = L.map(this).setView([44, -121], 6);
           this.map.on('click', this.onClick.bind(this));
@@ -57,7 +58,6 @@ var sdk = require('../sdk');
               attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
 
-          L.Icon.Default.imagePath = '/images/leaflet';
           var layer = L.esri.dynamicMapLayer({
             url: 'https://conifer.gis.washington.edu/arcgis/rest/services/AHBNW/AHBNW_20151009_parcel_featureAccess/MapServer',
             opacity: 0.5,
