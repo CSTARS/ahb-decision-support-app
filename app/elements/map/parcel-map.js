@@ -1,41 +1,7 @@
-<link rel="import" href="refinery-select-popup.html" />
+var app = require('../app');
+var sdk = require('../sdk');
 
-<dom-module id="parcel-map">
-  <template>
-    <style>
-      :host {
-        position: relative;
-        display: block;
-      }
-      #info {
-        position: absolute;
-        z-index: 1000;
-        bottom: 0;
-        left: 0;
-        background: white;
-        padding: 5px;
-        display:none;
-      }
-      .sfilter {
-        padding-top: 2px;
-        margin-top: 2px;
-        border-top: 1px dashed #eee;
-      }
-    </style>
 
-    <div id="info">
-      <div>
-        <b>Filter Parcels</b>
-        <div id="filters"></div>
-        <div class="sfilter">
-          <input type="checkbox" on-click="toggleSelectedParcels" /> Show All Competing Parcels
-        </div>
-      </div>
-      <div class="help-block">Click parcel to view details.</div>
-    </div>
-
-  </template>
-  <script>
     Polymer({
       is: 'parcel-map',
 
@@ -59,12 +25,11 @@
         this.parcelPopup = document.createElement('parcel-info-popup');
         document.body.appendChild(this.parcelPopup);
 
-        DSSDK.app.setOnCompleteListener(function(){
+        app.setOnCompleteListener(function(){
           setTimeout(function(){
             this.onSelectedUpdated();
           }.bind(this), 200);
         }.bind(this));
-        //DSSDK.datastore.on('parcels-update-end', this.onParcelsLoaded.bind(this));
       },
 
       onShow : function() {
@@ -152,7 +117,7 @@
         this.onParcelsLoaded();
 
         var cropTypes = {};
-        DSSDK.datastore.validParcels.forEach(function(parcel){
+        sdk.datastore.validParcels.forEach(function(parcel){
           parcel.properties.ucd.cropInfo.swap.forEach(function(crop){
             cropTypes[crop] = 1;
           });
@@ -217,7 +182,7 @@
         }.bind(this));
 
         this.currentNetwork = {};
-        DSSDK.datastore.validParcels.forEach(function(parcel){
+        sdk.datastore.validParcels.forEach(function(parcel){
           if( !parcel.properties.ucd.render.selected ) {
             return
           }
@@ -239,7 +204,7 @@
           }.bind(this));
 
           // render a line for shortest path vertex to feature centroid
-          var f = DSSDK.datastore.network[path[0]];
+          var f = sdk.datastore.network[path[0]];
           var feature = {
             type : 'Feature',
             geometry : {
@@ -266,7 +231,7 @@
         }.bind(this));
 
         for( var id in this.currentNetwork ) {
-          var feature = DSSDK.datastore.network[id];
+          var feature = sdk.datastore.network[id];
           if( feature.properties.error ) {
             return;
           }
@@ -281,7 +246,7 @@
       },
 
       selectedParcel : function(parcel) {
-        if( DSSDK.datastore.selectedParcels.indexOf(parcel) === -1 ) {
+        if( sdk.datastore.selectedParcels.indexOf(parcel) === -1 ) {
           return false;
         }
         return true;
@@ -308,13 +273,13 @@
       reset : function() {
         this.canvasLayer.features = [];
 
-        DSSDK.datastore.validParcels.forEach(function(parcel){
+        sdk.datastore.validParcels.forEach(function(parcel){
           this.canvasLayer.addFeature(this.canvasLayerFeature(parcel));
         }.bind(this));
 
         this.canvasLayer.render();
 
-        if( DSSDK.datastore.allParcels.length > 0 ) {
+        if( sdk.datastore.allParcels.length > 0 ) {
           this.mode = 'select';
           this.menu.setMode(this.mode);
           this.$.info.style.display = 'block';
@@ -414,8 +379,8 @@
           ctx.strokeStyle = '#CFD8DC';
           ctx.lineCap = 'round';
         } else {
-          var use = DSSDK.datastore.networkUse[feature.geojson.properties.id];
-          var p = use / DSSDK.datastore.maxNetworkUse;
+          var use = sdk.datastore.networkUse[feature.geojson.properties.id];
+          var p = use / sdk.datastore.maxNetworkUse;
 
           ctx.strokeStyle = '#607D8B';
           // if( p < 0.10 ) {
@@ -435,5 +400,3 @@
         this.mode = mode;
       }
     });
-  </script>
-</dom-module>

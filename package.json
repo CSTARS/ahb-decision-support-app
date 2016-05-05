@@ -20,8 +20,9 @@
     "leaflet-canvas-geojson": "0.0.6",
     "md5": "^2.1.0",
     "pg": "^4.5.1",
+    "poly-next": "0.0.8",
     "socket.io": "^1.4.5",
-    "superagent": "^1.8.1"
+    "superagent": "^1.8.3"
   },
   "devDependencies": {
     "csv-parse": "^1.0.2",

@@ -3,6 +3,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var kraken = require('kraken-js');
+var path = require('path');
 var fs = require('fs');
 
 var options, app;
@@ -19,6 +20,15 @@ options = {
           var middleware = config.get('middleware').static;
           middleware.module.arguments[0] = middleware.module.arguments[0].replace(/dist$/,'app');
           console.log('Servering ./app');
+        
+          var polyNext = require('poly-next');
+          app.use(polyNext({
+              root : path.join(__dirname, 'app'),
+              modules : [{
+                urlpath : 'elements',
+                name : 'index'
+              }]
+          }));
         }
 
         // set a global accessable module

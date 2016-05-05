@@ -1,0 +1,1 @@
+module.exports = require('../../../ahb-decision-support-sdk/lib');

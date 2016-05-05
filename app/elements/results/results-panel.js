@@ -1,73 +1,7 @@
-<dom-module id="results-panel">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-      .page-header {
-        border-bottom: 1px solid #eee;
-      }
-    </style>
+var app = require('../app');
+var sdk = require('../sdk');
+var datastore = sdk.datastore;
 
-    <price-yield-popup id="priceYieldPopup" on-yield-price-change="onPriceYieldChange"></price-yield-popup>
-
-    <div style="padding: 0 10px">
-
-    <h4>Overview</h4>
-
-    <table class="table">
-      <tr>
-        <td style="width: 150px">Price ($ / Mg)</td>
-        <td>
-          <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
-        </td>
-      </tr>
-      <tr>
-        <td style="width: 150px">Crop Price/Yield</td>
-        <td>
-          <a class="btn btn-link" on-click="showPriceYieldPopup">Change</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Parcels</td>
-        <td id="parcelCount"></td>
-      </tr>
-      <tr>
-        <td>Total Acres</td>
-        <td id="acreCount"></td>
-      </tr>
-      <tr>
-        <td>Total Poplar Harvested <span id="runtime"></span>*</td>
-        <td id="harvestTotal"></td>
-      </tr>
-      <tr>
-        <td>Average Yearly Poplar Harvest*</td>
-        <td id="avgPerYear"></td>
-      </tr>
-      <tr>
-        <td colspan="2"><div class="help-block">*Based on adoption % below.</div></td>
-      </tr>
-    </table>
-
-
-    <h4 class="page-header">Adoption <span id="adoptionAmount"></span></h4>
-
-
-    <div><span id="parcelPercent"></span> All parcels in area adopted.</div>
-    <div><span id="validParcelPercent"></span> Competing crop parcels adopted.</div>
-
-    <div id="overviewChart"></div>
-
-    <div id="chart"></div>
-
-    <h4 class="page-header">Adoption By Price</h4>
-
-    <div id="adoptionChart"></div>
-
-    </div>
-
-  </template>
-  <script>
     Polymer({
       is: 'results-panel',
 
@@ -75,7 +9,7 @@
         this.breakdownRendered = false;
         this.charts = {};
         this.resizeTimer = -1;
-        DSSDK.app.setOnCompleteListener(this.update.bind(this));
+        app.setOnCompleteListener(this.update.bind(this));
         $(window).on('resize', this.resize.bind(this));
       },
 
@@ -107,20 +41,22 @@
 
       update : function() {
         //this.charts = {};
-        this.$.parcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.allParcels.length))+'%';
-        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( DSSDK.datastore.selectedParcels.length / DSSDK.datastore.validParcels.length))+'%';
-        this.$.parcelCount.innerHTML = DSSDK.datastore.selectedParcels.length;
+        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcels.length / sdk.datastore.allParcels.length))+'%';
+        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcels.length / sdk.datastore.validParcels.length))+'%';
+        this.$.parcelCount.innerHTML = sdk.datastore.selectedParcels.length;
+        
+        this.$.poplarPriceInput.value = sdk.datastore.poplarPrice;
 
         var data = [
           ['Parcel Type', 'Parcel Number'],
-          ['Adopted', DSSDK.datastore.selectedParcels.length],
-          ['Not Adopted', DSSDK.datastore.validParcels.length - DSSDK.datastore.selectedParcels.length]
+          ['Adopted', sdk.datastore.selectedParcels.length],
+          ['Not Adopted', sdk.datastore.validParcels.length - sdk.datastore.selectedParcels.length]
         ];
 
 
         data = google.visualization.arrayToDataTable(data);
         var options = {
-          title: 'Adoption of Competing Parcels @ $'+DSSDK.datastore.poplarPrice+' / Mg',
+          title: 'Adoption of Competing Parcels @ $'+sdk.datastore.poplarPrice+' / Mg',
           animation:{
             duration: 1000,
             easing: 'out',
@@ -130,41 +66,59 @@
 
         this.drawChart('overviewChart', data, options, this.$.overviewChart, 'PieChart');
 
-        var totalAcres = 0;
-        var totalHarvested = 0;
-        var years = DSSDK.model.monthsToRun / 12;
+        // render overview data
+        var totals = sdk.datastore.totals;
+        
+        this.$.runtime.innerHTML = '('+totals.years+' Years)';
+        this.$.acreCount.innerHTML = this.getAmountLabel(totals.acres);
+        var harvestTotal = this.getAmountLabel(totals.harvested);
+        this.$.harvestTotal.innerHTML = harvestTotal+' Mg';
+        
+        var yieldRequired = sdk.datastore.selectedRefinery.feedstockCapacity.value;
+        var html = this.getAmountLabel(totals.avgYearHarvest)+' Mg.<br /><span class="text ';
+        if( totals.avgYearHarvest < yieldRequired ) {
+          html += 'text-danger';
+        } else {
+          html += 'text-success';
+        }
+        html += '">'+this.getAmountLabel(yieldRequired)+' Mg required to run refinery</span>';
+        this.$.avgPerYear.innerHTML = html;
+        
+        // render refinery data
+        var r = datastore.selectedRefinery;
+        var years = datastore.poplarModel.monthsToRun / 12;
+        
+        var poplarCost = sdk.revenue.refinery.poplarCost(datastore, totals.harvested, datastore.poplarPrice);
+        var refineryIncome = sdk.revenue.refinery.income(datastore, totals.harvested);
+        var operatingCost = r.operatingCost.value * years;
 
-        this.$.runtime.innerHTML = '('+years+' Years)';
-
-        var cropCounts = {};
-
-        DSSDK.datastore.selectedParcels.forEach(function(parcel){
-          var harvest = parcel.properties.ucd.harvest;
-          if( !harvest ) return;
-
-          totalAcres += harvest.growArea;
-          totalHarvested += harvest.totalHarvest;
-
-          parcel.properties.ucd.cropInfo.swap.forEach(function(name){
-            if( cropCounts[name] === undefined ) {
-              cropCounts[name] = 0;
-            }
-            cropCounts[name]++;
-          });
-        });
-
-        this.$.acreCount.innerHTML = this.getAmountLabel(totalAcres);
-        this.$.harvestTotal.innerHTML = this.getAmountLabel(totalHarvested)+' Mg';
-        this.$.avgPerYear.innerHTML = this.getAmountLabel(totalHarvested / years)+' Mg';
+        
+        this.$.refineryType.innerHTML = r.name;
+        this.$.refineryCapitalCost.innerHTML = '$'+this.getAmountLabel(r.capitalCost);
+        this.$.refineryOperatingCost.innerHTML = '$'+this.getAmountLabel(operatingCost);
+        this.$.refineryPoplarCost.innerHTML = '$'+this.getAmountLabel(poplarCost);
+        var totalCost = r.capitalCost + operatingCost + poplarCost;
+        this.$.refineryTotalCost.innerHTML = '$'+this.getAmountLabel(totalCost);
+        this.$.refineryProduct.innerHTML = r.product.name;
+        this.$.refineryIncome.innerHTML = '$'+this.getAmountLabel(refineryIncome)+
+                                           `<div class="help-block">
+                                              (${r.yield.value} ${r.yield.units}) x
+                                              (${r.product.price} ${r.product.units}) x
+                                              (${harvestTotal} Mg)
+                                           </div>`;
+        
+        var net = refineryIncome - (totalCost);
+        var roi = 100 * (net / (totalCost));
+        this.$.refineryRoi.innerHTML = '$'+this.getAmountLabel(net)+'<br />  ROI: %'+roi.toFixed(0);
 
         data = [['Crop', 'Parcel Adoption']];
-        for( var key in cropCounts ) {
-          data.push([key, cropCounts[key]]);
+        for( var key in totals.cropCounts ) {
+          data.push([key, totals.cropCounts[key]]);
         }
 
         data = google.visualization.arrayToDataTable(data);
         options = {
-          title: 'Adoption By Crop @ $'+DSSDK.datastore.poplarPrice+' / Mg',
+          title: 'Adoption By Crop @ $'+sdk.datastore.poplarPrice+' / Mg',
           animation:{
             duration: 1000,
             easing: 'out',
@@ -174,7 +128,7 @@
 
         this.drawChart('cropAdoption', data, options, this.$.chart, 'PieChart');
 
-        this.$.adoptionAmount.innerHTML = ' @ $'+DSSDK.datastore.poplarPrice+' / Mg';
+        this.$.adoptionAmount.innerHTML = ' @ $'+sdk.datastore.poplarPrice+' / Mg';
 
         this.updatePriceBreakdown();
       },
@@ -199,11 +153,8 @@
 
       updatePriceBreakdown : function() {
         if( !this.breakdownRendered ) {
-          //var breakdown = DSSDK.adoption.breakdown(23, 43, .5);
-          DSSDK.adoption.breakdown(0, 50, 1, function(breakdown){
-            this.breakdown = breakdown;
-            this.renderBreakdown();
-          }.bind(this));
+          this.breakdown = app.breakdown;
+          this.renderBreakdown();
         } else {
           this.renderBreakdown();
         }
@@ -216,7 +167,7 @@
 
         var data = [];
         var header = ['price'];
-        dt.addColumn({id:'price', label: 'Price', type:'number'});
+        dt.addColumn({id:'price', label: 'Price', type:'string'});
 
         for( var key in breakdown[0] ) {
           if( key === 'price' ) continue;
@@ -228,11 +179,12 @@
 
 
         var max = 0;
+        var row;
         breakdown.forEach(function(pricedata){
-          var row = [];
+          row = [];
           for( var i = 0; i < header.length; i++ ) {
             if( i === 0 ) {
-              row.push(pricedata[header[i]]);
+              row.push(pricedata[header[i]]+'');
             } else {
               var count = pricedata[header[i]] ? pricedata[header[i]].parcels : 0;
               row.push(count);
@@ -241,19 +193,28 @@
               }
             }
           }
-          row.push(null);
-          row.push(null);
+          
+          if( pricedata.price === sdk.datastore.poplarPrice ) {
+            row.push(max+20);
+            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
+          } else {
+            row.push(null);
+            row.push(null);
+          }
+          
+          //row.push(null);
+          //row.push(null);
           data.push(row);
         });
 
         // add current line bar
-        row = [DSSDK.datastore.poplarPrice];
-        for( var i = 1; i < header.length; i++ ) {
-          row.push(null);
-        }
-        row.push(max+20);
-        row.push('Current Price: '+DSSDK.datastore.poplarPrice+' $ / Mg');
-        data.push(row);
+        // row = [sdk.datastore.poplarPrice+''];
+        // for( var i = 1; i < header.length; i++ ) {
+        //   row.push(null);
+        // }
+        // row.push(max+20);
+        // row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
+        // data.push(row);
 
         dt.addRows(data);
 
@@ -295,17 +256,17 @@
       },
 
       onPriceChange : function() {
-        DSSDK.app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
+        app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
       },
 
       onPriceYieldChange : function(e) {
         e = e.detail;
         if( e.crop ) {
-          DSSDK.datastore.priceYield.currentValues[e.crop][e.type][e.type] = e.value;
+          sdk.datastore.priceYield.currentValues[e.crop][e.type][e.type] = e.value;
         }
 
         this.breakdownRendered = false;
-        DSSDK.app.setPoplarPrice(DSSDK.datastore.poplarPrice);
+        app.setPoplarPrice(sdk.datastore.poplarPrice);
       },
 
       setPoplarPrice : function(price) {
@@ -316,5 +277,3 @@
         this.$.priceYieldPopup.show();
       }
     });
-  </script>
-</dom-module>

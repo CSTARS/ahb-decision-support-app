@@ -1,0 +1,97 @@
+<dom-module id="results-panel">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .page-header {
+        border-bottom: 1px solid #eee;
+      }
+    </style>
+
+    <price-yield-popup id="priceYieldPopup" on-yield-price-change="onPriceYieldChange"></price-yield-popup>
+
+    <div style="padding: 0 10px">
+
+    <h4>Overview</h4>
+
+    <table class="table">
+      <tr>
+        <td style="width: 150px">Price ($ / Mg)</td>
+        <td>
+          <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 150px">Crop Price/Yield</td>
+        <td>
+          <a class="btn btn-link" on-click="showPriceYieldPopup">Change</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Parcels</td>
+        <td id="parcelCount"></td>
+      </tr>
+      <tr>
+        <td>Total Acres</td>
+        <td id="acreCount"></td>
+      </tr>
+      <tr>
+        <td>Total Poplar Harvested <span id="runtime"></span>*</td>
+        <td id="harvestTotal"></td>
+      </tr>
+      <tr>
+        <td>Average Yearly Poplar Harvest*</td>
+        <td id="avgPerYear"></td>
+      </tr>
+      <tr>
+        <td colspan="2"><div class="help-block">*Based on adoption % below.</div></td>
+      </tr>
+    </table>
+    
+    <h4 class="page-heaader">Refinery <small id="refineryType"></small></h4>
+    
+    <table class="table">
+      <tr>
+        <td>Capital Cost</td>
+        <td id="refineryCapitalCost"></td>
+      </tr>
+      <tr>
+        <td>Operating Cost</td>
+        <td id="refineryOperatingCost"></td>
+      </tr>
+      <tr>
+        <td>Poplar Cost</td>
+        <td id="refineryPoplarCost"></td>
+      </tr>
+      <tr>
+        <td>Total Cost</td>
+        <td id="refineryTotalCost"></td>
+      </tr>
+      <tr>
+        <td>Income <small id="refineryProduct"></small></td>
+        <td id="refineryIncome"></td>
+      </tr>
+      <tr>
+        <td>Net</td>
+        <td id="refineryRoi"></td>
+      </tr>
+    </table>
+
+    <h4 class="page-header">Adoption <span id="adoptionAmount"></span></h4>
+
+    <div><span id="parcelPercent"></span> All parcels in area adopted.</div>
+    <div><span id="validParcelPercent"></span> Competing crop parcels adopted.</div>
+
+    <div id="overviewChart"></div>
+
+    <div id="chart"></div>
+
+    <h4 class="page-header">Adoption By Price</h4>
+
+    <div id="adoptionChart"></div>
+
+    </div>
+
+  </template>
+</dom-module>

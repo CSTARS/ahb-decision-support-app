@@ -1,0 +1,69 @@
+<dom-module id="parcel-info">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #expand {
+        display:block;
+        padding: 5px;
+        cursor: pointer;
+
+        transition: transform 300ms linear;
+        -webkit-transition: transform 300ms linear;
+        -ms-transition: transform 300ms linear;
+        -moz-transition: transform 300ms linear;
+
+        transform : rotate(0);
+        -webkit-transform : rotate(0);
+        -ms-transform : rotate(0);
+        -moz-transform : rotate(0);
+      }
+      #expand.open {
+        transform : rotate(90deg);
+        -webkit-transform : rotate(90deg);
+        -ms-transform : rotate(90deg);
+        -moz-transform : rotate(90deg);
+      }
+      .nlabel {
+        font-weight: bold;
+      }
+    </style>
+
+    <h5>
+      <div id="name"></div>
+      <div id="inner" ></div>
+    </h5>
+
+    <div id="details" >
+      <table class="table">
+        <tr>
+          <td class="nlabel">Parcel Size:</td>
+          <td><span id="size"></span> acres</td>
+        </tr>
+        <tr>
+          <td class="nlabel">% Size Available:</td>
+          <td><span id="potential"></span>% (<span id="asize"></span>) acres</td>
+        </tr>
+        <tr>
+          <td class="nlabel">Duration</td>
+          <td id="duration"></td>
+        </tr>
+        <tr>
+          <td class="nlabel">Current Crops</td>
+          <td id="crops"></td>
+        </tr>
+        <tr>
+          <td class="nlabel">Poplar</td>
+          <td id="poplar"></td>
+        </tr>
+      </table>
+    </div>
+
+    <h4>Revenue / Acre</h4>
+    <div id="revenueChart"></div>
+
+    <h4>Yield / Acre</h4>
+    <div id="yieldChart"></div>
+  </template>
+</dom-module>

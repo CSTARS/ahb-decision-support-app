@@ -1,78 +1,8 @@
-<dom-module id="parcel-list-item">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-      #expand {
-        display:block;
-        padding: 5px;
-        cursor: pointer;
+var sdk = require('../sdk');
+var app = require('../app');
 
-        transition: transform 300ms linear;
-        -webkit-transition: transform 300ms linear;
-        -ms-transition: transform 300ms linear;
-        -moz-transition: transform 300ms linear;
-
-        transform : rotate(0);
-        -webkit-transform : rotate(0);
-        -ms-transform : rotate(0);
-        -moz-transform : rotate(0);
-      }
-      #expand.open {
-        transform : rotate(90deg);
-        -webkit-transform : rotate(90deg);
-        -ms-transform : rotate(90deg);
-        -moz-transform : rotate(90deg);
-      }
-      .nlabel {
-        font-weight: bold;
-      }
-    </style>
-
-    <h5>
-      <div id="name"></div>
-      <div id="inner" ></div>
-    </h5>
-
-    <div id="details" >
-      <table class="table">
-        <tr>
-          <td class="nlabel">Parcel Size:</td>
-          <td><span id="size"></span> acres</td>
-        </tr>
-        <tr>
-          <td class="nlabel">% Size Available:</td>
-          <td><span id="potential"></span>% (<span id="asize"></span>) acres</td>
-        </tr>
-        <tr>
-          <td class="nlabel">Duration</td>
-          <td id="duration"></td>
-        </tr>
-        <tr>
-          <td class="nlabel">Current Crops</td>
-          <td id="crops"></td>
-        </tr>
-        <tr>
-          <td class="nlabel">Poplar</td>
-          <td id="poplar"></td>
-        </tr>
-      </table>
-    </div>
-
-    <h4>Revenue / Acre</h4>
-    <div id="revenueChart"></div>
-
-    <h4>Yield / Acre</h4>
-    <div id="yieldChart"></div>
-
-
-
-
-  </template>
-  <script>
     Polymer({
-      is: 'parcel-list-item',
+      is: 'parcel-info',
 
       properties : {
         parcel : {
@@ -109,13 +39,13 @@
 
       onComplete : function() {
         if( !this.parcel.properties.ucd.modelProfileId ) return;
-        var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * DSSDK.app.getPoplarPrice();
+        var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * sdk.datastore.poplarPrice;
 
         var label = 'success';
         if( poplarTotal < this.parcel.properties.ucd.crop.total ) {
           label = 'primary';
         } else {
-          DSSDK.datastore.selectParcel(this.parcel);
+          sdk.datastore.selectParcel(this.parcel);
         }
 
         setTimeout(this.updateChart.bind(this), 300);
@@ -132,13 +62,13 @@
         dt.addColumn({type: 'string', role: 'tooltip'});
 
         var id = this.parcel.properties.ucd.modelProfileId;
-        var poplarConfig = DSSDK.model.profiles[id].config;
+        var poplarConfig = sdk.model.profiles[id].config;
         if( !id ) return;
         var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
         var startYear = d.getFullYear();
 
         var data = [];
-//        var price = DSSDK.app.getPoplarPrice();
+//        var price = sdk.app.getPoplarPrice();
         var c = 1;
 
         var revenueResults = this.parcel.properties.ucd.revenueResults;
@@ -190,9 +120,9 @@
           this.$.poplar.innerHTML = '<div class="alert alert-danger"><i class="fa fa-warning"></i> Failed to grow poplar :(</div>';
         } else {
           this.$.poplar.innerHTML =
-                  '<b>Cost:</b> $'+DSSDK.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
-                  ' - <a href="http://farmbudgets.org/#'+DSSDK.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
-                  '<b>Price:</b> $'+DSSDK.datastore.poplarPrice+' / Mg<br />'+
+                  '<b>Cost:</b> $'+sdk.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
+                  ' - <a href="http://farmbudgets.org/#'+sdk.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
+                  '<b>Price:</b> $'+sdk.datastore.poplarPrice+' / Mg<br />'+
                   '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
                   '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.properties.distance*0.621371).toFixed(2)+' mi';
         }
@@ -228,7 +158,7 @@
 
 
         var id = this.parcel.properties.ucd.modelProfileId;
-        var poplarConfig = DSSDK.model.profiles[id].config;
+        var poplarConfig = sdk.model.profiles[id].config;
         if( !id ) return;
 
         var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
@@ -322,5 +252,3 @@
         }
       }
     });
-  </script>
-</dom-module>

@@ -4,6 +4,7 @@ transportation/data/*
 transportation/osm2po/*
 transportation/server/*
 docker/appcontainer/transportation-service.zip
+docker/osm2po/transportation-service
 
 # Logs
 logs
