@@ -14,7 +14,6 @@ var sdk = require('../sdk');
         // current modes are 'set' (set refinery location) or 'select' which is select parcel
         this.mode = 'set';
         this.radius = 40000;
-        this.rand = 0.8;
 
         $(window).on('resize', this.onResize.bind(this));
 
@@ -23,7 +22,7 @@ var sdk = require('../sdk');
 
         this.parcelPopup = document.createElement('parcel-info-popup');
         document.body.appendChild(this.parcelPopup);
-
+        
         app.setOnCompleteListener(function(){
           setTimeout(function(){
             this.onSelectedUpdated();
@@ -76,7 +75,21 @@ var sdk = require('../sdk');
             }.bind(this),*/
             onClick : this.onFeaturesClicked.bind(this)
           });
+          
           this.canvasLayer.addTo(this.map);
+          
+          var hash = window.location.hash.replace('#', '').split('/');
+          if( hash[0] === 'l' ) {
+            console.log(hash);
+            var latlng = L.latLng(parseFloat(hash[1]), parseFloat(hash[2]));
+            this.setLatLng(latlng);
+            setTimeout(() => {
+              this.popup.setValues({
+                radius : parseFloat(hash[3]),
+                refinery : decodeURIComponent(hash[4])
+              })
+            }, 100);
+          }
         }
       },
 
@@ -100,13 +113,17 @@ var sdk = require('../sdk');
           return;
         }
 
-        this.ll = e.latlng;
+        this.setLatLng(e.latlng);
+      },
+      
+      setLatLng : function(latlng) {
+        this.ll = latlng;
 
         if( this.marker ) {
           this.map.removeLayer(this.marker);
         }
 
-        this.marker = L.marker(e.latlng).addTo(this.map);
+        this.marker = L.marker(latlng).addTo(this.map);
 
         this.popup.show(this.ll.lat, this.ll.lng);
       },

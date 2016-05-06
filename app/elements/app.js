@@ -41,17 +41,32 @@ function App() {
             return;
         }
         
-        // find selected parcels at price $0 to $50, $1 step
-        sdk.adoption.breakdown(0, 50, 1, (breakdown) => {
-            this.breakdown = breakdown;
+        // find optimal price $0 to $50, $1 step
+        var options = {
+            minPrice : 0,
+            maxPrice : 50,
+            step : 1,
+            prescan : true
+        };
+        
+        sdk.adoption.breakdown(options, (resp) => {
+            options = {
+                minPrice : resp.bestPoplarPrice - 2,
+                maxPrice : resp.bestPoplarPrice + 2,
+                step : 0.05
+            };
             
-            datastore.setTotals();
+            // now get detailed graph
+            sdk.adoption.breakdown(options, (resp) => {
+                this.breakdown = resp.results;
+                datastore.setTotals();
 
-            this.getOnCompleteListeners().forEach(function(fn){
-                fn();
+                this.getOnCompleteListeners().forEach(function(fn){
+                    fn();
+                });
+
+                if( callback ) callback();
             });
-
-            if( callback ) callback();
         });
     }
 

@@ -41,6 +41,11 @@ var datastore = sdk.datastore;
       },
 
       update : function() {
+        
+        var url = `${window.location.protocol}//${window.location.host}/#l/${sdk.datastore.lat.toFixed(4)}/${sdk.datastore.lng.toFixed(4)}/${sdk.datastore.radius}/${encodeURIComponent(sdk.datastore.selectedRefinery.name)}`;
+        this.$.runLink.setAttribute('href', url);
+        this.$.runLink.innerHTML = url;
+        
         //this.charts = {};
         this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcels.length / sdk.datastore.allParcels.length))+'%';
         this.$.validParcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcels.length / sdk.datastore.validParcels.length))+'%';
@@ -184,7 +189,6 @@ var datastore = sdk.datastore;
         dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
         dt.addColumn({id: 'tooltip', type: 'string', role:'tooltip'});
 
-
         var max = 0;
         var row;
         breakdown.forEach(function(pricedata){
@@ -193,7 +197,8 @@ var datastore = sdk.datastore;
             if( i === 0 ) {
               row.push(pricedata[header[i]]+'');
             } else {
-              var count = pricedata[header[i]] ? pricedata[header[i]].parcels : 0;
+              //var count = pricedata[header[i]] ? pricedata[header[i]].parcels : 0;
+              var count = pricedata[header[i]] ? pricedata[header[i]].acres : 0;
               row.push(count);
               if( count > max ) {
                 max = count;
@@ -224,7 +229,8 @@ var datastore = sdk.datastore;
           },
           height: 400,
           vAxis : {
-            title : 'Parcels (#)'
+            //title : 'Parcels (#)'
+            title : 'Acres'
           },
           seriesType: "bars",
           series :{},

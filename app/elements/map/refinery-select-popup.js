@@ -34,6 +34,11 @@ var utils = require('../utils');
         this.popup.modal('hide');
       },
       
+      setValues : function(values) {
+        this.$.radiusInput.value = values.radius / 1000;
+        this.$.refinerySelector.value = values.refinery;
+      },
+      
       renderRefinerySelector : function() {
          var html = '';
          this.refineryOptions.forEach((r) => {
