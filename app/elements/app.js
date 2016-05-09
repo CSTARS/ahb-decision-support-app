@@ -118,13 +118,19 @@ function App() {
     this.setPoplarPrice = function(price) {
         datastore.poplarPrice = price;
         
-        ee.emit('poplar-price-update', price);
-        //if( this.grown ) {
-        //    adoption.selectParcels();
-        //    this.getOnCompleteListeners().forEach(function(fn){
-        //        fn();
-        //    });
-        //}
+        var options = {
+            minPrice : price-2,
+            maxPrice : price+2,
+            step : 0.05,
+            setPoplarPrice : false
+        };
+        
+        sdk.adoption.breakdown(options, (resp) => {
+            this.breakdown = resp.results;
+            sdk.adoption.selectParcels();
+            datastore.setTotals();
+            ee.emit('poplar-price-update', price);
+        });
     };
     
     this.getPoplarPrice = function() {

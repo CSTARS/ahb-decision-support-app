@@ -21,12 +21,27 @@
 
 
     "postgres" : {
-      "host" : "localhost:5433",
-      "db" : "afri"
+        "soilWeather" : {
+            "host" : "localhost",
+            "port" : 5433,
+            "db" : "afri"
+        },
+        "cropTypes" : {
+            "host" : "localhost",
+            "port" : 5434,
+            "db" : "ahb"
+        }
     },
 
     "osm2po" : {
-      "host" : "http://localhost",
+      "host" : "localhost",
       "port" : 8889
+    },
+    
+    // linked docker container names
+    "dockerLinks" : {
+        "cropTypes" : "AHB-DSA-PG",
+        "weatherSoil" : "AHB-DSA-SOIL-WEATHER",
+        "osm2po" : "AHB-TRANSPORATION"
     }
 }

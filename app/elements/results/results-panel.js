@@ -11,6 +11,7 @@ var datastore = sdk.datastore;
         this.charts = {};
         this.resizeTimer = -1;
         app.setOnCompleteListener(this.update.bind(this));
+        app.on('poplar-price-update', this.onPriceRecalc.bind(this));
         $(window).on('resize', this.resize.bind(this));
       },
 
@@ -253,10 +254,11 @@ var datastore = sdk.datastore;
       },
 
       onPriceChange : function() {
-        sdk.datastore.poplarPrice = parseFloat(this.$.poplarPriceInput.value);
+        app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
+      },
+      
+      onPriceRecalc : function() {
         this.breakdownRendered = false;
-        sdk.adoption.selectParcels();
-        datastore.setTotals();
         this.update();
       },
 

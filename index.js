@@ -10,10 +10,8 @@ var options, app;
 
 options = {
     onconfig: function (config, next) {
-
-        if( fs.existsSync('/etc/ahb-decision-support-app/config.json') ) {
-          config.use(require('/etc/ahb-decision-support-app/config.json'));
-        }
+        // set a global accessable module
+        require('./lib/config').set(config);
 
         // allow command line switch from serving /dist to /app
         if( config.get('dev') ) {
@@ -21,8 +19,9 @@ options = {
           middleware.module.arguments[0] = middleware.module.arguments[0].replace(/dist$/,'app');
           console.log('Servering ./app');
         
-          var polyNext = require('poly-next');
-          app.use(polyNext({
+          //var polyNext = require('/Users/jrmerz/dev/personal/poly-next-core');
+          var polyNext = require('poly-next-core');
+          app.use(polyNext.middleware({
               root : path.join(__dirname, 'app'),
               modules : [{
                 urlpath : 'elements',
@@ -31,8 +30,7 @@ options = {
           }));
         }
 
-        // set a global accessable module
-        require('./lib/config').set(config);
+
         require('./lib/pg').connect(function(){
           var model = require('./models/weather')();
           next(null, config);

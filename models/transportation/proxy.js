@@ -52,7 +52,7 @@ function findRoute(sourceId, targetId, cache, callback) {
 
 function query(params, callback) {
   request.
-    get(config.host+':'+config.port+'/Osm2poService')
+    get(`http://${config.host}:${config.port}/Osm2poService`)
     .query(params)
     .end(function(err, res){
       if (err || !res.ok) {
