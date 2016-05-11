@@ -22,12 +22,6 @@
 
     <table class="table">
       <tr>
-        <td style="width: 150px" class="bold">Price ($ / Mg)</td>
-        <td>
-          <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
-        </td>
-      </tr>
-      <tr>
         <td style="width: 150px" class="bold">Crop Price/Yield</td>
         <td>
           <a class="btn btn-link" on-click="showPriceYieldPopup">Change</a>
@@ -54,33 +48,67 @@
       </tr>
     </table>
     
-    <h4 class="page-heaader">Refinery <small id="refineryType"></small></h4>
-    
+    <h4 class="page-header">Price</h4>
     <table class="table">
       <tr>
-        <td class="bold">Capital Cost</td>
-        <td id="refineryCapitalCost"></td>
+        <td style="width: 150px" class="bold">Price ($ / Mg)</td>
+        <td>
+          <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
+        </td>
       </tr>
       <tr>
-        <td class="bold">Operating Cost</td>
-        <td id="refineryOperatingCost"></td>
+        <td class="bold">Farmers Min Willingness to Accept:</td>
+        <td id="farmersMWA"></td>
       </tr>
       <tr>
-        <td class="bold">Poplar Cost</td>
-        <td id="refineryPoplarCost"></td>
+        <td class="bold">Refinery Max Willingness to Pay:</td>
+        <td id="refineryMWP"></td>
       </tr>
+    </table>
+    
+    
+    <h4 class="page-heaader">Refinery <small id="refineryType"></small></h4>
+    
+    <div class="row">
+      <div class="col-sm-6">
+        <table class="table">
+          <tr>
+            <td class="bold">Capital Cost</td>
+            <td id="refineryCapitalCost"></td>
+          </tr>
+          <tr>
+            <td class="bold">Operating Cost</td>
+            <td id="refineryOperatingCost"></td>
+          </tr>
+          <tr>
+            <td class="bold">Poplar Cost</td>
+            <td id="refineryPoplarCost"></td>
+          </tr>
+          <tr style="background-color:#eee">
+            <td class="bold">Total Cost</td>
+            <td id="refineryTotalCost"></td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-sm-6">
+        <table class="table">
+          <tr>
+            <td class="bold">Income <small id="refineryProduct"></small></td>
+            <td id="refineryIncome"></td>
+          </tr>
+          <tr style="background-color:#eee">
+            <td class="bold">Net</td>
+            <td id="refineryRoi"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+
       <tr>
-        <td class="bold">Total Cost</td>
-        <td id="refineryTotalCost"></td>
+        <td colspan="2"></td>
       </tr>
-      <tr>
-        <td class="bold">Income <small id="refineryProduct"></small></td>
-        <td id="refineryIncome"></td>
-      </tr>
-      <tr>
-        <td class="bold">Net</td>
-        <td id="refineryRoi"></td>
-      </tr>
+
     </table>
 
     <h4 class="page-header">Adoption <span id="adoptionAmount"></span></h4>

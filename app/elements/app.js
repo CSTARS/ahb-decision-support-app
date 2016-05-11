@@ -44,28 +44,39 @@ function App() {
         // find optimal price $0 to $50, $1 step
         var options = {
             minPrice : 0,
-            maxPrice : 50,
-            step : 1,
+            maxPrice : 150,
+            step : 10,
             prescan : true
         };
         
+        ee.emit('optimize-price-start');
+        
         sdk.adoption.breakdown(options, (resp) => {
-            options = {
-                minPrice : resp.bestPoplarPrice - 2,
-                maxPrice : resp.bestPoplarPrice + 2,
-                step : 0.05
-            };
+            options.minPrice = resp.poplarPrice - 11;
+            options.maxPrice = resp.poplarPrice + 11;
+            options.step = 2;
             
-            // now get detailed graph
             sdk.adoption.breakdown(options, (resp) => {
-                this.breakdown = resp.results;
-                datastore.setTotals();
+                
+                options = {
+                    minPrice : resp.poplarPrice - 4,
+                    maxPrice : resp.poplarPrice + 2,
+                    step : 0.05
+                };
+                
+                // now get detailed graph
+                sdk.adoption.breakdown(options, (resp) => {
+                    ee.emit('optimize-price-end');
+                    
+                    this.breakdown = resp.results;
+                    datastore.setTotals();
 
-                this.getOnCompleteListeners().forEach(function(fn){
-                    fn();
+                    this.getOnCompleteListeners().forEach(function(fn){
+                        fn();
+                    });
+
+                    if( callback ) callback();
                 });
-
-                if( callback ) callback();
             });
         });
     }

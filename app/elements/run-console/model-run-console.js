@@ -36,6 +36,9 @@ Polymer({
 
         datastore.on('budgets-update-start', this.onBudgetsStart.bind(this));
         datastore.on('budgets-update-end', this.onBudgetsEnd.bind(this));
+        
+        app.on('optimize-price-start', this.onOptimizePriceStart.bind(this));
+        app.on('optimize-price-end', this.onOptimizePriceEnd.bind(this));
 
         model.on('harvests-start', this.onHarvestsStart.bind(this));
         model.on('harvests-updated', this.onHarvestsUpdated.bind(this));
@@ -126,6 +129,14 @@ Polymer({
 
     onCropPriceYieldEnd : function() {
         this.updateLine('cropPriceYield', 'Crop price and yield loaded.','text text-success','<i class="fa fa-check"></i>');
+    },
+    
+    onOptimizePriceStart : function() {
+        this.createLine('optimizePrice', 'Calculating optimal poplar price','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+    },
+
+    onOptimizePriceEnd : function() {
+        this.updateLine('optimizePrice', 'Optimal poplar price calculation complete.','text text-success','<i class="fa fa-check"></i>');
     },
 
     onBudgetsStart : function() {

@@ -75,6 +75,10 @@ var app = require('../app');
         var cR = 0;
         var transportationAvg = 0;
         var tc = 0;
+        var waterAvg = 0;
+        var tw = 0;
+        var landAvg = 0;
+        var tl = 0;
 
         for( var i = 0; i < revenueResults.poplar.length; i++ ) {
           pR += revenueResults.poplar[i].revenue;
@@ -93,13 +97,25 @@ var app = require('../app');
             transportationAvg += revenueResults.poplar[i].transportation;
             tc++;
           }
-
+          if( revenueResults.poplar[i].water ) {
+            waterAvg += revenueResults.poplar[i].water;
+            tw++;
+          }
+          if( revenueResults.poplar[i].land ) {
+            landAvg += revenueResults.poplar[i].land;
+            tl++;
+          }
         }
 
         if( tc > 0 ) {
           transportationAvg  = transportationAvg / tc;
         }
-
+        if( tw > 0 ) {
+          waterAvg  = waterAvg / tw;
+        }
+        if( tl > 0 ) {
+          landAvg  = landAvg / tl;
+        }
 
         dt.addRows(data);
         this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
@@ -123,6 +139,8 @@ var app = require('../app');
                   ' - <a href="http://farmbudgets.org/#'+sdk.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
                   '<b>Price:</b> $'+sdk.datastore.poplarPrice+' / Mg<br />'+
                   '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
+                  '<b>Avg Water Cost:</b> $'+waterAvg.toFixed()+' / Year <br />'+
+                  '<b>Avg Land Cost:</b> $'+landAvg.toFixed()+' / Year <br />'+
                   '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.properties.distance*0.621371).toFixed(2)+' mi';
         }
 
@@ -152,71 +170,100 @@ var app = require('../app');
       updateYieldChart : function() {
         var dt = new google.visualization.DataTable();
         dt.addColumn('string', 'Year'); // Implicit domain label col.
-        dt.addColumn('number', 'Poplar (Mg / Acre)');
-        dt.addColumn({type: 'string', role: 'tooltip'});
-
 
         var id = this.parcel.properties.ucd.modelProfileId;
         var poplarConfig = sdk.poplarModel.profiles[id].config;
         if( !id ) return;
 
 
-        var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
-        var startYear = d.getFullYear();
+        // var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
+        // var startYear = d.getFullYear();
 
+        // var data = [];
+        // var c = 1;
+
+        // var revenueResults = this.parcel.properties.ucd.revenueResults;
+
+
+        // var crops = [];
+        // var included = {};
+        // for( var i = 0; i < revenueResults.crops.length; i++ ) {
+        //   var yearData = revenueResults.crops[i].breakdown;
+        //   for( var j = 0; j < yearData.length; j++ ) {
+        //     if( !included[yearData[j].crop] ) {
+        //       crops.push({
+        //         crop : yearData[j].crop,
+        //         units : yearData[j].yieldUnits
+        //       });
+        //       included[yearData[j].crop] = true;
+
+        //       dt.addColumn('number', yearData[j].crop+' ('+yearData[j].yieldUnits+')');
+        //       dt.addColumn({type: 'string', role: 'tooltip'});
+        //     }
+        //   }
+        // }
+
+        // for( var i = 0; i < revenueResults.poplar.length; i++ ) {
+        //   var rowdata = [
+        //     d.getFullYear()+''
+        //   ];
+
+        //   var cyield = 0;
+        //   for( var j = 0; j < revenueResults.crops[i].breakdown.length; j++ ) {
+        //     var yearData = revenueResults.crops[i].breakdown;
+
+        //     crops.forEach(function(cropInfo){
+        //       var d = this.getYearData(cropInfo, yearData);
+        //       rowdata.push(d.yield);
+        //       rowdata.push(d.yield.toFixed(2)+' ('+d.yieldUnits+')');
+        //     }.bind(this));
+        //   }
+
+        //   data.push(rowdata);
+        //   d.setFullYear(d.getFullYear()+1);
+        // }
+
+        // dt.addRows(data);
+
+        // var options = {
+        //   width : $(this.$.yieldChart).parent().width(),
+        //   height: 300,
+        //   legend : {
+        //     position: 'top'
+        //   },
+        //   hAxis : {
+        //     slantedText:true,
+        //     slantedTextAngle:45
+        //   }
+        // };
+        // var chart = new google.visualization.LineChart(this.$.cropYieldChart);
+        // chart.draw(dt, options);
+
+        // setTimeout(function(){
+        //   options.width = $(this.$.chart).parent().width();
+        //   var chart = new google.visualization.LineChart(this.$.cropYieldChart);
+        //   chart.draw(dt, options);
+        // }.bind(this), 500);
+        
+        
+        this.drawPoplar();
+      },
+      
+      drawPoplar : function() {
+        var id = this.parcel.properties.ucd.modelProfileId;
+        var alldata = sdk.poplarModel.profiles[id].allData;
+        var dt = new google.visualization.DataTable();
+        dt.addColumn('string', 'Month');
+        dt.addColumn('number', 'Poplar (Mg / Acre)');
         var data = [];
-        var c = 1;
-
-        var revenueResults = this.parcel.properties.ucd.revenueResults;
-
-
-        var crops = [];
-        var included = {};
-        for( var i = 0; i < revenueResults.crops.length; i++ ) {
-          var yearData = revenueResults.crops[i].breakdown;
-          for( var j = 0; j < yearData.length; j++ ) {
-            if( !included[yearData[j].crop] ) {
-              crops.push({
-                crop : yearData[j].crop,
-                units : yearData[j].yieldUnits
-              });
-              included[yearData[j].crop] = true;
-
-              dt.addColumn('number', yearData[j].crop+' ('+yearData[j].yieldUnits+')');
-              dt.addColumn({type: 'string', role: 'tooltip'});
-            }
+        for( var i = 0; i < alldata.length; i++ ) {
+          if( typeof alldata[i][31] === 'string' ) {
+            continue;
           }
+          data.push([i+'', alldata[i][31] / 2.47105]);
         }
-
-        for( var i = 0; i < revenueResults.poplar.length; i++ ) {
-          var pyield = 0;
-          for( var j = 0; j < revenueResults.poplar[i].breakdown.length; j++ ) {
-            pyield += revenueResults.poplar[i].breakdown[j].yield;
-          }
-
-          var rowdata = [
-            d.getFullYear()+'',
-            pyield,
-            pyield.toFixed(2)+' (Mg / Acre)'
-          ];
-
-          var cyield = 0;
-          for( var j = 0; j < revenueResults.crops[i].breakdown.length; j++ ) {
-            var yearData = revenueResults.crops[i].breakdown;
-
-            crops.forEach(function(cropInfo){
-              var d = this.getYearData(cropInfo, yearData);
-              rowdata.push(d.yield);
-              rowdata.push(d.yield.toFixed(2)+' ('+d.yieldUnits+')');
-            }.bind(this));
-          }
-
-          data.push(rowdata);
-          d.setFullYear(d.getFullYear()+1);
-        }
-
         dt.addRows(data);
-
+        
         var options = {
           width : $(this.$.yieldChart).parent().width(),
           height: 300,
@@ -228,12 +275,20 @@ var app = require('../app');
             slantedTextAngle:45
           }
         };
-        var chart = new google.visualization.ColumnChart(this.$.yieldChart);
+        var chart = new google.visualization.LineChart(this.$.poplarChart);
         chart.draw(dt, options);
-
+        
+        if( this.parcel.properties.ucd.cropInfo.pasture ) {
+          this.$.irrigFrac.innerHTML = 'Not Irrigated: Pasture Land';
+          this.$.irrigFrac.className = 'pull-right label label-warning';
+        } else {
+          this.$.irrigFrac.innerHTML = 'Irrigated';
+          this.$.irrigFrac.className = 'pull-right label label-info';
+        }
+        
         setTimeout(function(){
           options.width = $(this.$.chart).parent().width();
-          var chart = new google.visualization.ColumnChart(this.$.yieldChart);
+          var chart = new google.visualization.LineChart(this.$.poplarChart);
           chart.draw(dt, options);
         }.bind(this), 500);
       },

@@ -52,7 +52,9 @@ var datastore = sdk.datastore;
         this.$.validParcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcels.length / sdk.datastore.validParcels.length))+'%';
         this.$.parcelCount.innerHTML = sdk.datastore.selectedParcels.length;
         
+        this.$.farmersMWA.innerHTML = sdk.datastore.mwa;
         this.$.poplarPriceInput.value = sdk.datastore.poplarPrice;
+        this.$.refineryMWP.innerHTML = datastore.mwp;
 
         var data = [
           ['Parcel Type', 'Parcel Number'],
