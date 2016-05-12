@@ -280,5 +280,10 @@ var datastore = sdk.datastore;
 
       showPriceYieldPopup : function() {
         this.$.priceYieldPopup.show();
+      },
+      
+      exportJson : function() {
+        this.$.exportJsonFormData.value = JSON.stringify(sdk.datastore.exportJson());
+        this.$.exportJsonForm.submit();
       }
     });

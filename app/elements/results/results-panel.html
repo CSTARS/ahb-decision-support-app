@@ -123,6 +123,14 @@
     <h4 class="page-header">Adoption By Price</h4>
 
     <div id="adoptionChart"></div>
+    
+    <h4 class="page-header">Export Data</h4>
+    <div>
+      <form id="exportJsonForm" method="post" action="/export/toJson" target="_blank">
+        <input type="hidden" name="data" value="data" id="exportJsonFormData" />
+        <a on-click="exportJson"><i class="fa fa-download"></i> Export as JSON</a>
+      </form>
+    </div>
 
     </div>
 
