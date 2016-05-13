@@ -57,6 +57,7 @@ function getRoutes(sources, destination, options, callback) {
         });
       },
       function(err) {
+        proxy.clearCache();
         result.use = ids;
         callback(null, processErrors(sources.features, result));
       }

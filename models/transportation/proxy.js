@@ -3,9 +3,17 @@
 var request = require('superagent');
 var config = require('../../lib/config').get().get('osm2po');
 
+var globalCache = require('./cache');
+
 function findClosestVertex(geometry, callback) {
   if( geometry.type !== 'Point' ) {
     return callback('Geometry must be a point.');
+  }
+  
+  var id = geometry.coordinates[0]+'-'+geometry.coordinates[1];
+  var cachedItem = checkCaches(id);
+  if( cachedItem ) {
+    return callback(cachedItem.err, cachedItem.resp);
   }
 
   var params = {
@@ -15,13 +23,40 @@ function findClosestVertex(geometry, callback) {
     format : 'geojson'
   };
 
-  query(params, callback);
+  query(params, function(err, resp){
+    setCaches(id, {
+      err : err,
+      resp : resp
+    });
+    callback(err, resp);
+  });
+}
+
+function checkCaches(id, requestCache) {
+  if( requestCache && requestCache[id] ) {
+    return requestCache[id];
+  }
+  return globalCache.get(id);
+}
+
+function setCaches(id, value, requestCache) {
+  if( requestCache ) {
+    requestCache[id] = value;
+  }
+  globalCache.set(id, value);
+}
+
+// this just kicks out oldest items
+function clearCache() {
+  globalCache.clear();
 }
 
 function findRoute(sourceId, targetId, cache, callback) {
-  if( cache[sourceId+'-'+targetId] ) {
-    var c = cache[sourceId+'-'+targetId];
-    return callback(c.err, c.resp);
+  var id = sourceId+'-'+targetId;
+  
+  var cachedItem = checkCaches(id, cache);
+  if( cachedItem ) {
+    return callback(cachedItem.err, cachedItem.resp);
   }
 
   var params = {
@@ -42,10 +77,10 @@ function findRoute(sourceId, targetId, cache, callback) {
   };
 
   query(params, function(err, resp){
-    cache[sourceId+'-'+targetId] = {
+    setCaches(id, {
       err : err,
       resp : resp
-    };
+    }, cache);
     callback(err, resp);
   });
 }
@@ -70,5 +105,6 @@ function query(params, callback) {
 
 module.exports = {
   findRoute : findRoute,
-  findClosestVertex : findClosestVertex
+  findClosestVertex : findClosestVertex,
+  clearCache : clearCache
 };
