@@ -11,10 +11,10 @@ function findClosestVertex(geometry, callback) {
   }
   
   var id = geometry.coordinates[0]+'-'+geometry.coordinates[1];
-  var cachedItem = checkCaches(id);
-  if( cachedItem ) {
-    return callback(cachedItem.err, cachedItem.resp);
-  }
+  // var cachedItem = checkCaches(id);
+  // if( cachedItem ) {
+  //   return callback(cachedItem.err, cachedItem.resp);
+  // }
 
   var params = {
     cmd : 'fv',
@@ -33,31 +33,34 @@ function findClosestVertex(geometry, callback) {
 }
 
 function checkCaches(id, requestCache) {
-  if( requestCache && requestCache[id] ) {
-    return requestCache[id];
-  }
-  return globalCache.get(id);
+  return null;
+  // if( requestCache && requestCache[id] ) {
+  //   return requestCache[id];
+  // }
+  // return globalCache.get(id);
 }
 
 function setCaches(id, value, requestCache) {
-  if( requestCache ) {
-    requestCache[id] = value;
-  }
-  globalCache.set(id, value);
+  return;
+  // if( requestCache ) {
+  //   requestCache[id] = value;
+  // }
+  // globalCache.set(id, value);
 }
 
 // this just kicks out oldest items
 function clearCache() {
-  globalCache.clear();
+  return;
+  // globalCache.clear();
 }
 
 function findRoute(sourceId, targetId, cache, callback) {
   var id = sourceId+'-'+targetId;
   
-  var cachedItem = checkCaches(id, cache);
-  if( cachedItem ) {
-    return callback(cachedItem.err, cachedItem.resp);
-  }
+  // var cachedItem = checkCaches(id, cache);
+  // if( cachedItem ) {
+  //   return callback(cachedItem.err, cachedItem.resp);
+  // }
 
   var params = {
     cmd : 'fr',
