@@ -84,9 +84,9 @@ function App() {
     this.run = function(options, callback) {
 
         // open a socket for transportation updates
-        var socket = io.connect('http://'+window.location.host);
+        //var socket = io.connect('http://'+window.location.host);
 
-        runConsole.onStart(options, socket);
+        runConsole.onStart(options);
 
         var c = 0;
         var $self = this;
@@ -95,7 +95,7 @@ function App() {
             if( c === 4 ) {
                 grown = true;
                 $self.recalc(() => {
-                    socket.disconnect();
+                    //socket.disconnect();
                     runConsole.onEnd();
                     callback();
                 });
@@ -107,7 +107,10 @@ function App() {
         datastore.getParcels(options.lat, options.lng, options.radius, function(){
             datastore.getCrops(function(){
                 
-                datastore.getTransportation(socket.id, onComplete.bind(this));
+                //datastore.getTransportation(socket.id, onComplete.bind(this));
+                var socket = datastore.getTransportation(onComplete.bind(this));
+                runConsole.setTransportationSocket(socket);
+                
                 datastore.getCropPriceAndYield(onComplete.bind(this));
 
                 // run at the same time as transportation

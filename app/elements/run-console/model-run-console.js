@@ -45,7 +45,7 @@ Polymer({
         model.on('harvests-end', this.onHarvestsEnd.bind(this));
     },
 
-    onStart : function(options, socket) {
+    onStart : function(options) {
         this.startTime = new Date().getTime();
         this.innerHTML = '';
         this.style.display = 'block';
@@ -55,7 +55,9 @@ Polymer({
         var r = options.radius / 1000;
         
         this.createLine('start', `Starting run for ${options.refinery} refinery @ ${lat}, ${lat} Radius: ${r}`);
-
+    },
+    
+    setTransportationSocket : function(socket) {
         socket.on('transportation-update', this.onTransportationUpdate.bind(this));
     },
 

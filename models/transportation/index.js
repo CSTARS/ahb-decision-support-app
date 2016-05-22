@@ -24,16 +24,25 @@ function getRoutes(sources, destination, options, callback) {
     if( s ) {
       currentSocket = s;
     } else {
-      console.log('SocketId not found: '+options.socketId);
+      return callback('SocketId not found: '+options.socketId);
     }
   }
+  
+  currentSocket.on('disconnect', function() {
+    options.requestCancelled = true;
+  });
 
   var t = new Date().getTime();
+  console.log('START: '+t);
 
   proxy.findClosestVertex(destination.geometry, function(err, vertex){
     if( err ) {
       return callback('Unable to locate vertex for destination.  Please try another location');
     }
+    
+    callback(null, {success:true});
+
+    console.log('SOCKET: '+options.socketId);
 
     destinationVertex = vertex;
     var cache = {};
@@ -42,6 +51,10 @@ function getRoutes(sources, destination, options, callback) {
     async.eachSeries(
       sources.features,
       function(source, next) {
+        if( options.requestCancelled ) {
+          return next();
+        }
+        
         findPath(source, destinationVertex, cache, function(err, pathresult){
 
           c++;
@@ -57,9 +70,16 @@ function getRoutes(sources, destination, options, callback) {
         });
       },
       function(err) {
+        if( options.requestCancelled ) {
+          //return callback({error:true, message: 'Request Cancelled'});
+          return currentSocket.emit('routes-calculated', {error:true, message: 'Request Cancelled'});
+        }
+        
         proxy.clearCache();
         result.use = ids;
-        callback(null, processErrors(sources.features, result));
+        //callback(null, processErrors(sources.features, result));
+        
+        currentSocket.emit('routes-calculated', processErrors(sources.features, result));
       }
     );
   });
