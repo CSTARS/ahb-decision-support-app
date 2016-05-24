@@ -69,6 +69,11 @@ var app = require('../app');
 
         var data = [];
         var c = 1;
+        
+        var size = this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel;
+        var poplarAveragePerYear = this.parcel.properties.ucd.harvest.totalHarvest / this.parcel.properties.ucd.harvest.years;
+        var poplarAveragePerAcre = poplarAveragePerYear / size;
+        
 
         var revenueResults = this.parcel.properties.ucd.revenueResults;
         var pR = 0;
@@ -79,6 +84,8 @@ var app = require('../app');
         var tw = 0;
         var landAvg = 0;
         var tl = 0;
+        
+        
 
         for( var i = 0; i < revenueResults.poplar.length; i++ ) {
           pR += revenueResults.poplar[i].revenue;
@@ -87,9 +94,9 @@ var app = require('../app');
           data.push([
             d.getFullYear()+'',
             pR,
-            '$'+pR.toFixed(2),
+            '$'+(pR / size).toFixed(2),
             cR,
-            '$'+cR.toFixed(2)
+            '$'+(cR / size).toFixed(2)
           ]);
           d.setFullYear(d.getFullYear()+1);
 
@@ -138,11 +145,19 @@ var app = require('../app');
                   '<b>Cost:</b> $'+sdk.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
                   ' - <a href="http://farmbudgets.org/#'+sdk.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
                   '<b>Price:</b> $'+sdk.datastore.poplarPrice+' / Mg<br />'+
-                  '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
-                  '<b>Avg Water Cost:</b> $'+waterAvg.toFixed()+' / Year <br />'+
-                  '<b>Avg Land Cost:</b> $'+landAvg.toFixed()+' / Year <br />'+
-                  '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.distance*0.621371).toFixed(2)+' mi';
+                  '<b>Avg Water Cost:</b> $'+waterAvg.toFixed()+' / Year ($'+(waterAvg / size).toFixed()+' / Acre)<br />'+
+                  '<b>Avg Land Cost:</b> $'+landAvg.toFixed()+' / Year ($'+(landAvg / size).toFixed()+' / Acre)<br />'+
+                  '<b>Avg Yield / Year:</b> '+poplarAveragePerYear.toFixed(2)+' Mg <br />'+
+                  '<b>Avg Yield / Acre / Year:</b> '+poplarAveragePerAcre.toFixed(2)+' Mg <br />';
         }
+        
+        var size = this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel;
+        
+        this.$.transportation.innerHTML =
+            '<b>Avg Transportation Cost / Harvest:</b> $'+transportationAvg.toFixed()+'<br />'+
+            '<b>Avg Transportation Cost / Acre:</b> $'+(transportationAvg / size).toFixed() +'<br />'+
+            '<b>Avg Transportation Cost / Mg:</b> $'+((transportationAvg / size) / poplarAveragePerAcre).toFixed() +'<br />'+
+            '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.distance*0.621371).toFixed(2)+' mi';
 
         var options = {
           width : $(this.$.revenueChart).parent().width(),
@@ -175,77 +190,6 @@ var app = require('../app');
         var poplarConfig = sdk.poplarModel.profiles[id].config;
         if( !id ) return;
 
-
-        // var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
-        // var startYear = d.getFullYear();
-
-        // var data = [];
-        // var c = 1;
-
-        // var revenueResults = this.parcel.properties.ucd.revenueResults;
-
-
-        // var crops = [];
-        // var included = {};
-        // for( var i = 0; i < revenueResults.crops.length; i++ ) {
-        //   var yearData = revenueResults.crops[i].breakdown;
-        //   for( var j = 0; j < yearData.length; j++ ) {
-        //     if( !included[yearData[j].crop] ) {
-        //       crops.push({
-        //         crop : yearData[j].crop,
-        //         units : yearData[j].yieldUnits
-        //       });
-        //       included[yearData[j].crop] = true;
-
-        //       dt.addColumn('number', yearData[j].crop+' ('+yearData[j].yieldUnits+')');
-        //       dt.addColumn({type: 'string', role: 'tooltip'});
-        //     }
-        //   }
-        // }
-
-        // for( var i = 0; i < revenueResults.poplar.length; i++ ) {
-        //   var rowdata = [
-        //     d.getFullYear()+''
-        //   ];
-
-        //   var cyield = 0;
-        //   for( var j = 0; j < revenueResults.crops[i].breakdown.length; j++ ) {
-        //     var yearData = revenueResults.crops[i].breakdown;
-
-        //     crops.forEach(function(cropInfo){
-        //       var d = this.getYearData(cropInfo, yearData);
-        //       rowdata.push(d.yield);
-        //       rowdata.push(d.yield.toFixed(2)+' ('+d.yieldUnits+')');
-        //     }.bind(this));
-        //   }
-
-        //   data.push(rowdata);
-        //   d.setFullYear(d.getFullYear()+1);
-        // }
-
-        // dt.addRows(data);
-
-        // var options = {
-        //   width : $(this.$.yieldChart).parent().width(),
-        //   height: 300,
-        //   legend : {
-        //     position: 'top'
-        //   },
-        //   hAxis : {
-        //     slantedText:true,
-        //     slantedTextAngle:45
-        //   }
-        // };
-        // var chart = new google.visualization.LineChart(this.$.cropYieldChart);
-        // chart.draw(dt, options);
-
-        // setTimeout(function(){
-        //   options.width = $(this.$.chart).parent().width();
-        //   var chart = new google.visualization.LineChart(this.$.cropYieldChart);
-        //   chart.draw(dt, options);
-        // }.bind(this), 500);
-        
-        
         this.drawPoplar();
       },
       

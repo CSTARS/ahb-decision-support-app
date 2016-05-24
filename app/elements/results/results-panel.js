@@ -92,6 +92,7 @@ var datastore = sdk.datastore;
         }
         html += '">'+utils.formatAmount(yieldRequired)+' Mg required to run refinery</span>';
         this.$.avgPerYear.innerHTML = html;
+        this.$.avgYield.innerHTML = (totals.avgYearHarvest / totals.acres).toFixed(2)+' Mg';
         
         // render refinery data
         var r = datastore.selectedRefinery;
