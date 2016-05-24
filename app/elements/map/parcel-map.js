@@ -200,12 +200,16 @@ var renderer = require('./renderer');
           if( !parcel.properties.ucd.render.filtered ) {
             return;
           }
-          if( parcel.properties.ucd.transportation.properties.error ) {
+          if( parcel.properties.ucd.transportation.error ) {
             return;
           }
 
           // set the current network
-          var path = parcel.properties.ucd.transportation.properties.path;
+          var path = parcel.properties.ucd.transportation.path;
+          if( !path ) {
+            return;
+          }
+          
           path.forEach(function(id){
             if( this.currentNetwork[id] === undefined ) {
               this.currentNetwork[id] = 1;
@@ -213,6 +217,7 @@ var renderer = require('./renderer');
               this.currentNetwork[id]++;
             }
           }.bind(this));
+          
 
           // render a line for shortest path vertex to feature centroid
           var f = sdk.datastore.network[path[0]];

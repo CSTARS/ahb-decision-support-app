@@ -5,6 +5,7 @@ transportation/osm2po/*
 transportation/server/*
 docker/appcontainer/transportation-service.zip
 docker/osm2po/transportation-service
+transportation/osrm
 
 # Logs
 logs

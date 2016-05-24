@@ -78,7 +78,8 @@ var utils = require('../utils');
             lat : this.lat,
             lng : this.lng,
             radius : parseInt(this.$.radiusInput.value)*1000,
-            refinery : this.$.refinerySelector.value
+            refinery : this.$.refinerySelector.value,
+            routeGeometry : this.$.routeInput.checked ? true : false
         };
 
         app.run(options, function(){

@@ -38,6 +38,11 @@
       "port" : 8889
     },
     
+    "osrm" : {
+      "host" : "localhost",
+      "port" : 5000
+    },
+    
     // linked docker container names
     "dockerLinks" : {
         "cropTypes" : "AHB-DSA-PG",

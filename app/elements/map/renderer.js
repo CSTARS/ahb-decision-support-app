@@ -36,7 +36,7 @@ function drawPolygon(ctx, xyPoints, feature) {
     }
     ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-    if( feature.properties.ucd.transportation.properties.error || feature.properties.ucd.poplarGrowthError ) {
+    if( feature.properties.ucd.transportation.error || feature.properties.ucd.poplarGrowthError ) {
         ctx.strokeStyle = 'rgba(255,0,0,.8)';
     } else if( !feature.properties.ucd.render.selected ) {
         ctx.strokeStyle = 'rgba(255, 152, 0,.8)';
@@ -68,7 +68,7 @@ function lineRenderer(ctx, xyPoints, map, feature) {
     for( var i = 1; i < xyPoints.length; i++ ) {
         point = xyPoints[i];
         if( point.x === last.x && point.y === last.y ) {
-        continue;
+            continue;
         }
         ctx.lineTo(point.x, point.y);
         last = point;
@@ -78,8 +78,8 @@ function lineRenderer(ctx, xyPoints, map, feature) {
         ctx.strokeStyle = '#CFD8DC';
         ctx.lineCap = 'round';
     } else {
-        var use = sdk.datastore.networkUse[feature.properties.id];
-        var p = use / sdk.datastore.maxNetworkUse;
+        //var use = sdk.datastore.networkUse[feature.properties.id];
+        //var p = use / sdk.datastore.maxNetworkUse;
 
         ctx.strokeStyle = '#607D8B';
     }

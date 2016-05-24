@@ -3,6 +3,8 @@ var extend = require('extend');
 var proxy = require('./proxy');
 var socket = require('../../lib/socket');
 
+var CHUNK_SIZE = 500;
+
 module.exports = function() {
   return {
     getRoutes : getRoutes
@@ -19,6 +21,7 @@ function getRoutes(sources, destination, options, callback) {
   var destinationVertex;
   var ids = {}, currentSocket;
 
+
   if( options.socketId ) {
     var s = socket.get(options.socketId);
     if( s ) {
@@ -32,172 +35,110 @@ function getRoutes(sources, destination, options, callback) {
     options.requestCancelled = true;
   });
 
+
+  var chunks = [], chunk = [];
+  for( var i = 0; i < sources.features.length; i++ ) {
+    chunk.push(sources.features[i].geometry.coordinates);
+    
+    if( i % CHUNK_SIZE === 0 && i !== 0 ) {
+      chunks.push(chunk);
+      chunk = [];
+    }
+  }
+  if( chunk.length > 0 ) {
+    chunks.push(chunk);
+  }
+  
   var t = new Date().getTime();
+  var c = 0;
   console.log('START: '+t);
 
-  proxy.findClosestVertex(destination.geometry, function(err, vertex){
-    if( err ) {
-      return callback('Unable to locate vertex for destination.  Please try another location');
+  async.eachSeries(
+    chunks,
+    function(chunk, next) {
+      if( options.requestCancelled ) {
+        return next();
+      }
+      
+      var params = {
+        sources : JSON.stringify(chunk),
+        destination : JSON.stringify(destination.geometry.coordinates),
+        steps : options.routeGeometry ? true : false
+      }
+      
+      proxy.query(params, (err, queryResult) => {
+        processPaths(queryResult, result, c, sources, params.steps);
+        
+        c += CHUNK_SIZE;
+        sendUpdate(t, c, sources.features.length, currentSocket);
+        
+        next();
+      });
+    },
+    function(err) {
+      if( options.requestCancelled ) {
+        return currentSocket.emit('routes-calculated', {error:true, message: 'Request Cancelled'});
+      }
+      
+      var arr = [];
+      for( var key in result.network.features ){
+        arr.push(result.network.features[key]);
+      }
+      result.network.features = arr;
+      
+      currentSocket.emit('routes-calculated', result);
+    }
+  );
+}
+
+
+function processPaths(pathResults, finalResult, count, sources, steps) {
+  for( var i = 0; i < pathResults.length; i++ ) {
+    processPath(pathResults[i], finalResult, sources.features[count+i], steps);
+  }
+}
+
+function processPath(pathResult, finalResult, feature, steps) {
+
+  if( steps ) {
+    var path = [], start, stop, id;
+    for( var i = 1; i < pathResult.steps.coordinates.length; i++ ) {
+      start = pathResult.steps.coordinates[i-1];
+      stop = pathResult.steps.coordinates[i];
+      id = start.join('-')+','+stop.join('-')
+      
+      if( finalResult.network.features[id] ) {
+        finalResult.network.features[id].properties.count++;
+        path.push(finalResult.network.features[id].properties.id);
+      } else {
+        finalResult.network.features[id] = {
+          geometry : {
+            type : 'LineString',
+            coordinates : [start, stop]
+          },
+          properties : {
+            id : finalResult.networkSegmentCount,
+            count : 0
+          }
+        }
+        
+        path.push(finalResult.networkSegmentCount);
+        finalResult.networkSegmentCount++;
+      }
     }
     
-    callback(null, {success:true});
-
-    console.log('SOCKET: '+options.socketId);
-
-    destinationVertex = vertex;
-    var cache = {};
-    var c = 0;
-
-    async.eachSeries(
-      sources.features,
-      function(source, next) {
-        if( options.requestCancelled ) {
-          return next();
-        }
-        
-        findPath(source, destinationVertex, cache, function(err, pathresult){
-
-          c++;
-          sendUpdate(t, c, sources.features.length, currentSocket);
-
-          if( err ) {
-            result.paths.features.push(createErrorFeature(err));
-            return next();
-          } else {
-            processPath(pathresult, result, ids);
-            next();
-          }
-        });
-      },
-      function(err) {
-        if( options.requestCancelled ) {
-          //return callback({error:true, message: 'Request Cancelled'});
-          return currentSocket.emit('routes-calculated', {error:true, message: 'Request Cancelled'});
-        }
-        
-        proxy.clearCache();
-        result.use = ids;
-        //callback(null, processErrors(sources.features, result));
-        
-        currentSocket.emit('routes-calculated', processErrors(sources.features, result));
-      }
-    );
-  });
-}
-
-// fine nearest neighor for errors
-function processErrors(sources, result) {
-  var i, f;
-  for( i = 0; i < result.paths.features.length; i++ ) {
-    f = result.paths.features[i];
-    if( f.properties.error ) {
-      setClosest(sources, result.paths.features, i);
-    }
+    pathResult.path = path;
+    delete pathResult.steps;
   }
-
-  return result;
-}
-
-function setClosest(sources, features, index) {
-  var minDistance = 9999;
-  var minIndex = -1;
-  var i, d;
-
-  for( i = 0; i < sources.length; i++ ) {
-    if( index === i ) {
-      continue;
-    }
-    if( features[i].properties.error ) {
-      continue;
-    }
-
-    d = distance(sources[index].geometry.coordinates, sources[i].geometry.coordinates);
-    if( d < minDistance ) {
-      minDistance = d;
-      minIndex = i;
-    }
-  }
-
-  // no match :(
-  if( minIndex === -1 ) {
-     return;
-  }
-
-  features[index] = extend(true, {}, features[minIndex]);
-  features[index].properties.guess = true;
-}
-
-function distance(start, stop) {
-  return Math.sqrt(Math.pow(start[1] - stop[1], 2) +  Math.pow(start[0] - stop[0], 2));
-}
-
-function findPath(source, destinationVertex, cache, callback) {
-  proxy.findClosestVertex(source.geometry, function(err, sourceVertex){
-    if( err ) {
-      return callback('Unable to locate vertex for destination.  Please try another location');
-    }
-
-    var result = {
-      path : {
-        type : 'Feature',
-        geometry : 'LineString',
-        coordinates : [
-          sourceVertex.geometry.coordinates,
-          destinationVertex.geometry.coordinates
-        ],
-        properties : {
-          id: sourceVertex.properties.id+'-'+destinationVertex.properties.id,
-          source: sourceVertex.properties.id,
-          destination: destinationVertex.properties.id
-        }
-      },
-      network : {}
-    };
-
-    proxy.findRoute(sourceVertex.properties.id, destinationVertex.properties.id, cache, function(err, network){
-      if( err ) {
-        return callback(err);
-      }
-
-      result.network = network;
-      callback(null, result);
-    });
-
-  });
-}
-
-function processPath(pathresult, finalresult, ids) {
-  if( !pathresult.network.features ) {
-    return;
-  }
-
-  var path = [], id;
-  var distance = 0;
-  var time = 0;
-
-  pathresult.network.features.forEach(function(feature){
-    id = feature.properties.id;
-    path.push(id);
-
-    distance += feature.properties.length;
-    time += feature.properties.time;
-
-    if( ids[id] === undefined ) {
-      finalresult.network.features.push(feature);
-      ids[id] = 1;
-    } else {
-      ids[id] += 1;
-    }
-  });
-
-  var feature = pathresult.path;
-  feature.properties.path = path;
-  feature.properties.distance = distance;
-  feature.properties.distanceUnit = 'km';
-  feature.properties.time = time;
-  feature.properties.timeUnit = 'h';
-
-  finalresult.paths.features.push(feature);
+    
+  
+  pathResult.id = feature.properties.id;
+  pathResult.distance = pathResult.distance / 1000;
+  pathResult.distanceUnit = 'km';
+  pathResult.duration = pathResult.duration / (60 * 60);
+  pathResult.durationUnit = 'h';
+  
+  finalResult.paths.push(pathResult);
 }
 
 function createErrorFeature(err) {
@@ -216,13 +157,11 @@ function createErrorFeature(err) {
 
 function init() {
   return {
-    paths : {
-      type : "FeatureCollection",
-      features : []
-    },
+    paths : [],
+    networkSegmentCount : 0,
     network : {
       type : "FeatureCollection",
-      features : []
+      features : {}
     }
   };
 }

@@ -141,7 +141,7 @@ var app = require('../app');
                   '<b>Avg Transportation Cost:</b> $'+transportationAvg.toFixed()+' / Harvest <br />'+
                   '<b>Avg Water Cost:</b> $'+waterAvg.toFixed()+' / Year <br />'+
                   '<b>Avg Land Cost:</b> $'+landAvg.toFixed()+' / Year <br />'+
-                  '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.properties.distance*0.621371).toFixed(2)+' mi';
+                  '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.distance*0.621371).toFixed(2)+' mi';
         }
 
         var options = {

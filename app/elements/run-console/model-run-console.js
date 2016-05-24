@@ -38,6 +38,7 @@ Polymer({
         datastore.on('budgets-update-end', this.onBudgetsEnd.bind(this));
         
         app.on('optimize-price-start', this.onOptimizePriceStart.bind(this));
+        app.on('optimize-price-update', this.onOptimizePriceUpdate.bind(this));
         app.on('optimize-price-end', this.onOptimizePriceEnd.bind(this));
 
         model.on('harvests-start', this.onHarvestsStart.bind(this));
@@ -135,6 +136,10 @@ Polymer({
     
     onOptimizePriceStart : function() {
         this.createLine('optimizePrice', 'Calculating optimal poplar price','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+    },
+    
+    onOptimizePriceUpdate : function(e) {
+        this.updateLine('optimizePrice', 'Calculating optimal poplar price '+e,'text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
     },
 
     onOptimizePriceEnd : function() {
