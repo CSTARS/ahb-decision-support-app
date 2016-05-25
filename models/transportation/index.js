@@ -86,6 +86,11 @@ function getRoutes(sources, destination, options, callback) {
       }
       result.network.features = arr;
       
+      // Very large JSON objects are crashing, so split up the parsing,
+      // perhaps even send 2 packets
+      result.paths = JSON.stringify(result.paths);
+      result.network = JSON.stringify(result.network);
+      
       currentSocket.emit('routes-calculated', result);
     }
   );
