@@ -70,58 +70,77 @@ var app = require('../app');
         var data = [];
         var c = 1;
         
-        var size = this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel;
-        var poplarAveragePerYear = this.parcel.properties.ucd.harvest.totalHarvest / this.parcel.properties.ucd.harvest.years;
+        var size = this.parcel.properties.ucd.harvest.growArea;
+        var poplarAveragePerYear = this.parcel.properties.ucd.harvest.total / this.parcel.properties.ucd.harvest.years;
         var poplarAveragePerAcre = poplarAveragePerYear / size;
+        
+        
+        var income = this.parcel.properties.ucd.income;
+        var cost = this.parcel.properties.ucd.farmCost;
         
 
         var revenueResults = this.parcel.properties.ucd.revenueResults;
-        var pR = 0;
-        var cR = 0;
-        var transportationAvg = 0;
-        var tc = 0;
-        var waterAvg = 0;
-        var tw = 0;
-        var landAvg = 0;
-        var tl = 0;
         
+        var stats = {
+          poplarRevenue : 0,
+          cropsRevenue : 0,
+          transportation : {
+            avg : 0,
+            count : 0
+          },
+          water : {
+            avg : 0,
+            count : 0
+          },
+          land : {
+            avg : 0,
+            count : 0
+          }
+        }
         
-
-        for( var i = 0; i < revenueResults.poplar.length; i++ ) {
-          pR += revenueResults.poplar[i].revenue;
-          cR += revenueResults.crops[i].revenue;
+        var cropIncome, cropCost, poplarIncome, poplarCost;
+        for( var i = 0; i < cost.poplar.yearlyData.length; i++ ) {
+          cropCost = cost.crops.yearlyData[i];
+          poplarCost = cost.poplar.yearlyData[i];
+          
+          cropIncome = income.crops.yearly[i];
+          poplarIncome = income.poplar.yearly[i];
+          
+          
+          stats.poplarRevenue += poplarIncome - poplarCost.cost;
+          stats.cropsRevenue += cropIncome - cropCost.cost;
 
           data.push([
             d.getFullYear()+'',
-            pR,
-            '$'+(pR / size).toFixed(2),
-            cR,
-            '$'+(cR / size).toFixed(2)
+            stats.poplarRevenue,
+            '$'+(stats.poplarRevenue).toFixed(2),
+            stats.cropsRevenue,
+            '$'+(stats.cropsRevenue).toFixed(2)
           ]);
           d.setFullYear(d.getFullYear()+1);
 
-          if( revenueResults.poplar[i].transportation ) {
-            transportationAvg += revenueResults.poplar[i].transportation;
-            tc++;
+          if( poplarCost.transportation ) {
+            stats.transportation.avg += poplarCost.transportation;
+            stats.transportation.count++;
           }
-          if( revenueResults.poplar[i].water ) {
-            waterAvg += revenueResults.poplar[i].water;
-            tw++;
+          if( poplarCost.water ) {
+            stats.water.avg += poplarCost.water;
+            stats.water.count++;
           }
-          if( revenueResults.poplar[i].land ) {
-            landAvg += revenueResults.poplar[i].land;
-            tl++;
+          if( poplarCost.land ) {
+            stats.land.avg += poplarCost.land;
+            stats.land.count++;
           }
         }
 
-        if( tc > 0 ) {
-          transportationAvg  = transportationAvg / tc;
+        if( stats.transportation.count > 0 ) {
+          stats.transportation.avg  = stats.transportation.avg / stats.transportation.count;
         }
-        if( tw > 0 ) {
-          waterAvg  = waterAvg / tw;
+        if( stats.water.count > 0 ) {
+          stats.water.avg  = stats.water.avg / stats.water.count;
         }
-        if( tl > 0 ) {
-          landAvg  = landAvg / tl;
+        if( stats.land.count > 0 ) {
+          stats.land.avg  = stats.land.avg / stats.land.count;
         }
 
         dt.addRows(data);
@@ -130,11 +149,13 @@ var app = require('../app');
         var html = '';
         var cropInfo = this.parcel.properties.ucd.cropInfo;
         for( var i = 0; i < cropInfo.swap.length; i++ ) {
+          var priceYield = sdk.datastore.getPriceAndYield(cropInfo.swap[i]);
+          
           html += '<b>'+cropInfo.swap[i] + '</b><br />'+
           '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total.toFixed(2)+' / Acre - <a href="http://farmbudgets.org/#' +
           cropInfo.cropBudgets[i].id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
-          '&nbsp;&nbsp;<b>Price:</b> '+cropInfo.priceYield[i].price.price+' '+cropInfo.priceYield[i].price.unit+'<br />'+
-          '&nbsp;&nbsp;<b>Yield:</b> '+(cropInfo.priceYield[i].yield.yield)+' '+cropInfo.priceYield[i].yield.unit;
+          '&nbsp;&nbsp;<b>Price:</b> '+priceYield.price.price+' '+priceYield.price.unit+'<br />'+
+          '&nbsp;&nbsp;<b>Yield:</b> '+(priceYield.yield.yield)+' '+priceYield.yield.unit;
         }
         this.$.crops.innerHTML = html;
 
@@ -145,8 +166,8 @@ var app = require('../app');
                   '<b>Cost:</b> $'+sdk.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
                   ' - <a href="http://farmbudgets.org/#'+sdk.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
                   '<b>Price:</b> $'+sdk.datastore.poplarPrice+' / Mg<br />'+
-                  '<b>Avg Water Cost:</b> $'+waterAvg.toFixed()+' / Year ($'+(waterAvg / size).toFixed()+' / Acre)<br />'+
-                  '<b>Avg Land Cost:</b> $'+landAvg.toFixed()+' / Year ($'+(landAvg / size).toFixed()+' / Acre)<br />'+
+                  '<b>Water Cost:</b> $'+stats.water.avg.toFixed()+' / Acre / Year <br />'+
+                  '<b>Land Cost:</b> $'+stats.land.avg.toFixed()+' / Acre / Year <br />'+
                   '<b>Avg Yield / Year:</b> '+poplarAveragePerYear.toFixed(2)+' Mg <br />'+
                   '<b>Avg Yield / Acre / Year:</b> '+poplarAveragePerAcre.toFixed(2)+' Mg <br />';
         }
@@ -154,9 +175,8 @@ var app = require('../app');
         var size = this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel;
         
         this.$.transportation.innerHTML =
-            '<b>Avg Transportation Cost / Harvest:</b> $'+transportationAvg.toFixed()+'<br />'+
-            '<b>Avg Transportation Cost / Acre:</b> $'+(transportationAvg / size).toFixed() +'<br />'+
-            '<b>Avg Transportation Cost / Mg:</b> $'+((transportationAvg / size) / poplarAveragePerAcre).toFixed() +'<br />'+
+            '<b>Avg Transportation Cost / Acre:</b> $'+stats.transportation.avg.toFixed()+'<br />'+
+            '<b>Avg Transportation Cost / Mg:</b> $'+(stats.transportation.avg / poplarAveragePerAcre).toFixed() +'<br />'+
             '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.distance*0.621371).toFixed(2)+' mi';
 
         var options = {

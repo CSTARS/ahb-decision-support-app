@@ -51,25 +51,29 @@ function App() {
         
         ee.emit('optimize-price-start');
         
-        sdk.adoption.breakdown(options, (resp) => {
+        sdk.optimize(options, (resp) => {
+        //sdk.adoption.breakdown(options, (resp) => {
             options.minPrice = resp.poplarPrice - 11;
             options.maxPrice = resp.poplarPrice + 11;
             options.step = 2;
             
             ee.emit('optimize-price-update', '25%');
             
-            sdk.adoption.breakdown(options, (resp) => {
+            sdk.optimize(options, (resp) => {
+            //sdk.adoption.breakdown(options, (resp) => {
                 
                 options = {
                     minPrice : resp.poplarPrice - 4,
                     maxPrice : resp.poplarPrice + 2,
+                    setPoplarPrice : true,
                     step : 0.1
                 };
                 
                 ee.emit('optimize-price-update', '50%');
                 
                 // now get detailed graph
-                sdk.adoption.breakdown(options, (resp) => {
+                sdk.optimize(options, (resp) => {
+                //sdk.adoption.breakdown(options, (resp) => {
                     ee.emit('optimize-price-end');
                     
                     this.breakdown = resp.results;

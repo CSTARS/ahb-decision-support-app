@@ -182,35 +182,33 @@ var datastore = sdk.datastore;
         var dt = new google.visualization.DataTable();
 
         var data = [];
-        var header = ['price'];
+        var header = ['price', 'poplar'];
         dt.addColumn({id:'price', label: 'Price', type:'string'});
-
-        for( var key in breakdown[0] ) {
-          if( key === 'price' ) continue;
+        dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
+        for( var key in breakdown[0].crops ) {
           header.push(key);
           dt.addColumn({id:key, label:key, type:'number'});
         }
         dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
-        dt.addColumn({id: 'tooltip', type: 'string', role:'tooltip'});
+        dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
 
         var max = 0;
         var row;
-        breakdown.forEach(function(pricedata){
-          row = [];
-          for( var i = 0; i < header.length; i++ ) {
-            if( i === 0 ) {
-              row.push(pricedata[header[i]]+'');
-            } else {
-              //var count = pricedata[header[i]] ? pricedata[header[i]].parcels : 0;
-              var count = pricedata[header[i]] ? pricedata[header[i]].acres : 0;
-              row.push(count);
-              if( count > max ) {
-                max = count;
-              }
+        breakdown.forEach(function(result){
+          row = [
+            result.price+'',
+            result.adopted.acres
+          ];
+          for( var i = 2; i < header.length; i++ ) {
+            var count = result.crops[header[i]] ? result.crops[header[i]].acres : 0;
+            row.push(count);
+            
+            if( count > max ) {
+              max = count;
             }
           }
           
-          if( pricedata.price === sdk.datastore.poplarPrice ) {
+          if( result.price === sdk.datastore.poplarPrice ) {
             row.push(max+20);
             row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
           } else {
@@ -253,8 +251,84 @@ var datastore = sdk.datastore;
 
         this.drawChart('adoptionChart', dt, options, this.$.adoptionChart, 'ComboChart');
 
+        this.renderYieldAdoption();
+
         this.breakdownRendered = true;
       },
+      
+      renderYieldAdoption : function() {
+        var breakdown = this.breakdown;
+
+        var dt = new google.visualization.DataTable();
+
+        var data = [];
+        var header = ['price', 'poplar'];
+        dt.addColumn({id:'price', label: 'Price', type:'string'});
+        dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
+        dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
+        dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
+
+
+        var max = 0;
+        var row, y;
+        breakdown.forEach(function(result){
+          y = result.adopted.yield / datastore.poplarModel.years;
+          row = [
+            result.price+'',
+            y
+          ];
+          
+          if( y > max ) {
+            max = y;
+          }
+
+          if( result.price === sdk.datastore.poplarPrice ) {
+            row.push(max+20);
+            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
+          } else {
+            row.push(null);
+            row.push(null);
+          }
+          
+          data.push(row);
+        });
+
+        dt.addRows(data);
+
+        var options = {
+          animation:{
+            duration: 1000,
+            easing: 'out',
+          },
+          hAxis : {
+            title : 'Price ($)'
+          },
+          height: 400,
+          vAxis : {
+            //title : 'Parcels (#)'
+            title : 'Total Yield'
+          },
+          seriesType: "bars",
+          series :{},
+          interpolateNulls : true,
+          legend : {
+            position: 'top'
+          }
+        }
+
+        for( var i = 0; i < header.length-1; i++ ) {
+          options.series[i] = {
+            type : 'line',
+            targetAxisIndex : 0
+          }
+        }
+
+        this.drawChart('renderYieldAdoption', dt, options, this.$.renderYieldAdoption, 'ComboChart');
+
+        this.breakdownRendered = true;
+      },
+      
+      
 
       onPriceChange : function() {
         app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
