@@ -99,7 +99,8 @@ var datastore = sdk.datastore;
         var years = datastore.poplarModel.monthsToRun / 12;
         
         var poplarCost = sdk.revenue.refinery.poplarCost(datastore, totals.harvested, datastore.poplarPrice);
-        var refineryIncome = sdk.revenue.refinery.income(datastore, totals.harvested);
+        var transportationCost = sdk.revenue.refinery.transportationCost(datastore);
+        var refineryIncome = sdk.revenue.refinery.income(datastore, totals.years);
         var operatingCost = r.operatingCost.value * years;
 
         
@@ -107,14 +108,15 @@ var datastore = sdk.datastore;
         this.$.refineryCapitalCost.innerHTML = '$'+utils.formatAmount(r.capitalCost);
         this.$.refineryOperatingCost.innerHTML = '$'+utils.formatAmount(operatingCost);
         this.$.refineryPoplarCost.innerHTML = '$'+utils.formatAmount(poplarCost);
-        var totalCost = r.capitalCost + operatingCost + poplarCost;
+        this.$.refineryTransportationCost.innerHTML = '$'+utils.formatAmount(transportationCost);
+        var totalCost = r.capitalCost + operatingCost + poplarCost + transportationCost;
         this.$.refineryTotalCost.innerHTML = '$'+utils.formatAmount(totalCost);
         this.$.refineryProduct.innerHTML = r.product.name;
         this.$.refineryIncome.innerHTML = '$'+utils.formatAmount(refineryIncome)+
                                            `<div class="help-block">
                                               (${r.yield.value} ${r.yield.units}) x
                                               (${r.product.price} ${r.product.units}) x
-                                              (${harvestTotal} Mg)
+                                              (${datastore.selectedRefinery.feedstockCapacity.value} Mg)
                                            </div>`;
         
         var net = refineryIncome - (totalCost);
