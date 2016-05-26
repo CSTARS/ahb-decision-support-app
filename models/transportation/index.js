@@ -69,7 +69,7 @@ function getRoutes(sources, destination, options, callback) {
       proxy.query(params, (err, queryResult) => {
         processPaths(queryResult, result, c, sources, params.steps);
         
-        c += CHUNK_SIZE;
+        c += chunk.length;
         sendUpdate(t, c, sources.features.length, currentSocket);
         
         next();
