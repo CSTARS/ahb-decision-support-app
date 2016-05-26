@@ -13,6 +13,12 @@ var utils = require('../utils');
           backdrop : 'static'
         });
         this.active = false;
+        
+        var html = '';
+        for( var type in sdk.poplarModel.trees ) {
+          html += `<option value="${type}">${type}</option>`;
+        }
+        this.$.treeInput.innerHTML = html;
       },
 
       show : function(lat, lng) {
@@ -73,6 +79,8 @@ var utils = require('../utils');
       run : function() {
         this.$.startBtn.style.display = 'none';
         document.querySelector('results-panel').breakdownRendered = false;
+        
+        sdk.poplarModel.selectedTree = this.$.treeInput.value;
         
         var options = {
             lat : this.lat,
