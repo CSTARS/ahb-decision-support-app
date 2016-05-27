@@ -31,6 +31,7 @@ var app = require('../app');
         this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
         this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
+        this.$.adoptionPrice.innerHTML = '$'+this.parcel.properties.ucd.adoptionPrice.toFixed(2);
 
         if( this.parcel.properties.ucd && this.parcel.properties.ucd.modelProfileId ) {
           this.onComplete();

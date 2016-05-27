@@ -35,7 +35,7 @@ function App() {
         runConsole = rc;
     }
     
-    this.recalc = function(callback) {
+    /*this.recalc = function(callback) {
         if( !grown ) {
             if( callback ) callback();
             return;
@@ -87,6 +87,22 @@ function App() {
                 });
             });
         });
+    }*/
+    
+    this.recalc = function(callback) {
+        if( !grown ) {
+            if( callback ) callback();
+            return;
+        }
+        
+        this.breakdown = adoption.v2();
+        datastore.setTotals();
+        
+        this.getOnCompleteListeners().forEach(function(fn){
+            fn();
+        });
+
+        if( callback ) callback();
     }
 
     this.run = function(options, callback) {

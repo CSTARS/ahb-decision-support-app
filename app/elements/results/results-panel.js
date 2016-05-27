@@ -177,8 +177,130 @@ var datastore = sdk.datastore;
           this.renderBreakdown();
         }
       },
-
+      
       renderBreakdown : function() {
+        var breakdown = this.breakdown;
+        
+        var minPrice = 9999;
+        var maxPrice = 0, p;
+        
+        for( var i = 0; i < breakdown.parcels.length; i++ ) {
+          p = breakdown.parcels[i].properties.ucd.adoptionPrice;
+          if( p < minPrice ) {
+            minPrice = p;
+          }
+          if( p > maxPrice ) {
+            maxPrice = p;
+          }
+        }
+        
+        var crops = {};
+        var priceData = {};
+        var parcel, crop;
+        
+        for( var price = minPrice; price <= maxPrice; price += 0.5 ) {
+          priceData[price] = {
+            poplar : {
+              acres : 0,
+              yield : 0
+            }
+          };
+          
+          for( var i = 0; i < breakdown.parcels.length; i++ ) {
+            parcel = breakdown.parcels[i];
+            
+            if( price >= parcel.properties.ucd.adoptionPrice ) {
+              priceData[price].poplar.acres += parcel.properties.usableSize;
+              priceData[price].poplar.yield += parcel.properties.ucd.harvest.total / parcel.properties.ucd.harvest.years;
+            } else {
+              crop = parcel.properties.ucd.cropInfo.swap.join(', ');
+              if( !crops[crop] ) {
+                crops[crop] = 1;
+              }
+              if( !priceData[price][crop] ) {
+                priceData[price][crop] = parcel.properties.usableSize;
+              } else {
+                priceData[price][crop] += parcel.properties.usableSize;
+              }
+            }
+
+          }
+        }
+        
+        var header = ['price', 'poplar'];
+        for( var key in crops ) {
+          header.push(key);
+        }
+        
+        var data = [], row, rowData;
+        var lastPrice = 0;
+        var currentPriceNotSet = true;
+        
+        for( var price in priceData ) {
+          rowData = priceData[price]
+          row = [price, rowData.poplar.acres];
+          
+          for( var i = 2; i < header.length; i++ ) {
+            row.push(rowData[header[i]] || 0);
+          }
+          
+          if( datastore.poplarPrice > lastPrice && datastore.poplarPrice <= price && currentPriceNotSet ) {
+            currentPriceNotSet = false;
+            row.push(rowData.poplar.acres);
+            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
+          } else {
+            row.push(null);
+            row.push(null);
+          }
+          
+          data.push(row);
+          lastPrice = price;
+        }
+        
+        var dt = new google.visualization.DataTable();
+        dt.addColumn({id:'price', label: 'Price', type:'string'});
+        dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
+        for( var key in crops ) {
+          dt.addColumn({id:key, label:key, type:'number'});
+        }
+        dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
+        dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
+        
+        dt.addRows(data);
+        
+        var options = {
+          animation:{
+            duration: 1000,
+            easing: 'out',
+          },
+          hAxis : {
+            title : 'Price ($)'
+          },
+          height: 400,
+          vAxis : {
+            //title : 'Parcels (#)'
+            title : 'Acres'
+          },
+          seriesType: "bars",
+          series :{},
+          interpolateNulls : true,
+          legend : {
+            position: 'top'
+          }
+        }
+
+        for( var i = 0; i < header.length-1; i++ ) {
+          options.series[i] = {
+            type : 'line',
+            targetAxisIndex : 0
+          }
+        }
+
+        this.drawChart('adoptionChart', dt, options, this.$.adoptionChart, 'ComboChart');
+        
+      },
+
+      /*renderBreakdown : function() {
         var breakdown = this.breakdown;
 
         var dt = new google.visualization.DataTable();
@@ -328,7 +450,7 @@ var datastore = sdk.datastore;
         this.drawChart('renderYieldAdoption', dt, options, this.$.renderYieldAdoption, 'ComboChart');
 
         this.breakdownRendered = true;
-      },
+      },*/
       
       
 
