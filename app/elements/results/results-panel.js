@@ -43,7 +43,7 @@ var datastore = sdk.datastore;
 
       update : function() {
         
-        var url = `${window.location.protocol}//${window.location.host}/#l/${sdk.datastore.lat.toFixed(4)}/${sdk.datastore.lng.toFixed(4)}/${sdk.datastore.radius}/${encodeURIComponent(sdk.datastore.selectedRefinery.name)}/${sdk.poplarModel.selectedTree}`;
+        var url = `${window.location.protocol}//${window.location.host}/#l/${sdk.datastore.lat.toFixed(4)}/${sdk.datastore.lng.toFixed(4)}/${sdk.datastore.radius}/${encodeURIComponent(sdk.datastore.selectedRefinery.name)}/${encodeURIComponent(sdk.poplarModel.selectedTree)}`;
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
         
@@ -324,11 +324,11 @@ var datastore = sdk.datastore;
         
         for( var i = 0; i < priceData.length; i++ ) {
           rowData = priceData[i];
-          row = [rowData.price+'', rowData.poplar.acres];
+          row = [rowData.price+'', rowData.poplar.yield];
           
           if( datastore.poplarPrice > lastPrice && datastore.poplarPrice <= rowData.price && currentPriceNotSet ) {
             currentPriceNotSet = false;
-            row.push(rowData.poplar.acres);
+            row.push(rowData.poplar.yield);
             row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
           } else {
             row.push(null);
