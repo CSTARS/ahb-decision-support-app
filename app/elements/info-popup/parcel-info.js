@@ -31,7 +31,15 @@ var app = require('../app');
         this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
         this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
+        
         this.$.adoptionPrice.innerHTML = '$'+this.parcel.properties.ucd.adoptionPrice.toFixed(2);
+        if( sdk.datastore.selectedRefinery.maxWillingToPay < this.parcel.properties.ucd.refineryGateCost ) {
+          this.$.refineryGatePrice.innerHTML = '<span class="text text-danger">$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2)+
+                                          ' (Above refinery max willing to accept price of $'+sdk.datastore.selectedRefinery.maxWillingToPay.toFixed(2)+')</span>';
+        } else {
+          this.$.refineryGatePrice.innerHTML = '$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2);
+        }
+        
 
         if( this.parcel.properties.ucd && this.parcel.properties.ucd.modelProfileId ) {
           this.onComplete();

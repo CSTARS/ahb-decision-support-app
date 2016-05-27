@@ -54,7 +54,7 @@ var datastore = sdk.datastore;
         
         this.$.farmersMWA.innerHTML = sdk.datastore.mwa;
         this.$.poplarPriceInput.value = sdk.datastore.poplarPrice;
-        this.$.refineryMWP.innerHTML = datastore.mwp;
+        this.$.refineryMWP.innerHTML = datastore.selectedRefinery.maxWillingToPay;
 
         var data = [
           ['Parcel Type', 'Parcel Number'],
@@ -194,33 +194,38 @@ var datastore = sdk.datastore;
           }
         }
         
+        minPrice = Math.floor(minPrice);
+        maxPrice = Math.ceil(maxPrice);
+        
         var crops = {};
-        var priceData = {};
-        var parcel, crop;
+        var priceData = [];
+        var parcel, crop, item;
         
         for( var price = minPrice; price <= maxPrice; price += 0.5 ) {
-          priceData[price] = {
+          item = {
+            price : price,
             poplar : {
               acres : 0,
               yield : 0
             }
           };
+          priceData.push(item);
           
           for( var i = 0; i < breakdown.parcels.length; i++ ) {
             parcel = breakdown.parcels[i];
             
             if( price >= parcel.properties.ucd.adoptionPrice ) {
-              priceData[price].poplar.acres += parcel.properties.usableSize;
-              priceData[price].poplar.yield += parcel.properties.ucd.harvest.total / parcel.properties.ucd.harvest.years;
+              item.poplar.acres += parcel.properties.usableSize;
+              item.poplar.yield += parcel.properties.ucd.harvest.total / parcel.properties.ucd.harvest.years;
             } else {
               crop = parcel.properties.ucd.cropInfo.swap.join(', ');
               if( !crops[crop] ) {
                 crops[crop] = 1;
               }
-              if( !priceData[price][crop] ) {
-                priceData[price][crop] = parcel.properties.usableSize;
+              if( !item[crop] ) {
+                item[crop] = parcel.properties.usableSize;
               } else {
-                priceData[price][crop] += parcel.properties.usableSize;
+                item[crop] += parcel.properties.usableSize;
               }
             }
 
@@ -236,15 +241,15 @@ var datastore = sdk.datastore;
         var lastPrice = 0;
         var currentPriceNotSet = true;
         
-        for( var price in priceData ) {
-          rowData = priceData[price]
-          row = [price, rowData.poplar.acres];
+        for( var j = 0; j < priceData.length; j++ ) {
+          rowData = priceData[j];
+          row = [rowData.price+'', rowData.poplar.acres];
           
           for( var i = 2; i < header.length; i++ ) {
             row.push(rowData[header[i]] || 0);
           }
           
-          if( datastore.poplarPrice > lastPrice && datastore.poplarPrice <= price && currentPriceNotSet ) {
+          if( datastore.poplarPrice > lastPrice && datastore.poplarPrice <= rowData.price && currentPriceNotSet ) {
             currentPriceNotSet = false;
             row.push(rowData.poplar.acres);
             row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
@@ -254,7 +259,7 @@ var datastore = sdk.datastore;
           }
           
           data.push(row);
-          lastPrice = price;
+          lastPrice = rowData.price;
         }
         
         var dt = new google.visualization.DataTable();
@@ -297,7 +302,76 @@ var datastore = sdk.datastore;
         }
 
         this.drawChart('adoptionChart', dt, options, this.$.adoptionChart, 'ComboChart');
+        this.renderYieldAdoption(priceData);
+      },
+      
+      renderYieldAdoption : function(priceData) {
+        var breakdown = this.breakdown;
+
+        var dt = new google.visualization.DataTable();
+
+        var data = [];
+        var header = ['price', 'poplar'];
+        dt.addColumn({id:'price', label: 'Price', type:'string'});
+        dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
+        dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
+        dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
+
+
+        var max = 0, lastPrice;
+        var row, y, rowData;
+        var currentPriceNotSet = true;
         
+        for( var i = 0; i < priceData.length; i++ ) {
+          rowData = priceData[i];
+          row = [rowData.price+'', rowData.poplar.acres];
+          
+          if( datastore.poplarPrice > lastPrice && datastore.poplarPrice <= rowData.price && currentPriceNotSet ) {
+            currentPriceNotSet = false;
+            row.push(rowData.poplar.acres);
+            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
+          } else {
+            row.push(null);
+            row.push(null);
+          }
+          
+          data.push(row);
+          lastPrice = rowData.price;
+        }
+
+        dt.addRows(data);
+
+        var options = {
+          animation:{
+            duration: 1000,
+            easing: 'out',
+          },
+          hAxis : {
+            title : 'Price ($)'
+          },
+          height: 400,
+          vAxis : {
+            //title : 'Parcels (#)'
+            title : 'Total Yield'
+          },
+          seriesType: "bars",
+          series :{},
+          interpolateNulls : true,
+          legend : {
+            position: 'top'
+          }
+        }
+
+        for( var i = 0; i < header.length-1; i++ ) {
+          options.series[i] = {
+            type : 'line',
+            targetAxisIndex : 0
+          }
+        }
+
+        this.drawChart('renderYieldAdoption', dt, options, this.$.renderYieldAdoption, 'ComboChart');
+
+        this.breakdownRendered = true;
       },
 
       /*renderBreakdown : function() {
