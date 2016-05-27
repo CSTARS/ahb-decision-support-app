@@ -43,7 +43,7 @@ var datastore = sdk.datastore;
 
       update : function() {
         
-        var url = `${window.location.protocol}//${window.location.host}/#l/${sdk.datastore.lat.toFixed(4)}/${sdk.datastore.lng.toFixed(4)}/${sdk.datastore.radius}/${encodeURIComponent(sdk.datastore.selectedRefinery.name)}`;
+        var url = `${window.location.protocol}//${window.location.host}/#l/${sdk.datastore.lat.toFixed(4)}/${sdk.datastore.lng.toFixed(4)}/${sdk.datastore.radius}/${encodeURIComponent(sdk.datastore.selectedRefinery.name)}/${sdk.poplarModel.selectedTree}`;
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
         

@@ -43,6 +43,7 @@ var utils = require('../utils');
       setValues : function(values) {
         this.$.radiusInput.value = values.radius / 1000;
         this.$.refinerySelector.value = values.refinery;
+        this.$.treeInput.value = values.tree || 'Generic';
       },
       
       renderRefinerySelector : function() {

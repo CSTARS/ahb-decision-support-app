@@ -54,7 +54,9 @@ var renderer = require('./renderer');
           this.onResize();
           this.map = L.map(this).setView([44, -121], 6);
           this.map.on('click', this.onClick.bind(this));
-          L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          
+          L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',{
+          //L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
 
@@ -80,7 +82,8 @@ var renderer = require('./renderer');
             setTimeout(() => {
               this.popup.setValues({
                 radius : parseFloat(hash[3]),
-                refinery : decodeURIComponent(hash[4])
+                refinery : decodeURIComponent(hash[4]),
+                tree: hash.length > 4 ? decodeURIComponent(hash[5]) : 'Generic'
               })
             }, 100);
           }
