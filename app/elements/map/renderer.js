@@ -47,7 +47,9 @@ function drawPolygon(ctx, xyPoints, feature) {
     //    ctx.fillStyle = 'rgba(255,255,255,'+a+')';
     //} else {
         //ctx.fillStyle = 'rgba(0,188,212,.8)';
-        ctx.fillStyle = 'rgba(0,188,'+Math.floor(255 * a)+',.8)';
+        var v = Math.floor(255 * a);
+        //ctx.fillStyle = 'rgba(0,188,'+v+',.8)';
+        ctx.fillStyle = 'rgba(0,'+Math.floor(140 + (v / 2))+','+v+',.8)';
     //}
 
     ctx.fill();
