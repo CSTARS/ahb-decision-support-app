@@ -48,13 +48,13 @@ function drawPolygon(ctx, xyPoints, feature) {
     //} else {
         //ctx.fillStyle = 'rgba(0,188,212,.8)';
         var v = Math.floor(255 * a);
-        //ctx.fillStyle = 'rgba(0,188,'+v+',.8)';
-        ctx.fillStyle = 'rgba(0,'+Math.floor(140 + (v / 2))+','+v+',.8)';
+        ctx.fillStyle = 'rgba(0,188,'+v+',.8)';
+        //ctx.fillStyle = 'rgba(0,'+Math.floor(140 + (v / 2))+','+v+',.8)';
     //}
 
     ctx.fill();
     
-    ctx.lineWidth = 1;
+    /*ctx.lineWidth = 1;
     if( feature.properties.ucd.transportation.error || feature.properties.ucd.poplarGrowthError ) {
         ctx.strokeStyle = 'rgba(255,0,0,.8)';
         ctx.stroke();
@@ -65,7 +65,7 @@ function drawPolygon(ctx, xyPoints, feature) {
     } else {
         //ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
         //ctx.strokeStyle = '#00BCD4';
-    }
+    }*/
 }
 
 function lineRenderer(ctx, xyPoints, map, feature) {
