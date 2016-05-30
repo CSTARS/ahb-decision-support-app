@@ -35,60 +35,6 @@ function App() {
         runConsole = rc;
     }
     
-    /*this.recalc = function(callback) {
-        if( !grown ) {
-            if( callback ) callback();
-            return;
-        }
-        
-        // find optimal price $0 to $50, $1 step
-        var options = {
-            minPrice : 0,
-            maxPrice : 150,
-            step : 10,
-            prescan : true
-        };
-        
-        ee.emit('optimize-price-start');
-        
-        sdk.optimize(options, (resp) => {
-        //sdk.adoption.breakdown(options, (resp) => {
-            options.minPrice = resp.poplarPrice - 11;
-            options.maxPrice = resp.poplarPrice + 11;
-            options.step = 2;
-            
-            ee.emit('optimize-price-update', '25%');
-            
-            sdk.optimize(options, (resp) => {
-            //sdk.adoption.breakdown(options, (resp) => {
-                
-                options = {
-                    minPrice : resp.poplarPrice - 4,
-                    maxPrice : resp.poplarPrice + 2,
-                    setPoplarPrice : true,
-                    step : 0.1
-                };
-                
-                ee.emit('optimize-price-update', '50%');
-                
-                // now get detailed graph
-                sdk.optimize(options, (resp) => {
-                //sdk.adoption.breakdown(options, (resp) => {
-                    ee.emit('optimize-price-end');
-                    
-                    this.breakdown = resp.results;
-                    datastore.setTotals();
-
-                    this.getOnCompleteListeners().forEach(function(fn){
-                        fn();
-                    });
-
-                    if( callback ) callback();
-                });
-            });
-        });
-    }*/
-    
     this.recalc = function(callback) {
         if( !grown ) {
             if( callback ) callback();
@@ -107,9 +53,6 @@ function App() {
 
     this.run = function(options, callback) {
 
-        // open a socket for transportation updates
-        //var socket = io.connect('http://'+window.location.host);
-
         runConsole.onStart(options);
 
         var c = 0;
@@ -127,9 +70,9 @@ function App() {
         }
 
         datastore.setSelectedRefinery(options.refinery);
-
-        datastore.getParcels(options.lat, options.lng, options.radius, function(){
-            datastore.getCrops(function(){
+        
+        var queries = datastore.getParcels(options.lat, options.lng, options.radius, function(){
+            //datastore.getCrops(function(){
                 
                 //datastore.getTransportation(socket.id, onComplete.bind(this));
                 var socket = datastore.getTransportation(options.routeGeometry, onComplete.bind(this));
@@ -149,8 +92,10 @@ function App() {
                 if( datastore.errorFetchingCropTypes ) {
                     alert('Error fetching parcel crop types');
                 }
-           });
+           //});
         });
+        
+        //document.querySelector('parcel-map').renderQueries(queries);
     };
     
     this.setPoplarPrice = function(price) {

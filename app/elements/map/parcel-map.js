@@ -71,7 +71,6 @@ var renderer = require('./renderer');
             onClick : this.onFeaturesClicked.bind(this)
           });
           this.canvasLayer.renderer = renderer;
-          
           this.canvasLayer.addTo(this.map);
           
           var hash = window.location.hash.replace('#', '').split('/');
@@ -289,7 +288,7 @@ var renderer = require('./renderer');
         this.canvasLayer.addCanvasFeatures(L.CanvasFeatureFactory(sdk.datastore.validParcels));
         this.canvasLayer.render();
 
-        if( sdk.datastore.allParcels.length > 0 ) {
+        if( sdk.datastore.validParcels.length > 0 ) {
           this.mode = 'select';
           this.menu.setMode(this.mode);
           this.$.info.style.display = 'block';
