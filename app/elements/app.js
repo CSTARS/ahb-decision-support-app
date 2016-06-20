@@ -41,7 +41,7 @@ function App() {
             return;
         }
         
-        this.breakdown = adoption.v2();
+        this.breakdown = adoption.optimize();
         datastore.setTotals();
         
         this.getOnCompleteListeners().forEach(function(fn){
