@@ -169,29 +169,34 @@ var renderer = require('./renderer');
 
       filter : function() {
         for( var i = this.canvasLayer.features.length-1; i >= 0; i-- ) {
-          var geo = this.canvasLayer.features[i].geojson.geometry;
-          if( geo.type === 'LineString' ){
+          var type = this.canvasLayer.features[i].type;
+          if( type === 'LineString' ){
             this.canvasLayer.features.splice(i, 1);
           }
         }
 
         // actually hide the parcel at the canvas layer... thus no geometry recalc
-        this.canvasLayer.features.forEach(function(clFeature){
-          var isSelected = this.selectedParcel(clFeature.geojson);
+        sdk.datastore.validParcels.forEach(function(parcel){
+          var isSelected = this.selectedParcel(parcel);
 
           if( isSelected ) {
-            clFeature.geojson.properties.ucd.render.selected = true;
+            parcel.properties.ucd.render.selected = true;
           } else {
-            clFeature.geojson.properties.ucd.render.selected = false;
+            parcel.properties.ucd.render.selected = false;
           } 
 
-          if( (isSelected || this.showAllParcels) && this.filteredParcel(clFeature.geojson) ) {
+          var clFeature = this.canvasLayer.getCanvasFeatureById(parcel.properties.id);
+
+          if( (isSelected || this.showAllParcels) && this.filteredParcel(parcel) ) {
             clFeature.visible = true;
-            clFeature.geojson.properties.ucd.render.filtered = true;
+            parcel.properties.ucd.render.filtered = true;
           } else {
-            clFeature.geojson.properties.ucd.render.filtered = false;
+            parcel.properties.ucd.render.filtered = false;
             clFeature.visible = false;
           }
+
+          clFeature.adoptionPricePercentile = parcel.properties.ucd.adoptionPricePercentile;
+
         }.bind(this));
 
         this.currentNetwork = {};
@@ -242,7 +247,9 @@ var renderer = require('./renderer');
             return;
           }
 
-          this.canvasLayer.addCanvasFeature(new L.CanvasFeature(feature));
+          var clFeature = new L.CanvasFeature(feature);
+          clFeature.lineType = 'start';
+          this.canvasLayer.addCanvasFeature(clFeature);
         }.bind(this));
 
         for( var id in this.currentNetwork ) {

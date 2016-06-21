@@ -1,22 +1,20 @@
 var sdk = require('../sdk');
 
-function renderer(ctx, xyPoints, map, feature) {
-    if( feature.geometry.type === 'Polygon' ||  feature.geometry.type === 'Polygon' ) {
-        polyRenderer(ctx, xyPoints, map, feature);
+function renderer(ctx, xyPoints, map, canvasFeature) {
+    if( canvasFeature.type === 'Polygon' ||  canvasFeature.type === 'Polygon' ) {
+        polyRenderer(ctx, xyPoints, map, canvasFeature);
     } else {
-        lineRenderer(ctx, xyPoints, map, feature);
+        lineRenderer(ctx, xyPoints, map, canvasFeature);
     }
 }
 
-function polyRenderer(ctx, xyPoints, map, feature) {
-    var render = feature.properties.ucd.render;
-
-    if( feature.geometry.type === 'MultiPolygon' ) {
+function polyRenderer(ctx, xyPoints, map, canvasFeature) {
+    if( canvasFeature.type === 'MultiPolygon' ) {
         xyPoints.forEach(function(points){
-            drawPolygon(ctx, points, feature);
+            drawPolygon(ctx, points, canvasFeature);
         }.bind(this));
     } else {
-        drawPolygon(ctx, xyPoints, feature);
+        drawPolygon(ctx, xyPoints, canvasFeature);
     }
 }
 
@@ -36,10 +34,7 @@ function drawPolygon(ctx, xyPoints, feature) {
     }
     ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-
-    
-
-    var a = feature.properties.ucd.adoptionPricePercentile;
+    var a = feature.adoptionPricePercentile;
     //if( a < 0.2 ) a = 0.2;
     //if( a > 0.8 ) a = 0.8;
     
@@ -86,7 +81,7 @@ function lineRenderer(ctx, xyPoints, map, feature) {
         last = point;
     }
 
-    if( feature.properties.type === 'start') {
+    if( feature.lineType === 'start') {
         ctx.strokeStyle = '#CFD8DC';
         ctx.lineCap = 'round';
     } else {
