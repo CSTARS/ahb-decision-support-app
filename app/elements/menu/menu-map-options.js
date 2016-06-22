@@ -29,7 +29,7 @@ var sdk = require('../sdk');
       },
 
       updateSelected : function() {
-        this.$.parcels.innerHTML = sdk.datastore.selectedParcels.length + ' of ' +
+        this.$.parcels.innerHTML = sdk.datastore.selectedParcelsCount + ' of ' +
                           sdk.datastore.allParcels.length;
       }
     });

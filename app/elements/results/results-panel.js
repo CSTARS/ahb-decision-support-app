@@ -48,9 +48,9 @@ var datastore = sdk.datastore;
         this.$.runLink.innerHTML = url;
         
         //this.charts = {};
-        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcels.length / sdk.datastore.allParcels.length))+'%';
-        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcels.length / sdk.datastore.validParcels.length))+'%';
-        this.$.parcelCount.innerHTML = sdk.datastore.selectedParcels.length;
+        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.allParcels.length))+'%';
+        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.validParcelsCount))+'%';
+        this.$.parcelCount.innerHTML = sdk.datastore.selectedParcelsCount;
         
         this.$.farmersMWA.innerHTML = sdk.datastore.mwa;
         this.$.poplarPriceInput.value = sdk.datastore.poplarPrice;
@@ -58,8 +58,8 @@ var datastore = sdk.datastore;
 
         var data = [
           ['Parcel Type', 'Parcel Number'],
-          ['Adopted', sdk.datastore.selectedParcels.length],
-          ['Not Adopted', sdk.datastore.validParcels.length - sdk.datastore.selectedParcels.length]
+          ['Adopted', sdk.datastore.selectedParcelsCount],
+          ['Not Adopted', sdk.datastore.validParcelsCount - sdk.datastore.selectedParcelsCount]
         ];
 
 

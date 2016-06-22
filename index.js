@@ -23,6 +23,7 @@ options = {
           var polyNext = require('poly-next-core');
           app.use(polyNext.middleware({
               root : path.join(__dirname, 'app'),
+              pushMessages : false,
               modules : [{
                 urlpath : 'elements',
                 name : 'index'

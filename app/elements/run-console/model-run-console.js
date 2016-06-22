@@ -122,7 +122,7 @@ Polymer({
 
     onCropsEnd : function() {
         var total = sdk.datastore.allParcels.length;
-        var valid = sdk.datastore.validParcels.length;
+        var valid = sdk.datastore.validParcelsCount;
         this.updateLine('crops', 'Crop type loaded. '+valid+' of '+total+' parcels have competing crops.','text text-success','<i class="fa fa-check"></i>');
     },
 
