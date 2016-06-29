@@ -1,6 +1,7 @@
 var app = require('../app');
 var sdk = require('../sdk');
 var utils = require('../utils');
+var async = require('async');
 var datastore = sdk.datastore;
 
     Polymer({
@@ -48,7 +49,7 @@ var datastore = sdk.datastore;
         this.$.runLink.innerHTML = url;
         
         //this.charts = {};
-        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.allParcels.length))+'%';
+//        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.allParcels.length))+'%';
         this.$.validParcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.validParcelsCount))+'%';
         this.$.parcelCount.innerHTML = sdk.datastore.selectedParcelsCount;
         
@@ -99,7 +100,7 @@ var datastore = sdk.datastore;
         var years = datastore.poplarModel.monthsToRun / 12;
         
         var poplarCost = sdk.revenue.refinery.poplarCost(datastore, totals.harvested, datastore.poplarPrice);
-        var transportationCost = sdk.revenue.refinery.transportationCost(datastore);
+        var transportationCost = datastore.totalTransportationCost;
         var refineryIncome = sdk.revenue.refinery.income(datastore, totals.years);
         var operatingCost = r.operatingCost.value * years;
 
@@ -181,27 +182,11 @@ var datastore = sdk.datastore;
       renderBreakdown : function() {
         var breakdown = this.breakdown;
         
-        var minPrice = 9999;
-        var maxPrice = 0, p;
-        
-        for( var i = 0; i < breakdown.parcels.length; i++ ) {
-          p = breakdown.parcels[i].properties.ucd.adoptionPrice;
-          if( p < minPrice ) {
-            minPrice = p;
-          }
-          if( p > maxPrice ) {
-            maxPrice = p;
-          }
-        }
-        
-        minPrice = Math.floor(minPrice);
-        maxPrice = Math.ceil(maxPrice);
-        
         var crops = {};
         var priceData = [];
         var parcel, crop, item;
         
-        for( var price = minPrice; price <= maxPrice; price += 0.5 ) {
+        for( var price = datastore.adoptionPrice.min; price <= datastore.adoptionPrice.max; price += 0.5 ) {
           item = {
             price : price,
             poplar : {
@@ -210,28 +195,47 @@ var datastore = sdk.datastore;
             }
           };
           priceData.push(item);
-          
-          for( var i = 0; i < breakdown.parcels.length; i++ ) {
-            parcel = breakdown.parcels[i];
-            
-            if( price >= parcel.properties.ucd.adoptionPrice ) {
-              item.poplar.acres += parcel.properties.usableSize;
-              item.poplar.yield += parcel.properties.ucd.harvest.total / parcel.properties.ucd.harvest.years;
-            } else {
-              crop = parcel.properties.ucd.cropInfo.swap.join(', ');
-              if( !crops[crop] ) {
-                crops[crop] = 1;
-              }
-              if( !item[crop] ) {
-                item[crop] = parcel.properties.usableSize;
-              } else {
-                item[crop] += parcel.properties.usableSize;
-              }
-            }
-
-          }
         }
-        
+
+        async.eachSeries(
+          datastore.validParcelIds,
+          (id, next) => {
+
+            sdk.localdb.get('parcels', id, (parcel) => {
+              sdk.localdb.get('growthProfiles', parcel.properties.ucd.modelProfileId, (growthProfile) => {
+                growthProfile = JSON.parse(growthProfile.data);
+
+                var item;
+                for( var i = 0; i < priceData.length; i++ ) {
+                  item = priceData[i];
+              
+                  if( price >= parcel.properties.ucd.adoptionPrice ) {
+                    item.poplar.acres += parcel.properties.usableSize;
+                    item.poplar.yield += growthProfile.data.total / growthProfile.data.years;
+                  } else {
+                    crop = parcel.properties.ucd.cropInfo.swap.join(', ');
+                    if( !crops[crop] ) {
+                      crops[crop] = 1;
+                    }
+                    if( !item[crop] ) {
+                      item[crop] = parcel.properties.usableSize;
+                    } else {
+                      item[crop] += parcel.properties.usableSize;
+                    }
+                  }
+                }
+
+              }); // get growth profile
+            }); // get parcel
+
+          },
+          () => {
+            this.onPriceDataReady(priceData);
+          }
+        );
+      },
+
+      onPriceDataReady : function(priceData) {
         var header = ['price', 'poplar'];
         for( var key in crops ) {
           header.push(key);

@@ -30,6 +30,6 @@ var sdk = require('../sdk');
 
       updateSelected : function() {
         this.$.parcels.innerHTML = sdk.datastore.selectedParcelsCount + ' of ' +
-                          sdk.datastore.allParcels.length;
+                          sdk.datastore.validParcelsCount;
       }
     });

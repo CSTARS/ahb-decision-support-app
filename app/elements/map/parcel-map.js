@@ -2,6 +2,7 @@ var app = require('../app');
 var sdk = require('../sdk');
 var renderer = require('./utils/renderer');
 var FilterBehavior = require('./utils/filter');
+var async = require('async');
 
 
     Polymer({
@@ -190,10 +191,10 @@ var FilterBehavior = require('./utils/filter');
       },
 
       getParcel : function(id, callback) {
-        sdk.localdb.get('parcel', id, callback);
+        sdk.localdb.get('parcels', id, callback);
       },
 
-      reset : function() {
+      reset : function(callback) {
         this.canvasLayer.removeAll();
         var c = 0;
 
@@ -203,7 +204,8 @@ var FilterBehavior = require('./utils/filter');
           (parcel, next) => {
             c++;
             clFeature = new L.CanvasFeature(this.getParcel, parcel.properties.id);
-            this.canvasLayer.addCanvasFeatures(clFeature);
+            this.canvasLayer.addCanvasFeature(clFeature);
+            next();
           },
           () => {
             this.canvasLayer.render();
@@ -213,13 +215,16 @@ var FilterBehavior = require('./utils/filter');
               this.menu.setMode(this.mode);
               this.$.info.style.display = 'block';
             }
+
+            if( callback ) callback();
           }
         );
       },
 
       onParcelsLoaded : function() {
-        this.reset();
-        this.menu.updateSelected();
+        this.reset(() => {
+          this.menu.updateSelected();
+        });
       },
 
       onParcelQueryUpdate : function(percent) {

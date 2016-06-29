@@ -1,4 +1,4 @@
-var sdk = require('../sdk');
+var sdk = require('../../sdk');
 var datastore = sdk.datastore;
 var localdb = sdk.localdb;
 
@@ -41,7 +41,7 @@ var FilterBehavior = {
 
         var props = parcel.properties.ucd;
 
-        if( ( props.selected || this.showAllParcels) && filteredParcel(parcel, this.filters) ) {
+        if( ( props.selected || this.showAllParcels) && filteredParcel(parcel, this.filters, this) ) {
             clFeature.visible = true;
             clFeature.render.filtered = true;
         } else {
@@ -50,7 +50,7 @@ var FilterBehavior = {
             return next();
         }
 
-        clFeature.render.adoptionPricePercentile = ucd.adoptionPricePercentile;
+        clFeature.render.adoptionPricePercentile = props.adoptionPricePercentile;
 
         /**
          * Now let's handle the transportation polyline
@@ -102,12 +102,12 @@ var FilterBehavior = {
     }
 }
 
-function filteredParcel(parcel, filters) {
+function filteredParcel(parcel, filters, $this) {
     if( !parcel.properties.ucd.cropInfo ) {
         return false;
     }
 
-    if( this.filters.length === 0 ) {
+    if( $this.filters.length === 0 ) {
         return true;
     }
 

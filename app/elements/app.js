@@ -41,14 +41,17 @@ function App() {
             return;
         }
         
-        this.breakdown = adoption.optimize();
-        datastore.setTotals();
-        
-        this.getOnCompleteListeners().forEach(function(fn){
-            fn();
-        });
+        adoption.optimize((breakdown) => {
+            this.breakdown = breakdown;
 
-        if( callback ) callback();
+            datastore.setTotals(() => {
+                this.getOnCompleteListeners().forEach(function(fn){
+                    fn();
+                });
+
+                if( callback ) callback();
+            });
+        });
     }
 
     this.run = function(options, callback) {
@@ -111,8 +114,9 @@ function App() {
         sdk.adoption.breakdown(options, (resp) => {
             this.breakdown = resp.results;
             sdk.adoption.selectParcels();
-            datastore.setTotals();
-            ee.emit('poplar-price-update', price);
+            datastore.setTotals(() => {
+                ee.emit('poplar-price-update', price);
+            });
         });
     };
     

@@ -96,7 +96,9 @@ Polymer({
     },
 
     onParcelEnd : function(e) {
-        this.updateLine('parcel', 'Parcels loaded. '+e.length,'text text-success','<i class="fa fa-check"></i>');
+    // currently parcel count is not available at this point.  TODO: fix this
+        this.updateLine('parcel', 'Parcels loaded. ','text text-success','<i class="fa fa-check"></i>');
+    //    this.updateLine('parcel', 'Parcels loaded. '+e.length,'text text-success','<i class="fa fa-check"></i>');
     },
 
     onTransportationStart : function() {
