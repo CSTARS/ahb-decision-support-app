@@ -190,10 +190,6 @@ var async = require('async');
           this.filter();
       },
 
-      getParcel : function(id, callback) {
-        sdk.localdb.get('parcels', id, callback);
-      },
-
       reset : function(callback) {
         this.canvasLayer.removeAll();
         var c = 0;
@@ -203,7 +199,7 @@ var async = require('async');
           'parcels',
           (parcel, next) => {
             c++;
-            clFeature = new L.CanvasFeature(this.getParcel, parcel.properties.id);
+            clFeature = new L.CanvasFeature(parcel, parcel.properties.id);
             this.canvasLayer.addCanvasFeature(clFeature);
             next();
           },

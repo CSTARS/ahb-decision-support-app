@@ -1,6 +1,7 @@
 var sdk = require('../../sdk');
 var datastore = sdk.datastore;
 var localdb = sdk.localdb;
+var async = require('async');
 
 var FilterBehavior = {
     filter : function() {
@@ -15,11 +16,28 @@ var FilterBehavior = {
 
         this.currentNetwork = {};
 
-        localdb.forEach(
+        this.hasFilters = this.filters.length > 0 ? true : false;
+        this.filterHash = {};
+        for( var i = 0; i < this.filters.length; i++ ) {
+            this.filtersHash[this.filters[i]] = 1;
+        }
+
+        async.eachLimit(
+            datastore.validParcelIds, 
+            50,
+            (id, next) => {
+                localdb.get('parcels', id, (parcel) => {
+                    this._filterParcel(parcel, next);
+                });
+            },
+            this._onFilteringComplete.bind(this)
+        );
+
+        /*localdb.forEach(
             'parcels',
             this._filterParcel.bind(this),
             this._onFilteringComplete.bind(this)
-        );
+        );*/
     },
 
     _onFilteringComplete : function() {
@@ -65,13 +83,15 @@ var FilterBehavior = {
             return next();
         }
         
-        path.forEach((id) => {
+        var id, i;
+        for( var i = 0; i < path.length; i++ ) {
+            id = path[i];
             if( this.currentNetwork[id] === undefined ) {
                 this.currentNetwork[id] = 1;
             } else {
                 this.currentNetwork[id]++;
             }
-        });
+        }
 
         // render a line for shortest path vertex to feature centroid
         var f = sdk.datastore.network[path[0]];
@@ -90,7 +110,6 @@ var FilterBehavior = {
         };
 
         if( feature.geometry.coordinates[0] === undefined || feature.geometry.coordinates[1] === undefined ) {
-            console.log(feature);
             return next();
         }
 
@@ -107,12 +126,12 @@ function filteredParcel(parcel, filters, $this) {
         return false;
     }
 
-    if( $this.filters.length === 0 ) {
+    if( !$this.hasFilters ) {
         return true;
     }
 
     for( var i = 0; i < parcel.properties.ucd.cropInfo.swap.length; i++ ) {
-        if( filters.indexOf(parcel.properties.ucd.cropInfo.swap[i]) > -1 ) {
+        if( this.filtersHash[parcel.properties.ucd.cropInfo.swap[i]] ) {
             return true;
         }
     }
