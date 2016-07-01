@@ -33,9 +33,11 @@ var app = require('../app');
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
         
         this.$.adoptionPrice.innerHTML = '$'+this.parcel.properties.ucd.adoptionPrice.toFixed(2);
-        if( sdk.datastore.selectedRefinery.maxWillingToPay < this.parcel.properties.ucd.refineryGateCost ) {
+
+        var refinery = sdk.collections.refineries.selected;
+        if( refinery.maxWillingToPay < this.parcel.properties.ucd.refineryGateCost ) {
           this.$.refineryGatePrice.innerHTML = '<span class="text text-danger">$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2)+
-                                          ' (Above refinery max willing to accept price of $'+sdk.datastore.selectedRefinery.maxWillingToPay.toFixed(2)+')</span>';
+                                          ' (Above refinery max willing to accept price of $'+refinery.maxWillingToPay.toFixed(2)+')</span>';
         } else {
           this.$.refineryGatePrice.innerHTML = '$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2);
         }
@@ -48,13 +50,17 @@ var app = require('../app');
 
       onComplete : function() {
         if( !this.parcel.properties.ucd.modelProfileId ) return;
-        var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * sdk.datastore.poplarPrice;
+
+        var refinery = sdk.collections.refineries.selected;
+        var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * refinery.poplarPrice;
 
         var label = 'success';
         if( poplarTotal < this.parcel.properties.ucd.crop.total ) {
           label = 'primary';
         } else {
-          sdk.datastore.selectParcel(this.parcel);
+          console.log('TODO');
+          debugger;
+        //  sdk.datastore.selectParcel(this.parcel);
         }
 
         setTimeout(this.updateChart.bind(this), 300);
@@ -158,7 +164,7 @@ var app = require('../app');
         var html = '';
         var cropInfo = this.parcel.properties.ucd.cropInfo;
         for( var i = 0; i < cropInfo.swap.length; i++ ) {
-          var priceYield = sdk.datastore.getPriceAndYield(cropInfo.swap[i]);
+          var priceYield = sdk.collections.crops.getCropPriceAndYield(cropInfo.swap[i]);
           
           html += '<b>'+cropInfo.swap[i] + '</b><br />'+
           '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total.toFixed(2)+' / Acre - <a href="http://farmbudgets.org/#' +
@@ -172,9 +178,9 @@ var app = require('../app');
           this.$.poplar.innerHTML = '<div class="alert alert-danger"><i class="fa fa-warning"></i> Failed to grow poplar :(</div>';
         } else {
           this.$.poplar.innerHTML =
-                  '<b>Cost:</b> $'+sdk.datastore.getPoplarTotal().toFixed(2)+' / Acre ' +
+                  '<b>Cost:</b> $'+sdk.collections.budgets.poplarTotal.toFixed(2)+' / Acre ' +
                   ' - <a href="http://farmbudgets.org/#'+sdk.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
-                  '<b>Price:</b> $'+sdk.datastore.poplarPrice+' / Mg<br />'+
+                  '<b>Price:</b> $'+sdk.collections.refineries.selected.poplarPrice+' / Mg<br />'+
                   '<b>Water Cost:</b> $'+stats.water.avg.toFixed()+' / Acre / Year <br />'+
                   '<b>Land Cost:</b> $'+stats.land.avg.toFixed()+' / Acre / Year <br />'+
                   '<b>Avg Yield / Year:</b> '+poplarAveragePerYear.toFixed(2)+' Mg <br />'+

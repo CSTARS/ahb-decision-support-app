@@ -22,7 +22,7 @@ var sdk = require('../sdk');
 
       render : function() {
         var array = [];
-        var priceYield = sdk.datastore.priceYield;
+        var priceYield = sdk.collections.crops.priceYield;
 
         for( var crop in priceYield.data ) {
           array.push({
@@ -60,19 +60,19 @@ var sdk = require('../sdk');
       },
 
       setMin : function() {
-        sdk.datastore.setPriceAndYield('min');
+        sdk.collections.crops.setPriceAndYield('min');
         this.render();
         this.fire('yield-price-change',{});
       },
 
       setMax : function() {
-        sdk.datastore.setPriceAndYield('max');
+        sdk.collections.crops.setPriceAndYield('max');
         this.render();
         this.fire('yield-price-change',{});
       },
 
       setAverage : function() {
-        sdk.datastore.setPriceAndYield('average');
+        sdk.collections.crops.setPriceAndYield('average');
         this.render();
         this.fire('yield-price-change',{});
       }

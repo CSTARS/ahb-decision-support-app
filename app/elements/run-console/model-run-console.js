@@ -55,8 +55,8 @@ Polymer({
     onEnd : function() {
         this.createLine('end', 'Finished. Execution Time: '+((new Date().getTime() - this.startTime) / 1000).toFixed(2)+'s');
         
-        var yieldRequired = sdk.datastore.selectedRefinery.feedstockCapacity.value;
-        var ayield = sdk.datastore.totals.avgYearHarvest;
+        var yieldRequired = sdk.collections.refineries.selected.feedstockCapacity.value;
+        var ayield = sdk.collections.parcels.summary.avgYearHarvest;
         
         if( ayield < yieldRequired ) {
             this.createLine('warning', 
@@ -113,9 +113,7 @@ Polymer({
     },
 
     onCropsEnd : function() {
-        var total = sdk.datastore.allParcels.length;
-        var valid = sdk.datastore.validParcelsCount;
-        this.updateLine('crops', 'Crop type loaded. '+valid+' of '+total+' parcels have competing crops.','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('crops', 'Crop type loaded.','text text-success','<i class="fa fa-check"></i>');
     },
 
     onCropPriceYieldStart : function() {

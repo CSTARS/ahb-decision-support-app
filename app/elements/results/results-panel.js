@@ -2,7 +2,6 @@ var app = require('../app');
 var sdk = require('../sdk');
 var utils = require('../utils');
 var async = require('async');
-var datastore = sdk.datastore;
 
     Polymer({
       is: 'results-panel',
@@ -43,30 +42,34 @@ var datastore = sdk.datastore;
       },
 
       update : function() {
-        
-        var url = `${window.location.protocol}//${window.location.host}/#l/${sdk.datastore.lat.toFixed(4)}/${sdk.datastore.lng.toFixed(4)}/${sdk.datastore.radius}/${encodeURIComponent(sdk.datastore.selectedRefinery.name)}/${encodeURIComponent(sdk.poplarModel.selectedTree)}`;
+        var refineryController = sdk.controllers.refinery;
+        var parcelCollection = sdk.collections.parcels;
+        var refinery = sdk.collections.refineries.selected;
+
+
+        var url = `${window.location.protocol}//${window.location.host}/#l/${refineryController.lat.toFixed(4)}/${refineryController.lng.toFixed(4)}/${refineryController.radius}/${encodeURIComponent(refinery.name)}/${encodeURIComponent(sdk.collections.growthProfiles.selectedTree)}`;
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
         
         //this.charts = {};
 //        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.allParcels.length))+'%';
-        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.validParcelsCount))+'%';
-        this.$.parcelCount.innerHTML = sdk.datastore.selectedParcelsCount;
+        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( parcelCollection.selectedCount / parcelCollection.validCount))+'%';
+        this.$.parcelCount.innerHTML = parcelCollection.selectedCount;
         
-        this.$.farmersMWA.innerHTML = sdk.datastore.mwa;
-        this.$.poplarPriceInput.value = sdk.datastore.poplarPrice;
-        this.$.refineryMWP.innerHTML = datastore.selectedRefinery.maxWillingToPay;
+        this.$.farmersMWA.innerHTML = parcelCollection.mwa;
+        this.$.poplarPriceInput.value = refinery.poplarPrice;
+        this.$.refineryMWP.innerHTML = refinery.maxWillingToPay;
 
         var data = [
           ['Parcel Type', 'Parcel Number'],
-          ['Adopted', sdk.datastore.selectedParcelsCount],
-          ['Not Adopted', sdk.datastore.validParcelsCount - sdk.datastore.selectedParcelsCount]
+          ['Adopted', parcelCollection.selectedCount],
+          ['Not Adopted', parcelCollection.validCount - parcelCollection.selectedCount]
         ];
 
 
         data = google.visualization.arrayToDataTable(data);
         var options = {
-          title: 'Adoption of Competing Parcels @ $'+sdk.datastore.poplarPrice+' / Mg',
+          title: 'Adoption of Competing Parcels @ $'+refinery.poplarPrice+' / Mg',
           animation:{
             duration: 1000,
             easing: 'out',
@@ -77,14 +80,14 @@ var datastore = sdk.datastore;
         this.drawChart('overviewChart', data, options, this.$.overviewChart, 'PieChart');
 
         // render overview data
-        var totals = sdk.datastore.totals;
+        var totals = sdk.collections.parcels.summary;
         
         this.$.runtime.innerHTML = '('+totals.years+' Years)';
         this.$.acreCount.innerHTML = utils.formatAmount(totals.acres);
         var harvestTotal = utils.formatAmount(totals.harvested);
         this.$.harvestTotal.innerHTML = harvestTotal+' Mg';
         
-        var yieldRequired = sdk.datastore.selectedRefinery.feedstockCapacity.value;
+        var yieldRequired = refinery.feedstockCapacity.value;
         var html = utils.formatAmount(totals.avgYearHarvest)+' Mg.<br /><span class="text ';
         if( totals.avgYearHarvest < yieldRequired ) {
           html += 'text-danger';
@@ -96,28 +99,27 @@ var datastore = sdk.datastore;
         this.$.avgYield.innerHTML = (totals.avgYearHarvest / totals.acres).toFixed(2)+' Mg';
         
         // render refinery data
-        var r = datastore.selectedRefinery;
-        var years = datastore.poplarModel.monthsToRun / 12;
+        var years = sdk.collections.growthProfiles.years;
         
-        var poplarCost = sdk.revenue.refinery.poplarCost(datastore, totals.harvested, datastore.poplarPrice);
-        var transportationCost = datastore.totalTransportationCost;
-        var refineryIncome = sdk.revenue.refinery.income(datastore, totals.years);
-        var operatingCost = r.operatingCost.value * years;
+        var poplarCost = refinery.utils.poplarCost(totals.harvested, refinery.poplarPrice, years);
+        var transportationCost = sdk.collections.transportation.totalCost;
+        var refineryIncome = refinery.utils.income(refinery, totals.years);
+        var operatingCost = refinery.operatingCost.value * years;
 
         
-        this.$.refineryType.innerHTML = r.name;
-        this.$.refineryCapitalCost.innerHTML = '$'+utils.formatAmount(r.capitalCost);
+        this.$.refineryType.innerHTML = refinery.name;
+        this.$.refineryCapitalCost.innerHTML = '$'+utils.formatAmount(refinery.capitalCost);
         this.$.refineryOperatingCost.innerHTML = '$'+utils.formatAmount(operatingCost);
         this.$.refineryPoplarCost.innerHTML = '$'+utils.formatAmount(poplarCost);
         this.$.refineryTransportationCost.innerHTML = '$'+utils.formatAmount(transportationCost);
-        var totalCost = r.capitalCost + operatingCost + poplarCost + transportationCost;
+        var totalCost = refinery.capitalCost + operatingCost + poplarCost + transportationCost;
         this.$.refineryTotalCost.innerHTML = '$'+utils.formatAmount(totalCost);
-        this.$.refineryProduct.innerHTML = r.product.name;
+        this.$.refineryProduct.innerHTML = refinery.product.name;
         this.$.refineryIncome.innerHTML = '$'+utils.formatAmount(refineryIncome)+
                                            `<div class="help-block">
-                                              (${r.yield.value} ${r.yield.units}) x
-                                              (${r.product.price} ${r.product.units}) x
-                                              (${datastore.selectedRefinery.feedstockCapacity.value} Mg)
+                                              (${refinery.yield.value} ${refinery.yield.units}) x
+                                              (${refinery.product.price} ${refinery.product.units}) x
+                                              (${refinery.feedstockCapacity.value} Mg)
                                            </div>`;
         
         var net = refineryIncome - (totalCost);
@@ -137,7 +139,7 @@ var datastore = sdk.datastore;
 
         data = google.visualization.arrayToDataTable(data);
         options = {
-          title: 'Adoption By Crop @ $'+sdk.datastore.poplarPrice+' / Mg',
+          title: 'Adoption By Crop @ $'+refinery.poplarPrice+' / Mg',
           animation:{
             duration: 1000,
             easing: 'out',
@@ -147,7 +149,7 @@ var datastore = sdk.datastore;
 
         this.drawChart('cropAdoption', data, options, this.$.chart, 'PieChart');
 
-        this.$.adoptionAmount.innerHTML = ' @ $'+sdk.datastore.poplarPrice+' / Mg';
+        this.$.adoptionAmount.innerHTML = ' @ $'+refinery.poplarPrice+' / Mg';
 
         this.updatePriceBreakdown();
       },
@@ -186,7 +188,9 @@ var datastore = sdk.datastore;
         var priceData = [];
         var parcel, crop, item;
         
-        for( var price = datastore.adoptionPrice.min; price <= datastore.adoptionPrice.max; price += 0.5 ) {
+        var adoptionPrice = sdk.collections.parcels.adoptionPrice;
+
+        for( var price = adoptionPrice.min; price <= adoptionPrice.max; price += 0.5 ) {
           item = {
             price : price,
             poplar : {
@@ -198,7 +202,7 @@ var datastore = sdk.datastore;
         }
 
         async.eachSeries(
-          datastore.validParcelIds,
+          sdk.collections.parcels.validIds,
           (id, next) => {
 
             sdk.localdb.get('parcels', id, (parcel) => {
@@ -244,6 +248,8 @@ var datastore = sdk.datastore;
         var data = [], row, rowData;
         var lastPrice = 0;
         var currentPriceNotSet = true;
+
+        var refinery = sdk.collections.refineries.selected;
         
         for( var j = 0; j < priceData.length; j++ ) {
           rowData = priceData[j];
@@ -253,10 +259,10 @@ var datastore = sdk.datastore;
             row.push(rowData[header[i]] || 0);
           }
           
-          if( datastore.poplarPrice > lastPrice && datastore.poplarPrice <= rowData.price && currentPriceNotSet ) {
+          if( refinery.poplarPrice > lastPrice && refinery.poplarPrice <= rowData.price && currentPriceNotSet ) {
             currentPriceNotSet = false;
             row.push(rowData.poplar.acres);
-            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
+            row.push('Current Price: '+refinery.poplarPrice+' $ / Mg');
           } else {
             row.push(null);
             row.push(null);
@@ -325,15 +331,16 @@ var datastore = sdk.datastore;
         var max = 0, lastPrice;
         var row, y, rowData;
         var currentPriceNotSet = true;
+        var refinery = sdk.collections.refineries.selected;
         
         for( var i = 0; i < priceData.length; i++ ) {
           rowData = priceData[i];
           row = [rowData.price+'', rowData.poplar.yield];
           
-          if( datastore.poplarPrice > lastPrice && datastore.poplarPrice <= rowData.price && currentPriceNotSet ) {
+          if( refinery.poplarPrice > lastPrice && refinery.poplarPrice <= rowData.price && currentPriceNotSet ) {
             currentPriceNotSet = false;
             row.push(rowData.poplar.yield);
-            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
+            row.push('Current Price: '+refinery.poplarPrice+' $ / Mg');
           } else {
             row.push(null);
             row.push(null);
@@ -378,160 +385,6 @@ var datastore = sdk.datastore;
         this.breakdownRendered = true;
       },
 
-      /*renderBreakdown : function() {
-        var breakdown = this.breakdown;
-
-        var dt = new google.visualization.DataTable();
-
-        var data = [];
-        var header = ['price', 'poplar'];
-        dt.addColumn({id:'price', label: 'Price', type:'string'});
-        dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
-        for( var key in breakdown[0].crops ) {
-          header.push(key);
-          dt.addColumn({id:key, label:key, type:'number'});
-        }
-        dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
-        dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
-
-        var max = 0;
-        var row;
-        breakdown.forEach(function(result){
-          row = [
-            result.price+'',
-            result.adopted.acres
-          ];
-          for( var i = 2; i < header.length; i++ ) {
-            var count = result.crops[header[i]] ? result.crops[header[i]].acres : 0;
-            row.push(count);
-            
-            if( count > max ) {
-              max = count;
-            }
-          }
-          
-          if( result.price === sdk.datastore.poplarPrice ) {
-            row.push(max+20);
-            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
-          } else {
-            row.push(null);
-            row.push(null);
-          }
-          
-          data.push(row);
-        });
-
-        dt.addRows(data);
-
-        var options = {
-          animation:{
-            duration: 1000,
-            easing: 'out',
-          },
-          hAxis : {
-            title : 'Price ($)'
-          },
-          height: 400,
-          vAxis : {
-            //title : 'Parcels (#)'
-            title : 'Acres'
-          },
-          seriesType: "bars",
-          series :{},
-          interpolateNulls : true,
-          legend : {
-            position: 'top'
-          }
-        }
-
-        for( var i = 0; i < header.length-1; i++ ) {
-          options.series[i] = {
-            type : 'line',
-            targetAxisIndex : 0
-          }
-        }
-
-        this.drawChart('adoptionChart', dt, options, this.$.adoptionChart, 'ComboChart');
-
-        this.renderYieldAdoption();
-
-        this.breakdownRendered = true;
-      },
-      
-      renderYieldAdoption : function() {
-        var breakdown = this.breakdown;
-
-        var dt = new google.visualization.DataTable();
-
-        var data = [];
-        var header = ['price', 'poplar'];
-        dt.addColumn({id:'price', label: 'Price', type:'string'});
-        dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
-        dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
-        dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
-
-
-        var max = 0;
-        var row, y;
-        breakdown.forEach(function(result){
-          y = result.adopted.yield / datastore.poplarModel.years;
-          row = [
-            result.price+'',
-            y
-          ];
-          
-          if( y > max ) {
-            max = y;
-          }
-
-          if( result.price === sdk.datastore.poplarPrice ) {
-            row.push(max+20);
-            row.push('Current Price: '+sdk.datastore.poplarPrice+' $ / Mg');
-          } else {
-            row.push(null);
-            row.push(null);
-          }
-          
-          data.push(row);
-        });
-
-        dt.addRows(data);
-
-        var options = {
-          animation:{
-            duration: 1000,
-            easing: 'out',
-          },
-          hAxis : {
-            title : 'Price ($)'
-          },
-          height: 400,
-          vAxis : {
-            //title : 'Parcels (#)'
-            title : 'Total Yield'
-          },
-          seriesType: "bars",
-          series :{},
-          interpolateNulls : true,
-          legend : {
-            position: 'top'
-          }
-        }
-
-        for( var i = 0; i < header.length-1; i++ ) {
-          options.series[i] = {
-            type : 'line',
-            targetAxisIndex : 0
-          }
-        }
-
-        this.drawChart('renderYieldAdoption', dt, options, this.$.renderYieldAdoption, 'ComboChart');
-
-        this.breakdownRendered = true;
-      },*/
-      
-      
-
       onPriceChange : function() {
         app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
       },
@@ -544,7 +397,7 @@ var datastore = sdk.datastore;
       onPriceYieldChange : function(e) {
         e = e.detail;
         if( e.crop ) {
-          sdk.datastore.priceYield.currentValues[e.crop][e.type][e.type] = e.value;
+          sdk.collections.crops.priceYield.currentValues[e.crop][e.type][e.type] = e.value;
         }
 
         this.breakdownRendered = false;
@@ -560,7 +413,8 @@ var datastore = sdk.datastore;
       },
       
       exportJson : function() {
-        this.$.exportJsonFormData.value = JSON.stringify(sdk.datastore.exportJson());
+        alert("TODO");
+        //this.$.exportJsonFormData.value = JSON.stringify(sdk.datastore.exportJson());
         this.$.exportJsonForm.submit();
       }
     });

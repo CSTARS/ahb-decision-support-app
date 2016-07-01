@@ -45,7 +45,8 @@ function App() {
     }
     
     this.setPoplarPrice = function(price) {
-        datastore.poplarPrice = price;
+        alert('TODO');
+        /*datastore.poplarPrice = price;
         
         var options = {
             minPrice : price-2,
@@ -60,7 +61,7 @@ function App() {
             datastore.setTotals(() => {
                 ee.emit('poplar-price-update', price);
             });
-        });
+        });*/
     };
     
     this.getPoplarPrice = function() {

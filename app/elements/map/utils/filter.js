@@ -1,5 +1,4 @@
 var sdk = require('../../sdk');
-var datastore = sdk.datastore;
 var localdb = sdk.localdb;
 var async = require('async');
 
@@ -23,7 +22,7 @@ var FilterBehavior = {
         }
 
         async.eachLimit(
-            datastore.validParcelIds, 
+            sdk.collections.parcels.validIds, 
             50,
             (id, next) => {
                 localdb.get('parcels', id, (parcel) => {
@@ -42,7 +41,7 @@ var FilterBehavior = {
 
     _onFilteringComplete : function() {
         for( var id in this.currentNetwork ) {
-            var feature = sdk.datastore.network[id];
+            var feature = sdk.collections.transportation.network[id];
             if( feature.properties.error ) {
                 continue;
             }
@@ -94,7 +93,7 @@ var FilterBehavior = {
         }
 
         // render a line for shortest path vertex to feature centroid
-        var f = sdk.datastore.network[path[0]];
+        var f = sdk.collections.transportation.network[path[0]];
         var feature = {
             type : 'Feature',
             geometry : {
