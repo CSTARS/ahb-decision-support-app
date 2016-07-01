@@ -2,8 +2,6 @@ var sdk = require('../sdk');
 var app = require('../app');
 var utils = require('../utils');
 
-var datastore = sdk.datastore;
-var model = sdk.poplarModel;
 
 Polymer({
     is: 'model-run-console',
@@ -12,38 +10,34 @@ Polymer({
         app.registerRunConsole(this);
 
         this.lines = {};
-        
 
-        datastore.on('transportation-update-start', this.onTransportationStart.bind(this));
-        datastore.on('transportation-update-end', this.onTransportationEnd.bind(this));
+        sdk.eventBus.on('transportation-update-start', this.onTransportationStart.bind(this));
+        sdk.eventBus.on('transportation-update-end', this.onTransportationEnd.bind(this));
+        sdk.eventBus.on('transportation-update', this.onTransportationUpdate.bind(this));
 
-        datastore.on('weather-update-start', this.onWeatherStart.bind(this));
-        datastore.on('weather-update-end', this.onWeatherEnd.bind(this));
+        sdk.eventBus.on('weather-update-start', this.onWeatherStart.bind(this));
+        sdk.eventBus.on('weather-update-end', this.onWeatherEnd.bind(this));
 
-        datastore.on('soil-update-start', this.onSoilStart.bind(this));
-        datastore.on('soil-update-end', this.onSoilEnd.bind(this));
+        sdk.eventBus.on('soil-update-start', this.onSoilStart.bind(this));
+        sdk.eventBus.on('soil-update-end', this.onSoilEnd.bind(this));
 
-        datastore.on('parcels-update-start', this.onParcelStart.bind(this));
-        datastore.on('parcels-update-updated', this.onParcelUpdated.bind(this));
-        datastore.on('parcels-update-end', this.onParcelEnd.bind(this));
+        sdk.eventBus.on('parcels-update-start', this.onParcelStart.bind(this));
+        sdk.eventBus.on('parcels-update-updated', this.onParcelUpdated.bind(this));
+        sdk.eventBus.on('parcels-update-end', this.onParcelEnd.bind(this));
 
-        datastore.on('crops-update-start', this.onCropsStart.bind(this));
-        datastore.on('crops-update-updated', this.onCropsUpdated.bind(this));
-        datastore.on('crops-update-end', this.onCropsEnd.bind(this));
+        sdk.eventBus.on('crops-update-start', this.onCropsStart.bind(this));
+        sdk.eventBus.on('crops-update-updated', this.onCropsUpdated.bind(this));
+        sdk.eventBus.on('crops-update-end', this.onCropsEnd.bind(this));
 
-        datastore.on('crop-priceyield-update-start', this.onCropPriceYieldStart.bind(this));
-        datastore.on('crop-priceyield-update-end', this.onCropPriceYieldEnd.bind(this));
+        sdk.eventBus.on('crop-priceyield-update-start', this.onCropPriceYieldStart.bind(this));
+        sdk.eventBus.on('crop-priceyield-update-end', this.onCropPriceYieldEnd.bind(this));
 
-        datastore.on('budgets-update-start', this.onBudgetsStart.bind(this));
-        datastore.on('budgets-update-end', this.onBudgetsEnd.bind(this));
-        
-        app.on('optimize-price-start', this.onOptimizePriceStart.bind(this));
-        app.on('optimize-price-update', this.onOptimizePriceUpdate.bind(this));
-        app.on('optimize-price-end', this.onOptimizePriceEnd.bind(this));
+        sdk.eventBus.on('budgets-update-start', this.onBudgetsStart.bind(this));
+        sdk.eventBus.on('budgets-update-end', this.onBudgetsEnd.bind(this));
 
-        model.on('harvests-start', this.onHarvestsStart.bind(this));
-        model.on('harvests-updated', this.onHarvestsUpdated.bind(this));
-        model.on('harvests-end', this.onHarvestsEnd.bind(this));
+        sdk.eventBus.on('harvests-start', this.onHarvestsStart.bind(this));
+        sdk.eventBus.on('harvests-updated', this.onHarvestsUpdated.bind(this));
+        sdk.eventBus.on('harvests-end', this.onHarvestsEnd.bind(this));
     },
 
     onStart : function(options) {
@@ -56,10 +50,6 @@ Polymer({
         var r = options.radius / 1000;
         
         this.createLine('start', `Starting run for ${options.refinery} refinery @ ${lat}, ${lat} Radius: ${r}`);
-    },
-    
-    setTransportationSocket : function(socket) {
-        socket.on('transportation-update', this.onTransportationUpdate.bind(this));
     },
 
     onEnd : function() {
@@ -136,18 +126,6 @@ Polymer({
         this.updateLine('cropPriceYield', 'Crop price and yield loaded.','text text-success','<i class="fa fa-check"></i>');
     },
     
-    onOptimizePriceStart : function() {
-        this.createLine('optimizePrice', 'Calculating optimal poplar price','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
-    },
-    
-    onOptimizePriceUpdate : function(e) {
-        this.updateLine('optimizePrice', 'Calculating optimal poplar price '+e,'text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
-    },
-
-    onOptimizePriceEnd : function() {
-        this.updateLine('optimizePrice', 'Optimal poplar price calculation complete.','text text-success','<i class="fa fa-check"></i>');
-    },
-
     onBudgetsStart : function() {
         this.createLine('budget', 'Looking up farm budgets from farmbudgets.org','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
     },

@@ -3,9 +3,6 @@ window.require = require;
 var sdk = require('./sdk');
 var events = require('events').EventEmitter;
 
-var datastore = sdk.datastore;
-var poplarModel = sdk.poplarModel;
-var adoption = sdk.adoption;
 
 function App() { 
 
@@ -19,7 +16,7 @@ function App() {
         console.log('budget loaded');
     });
     
-    this.on = function(e, fn) {
+    this.on = function(e, fn) { 
         ee.on(e, fn);
     }
     
@@ -34,72 +31,18 @@ function App() {
     this.registerRunConsole = function(rc) {
         runConsole = rc;
     }
-    
-    this.recalc = function(callback) {
-        if( !grown ) {
-            if( callback ) callback();
-            return;
-        }
-        
-        adoption.optimize((breakdown) => {
-            this.breakdown = breakdown;
-
-            datastore.setTotals(() => {
-                this.getOnCompleteListeners().forEach(function(fn){
-                    fn();
-                });
-
-                if( callback ) callback();
-            });
-        });
-    }
 
     this.run = function(options, callback) {
-
         runConsole.onStart(options);
 
-        var c = 0;
-        var $self = this;
-        function onComplete() {
-            c++;
-            if( c === 4 ) {
-                grown = true;
-                $self.recalc(() => {
-                    //socket.disconnect();
-                    runConsole.onEnd();
-                    callback();
-                });
-            }
-        }
+        sdk.controllers.refinery.model(options, () => {
+            this.getOnCompleteListeners().forEach(function(fn){
+                fn();
+            });
 
-        datastore.setSelectedRefinery(options.refinery);
-        
-        var queries = datastore.getParcels(options.lat, options.lng, options.radius, function(){
-            //datastore.getCrops(function(){
-                
-                //datastore.getTransportation(socket.id, onComplete.bind(this));
-                var socket = datastore.getTransportation(options.routeGeometry, onComplete.bind(this));
-                runConsole.setTransportationSocket(socket);
-                
-                datastore.getCropPriceAndYield(onComplete.bind(this));
-
-                // run at the same time as transportation
-                datastore.getWeather(function(weather){
-                    datastore.getSoil(function(soil){
-                        poplarModel.growAll(true, onComplete.bind(this));
-                    });
-                });
-
-                datastore.getBudgets(onComplete.bind(this));
-
-                if( datastore.errorFetchingCropTypes ) {
-                    alert('Error fetching parcel crop types');
-                }
-           //});
+            if( callback ) callback();
         });
-        
-        //document.querySelector('parcel-map').renderQueries(queries);
-    };
+    }
     
     this.setPoplarPrice = function(price) {
         datastore.poplarPrice = price;

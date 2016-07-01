@@ -15,7 +15,7 @@ var utils = require('../utils');
         this.active = false;
         
         var html = '';
-        for( var type in sdk.poplarModel.trees ) {
+        for( var type in sdk.collections.growthProfiles.trees ) {
           html += `<option value="${type}">${type}</option>`;
         }
         this.$.treeInput.innerHTML = html;
@@ -29,10 +29,8 @@ var utils = require('../utils');
         this.$.go.innerHTML = '<i class="fa fa-industry"></i> Model <span class="hidden-xs">Refinery</span>';
         
         if( !this.refineryOptions ) {
-            sdk.datastore.getAllRefineries((refineries) => {
-               this.refineryOptions = refineries;
-               this.renderRefinerySelector();
-            });
+            this.refineryOptions = sdk.collections.refineries.getAll();
+            this.renderRefinerySelector();
         }
       },
 
@@ -81,7 +79,7 @@ var utils = require('../utils');
         this.$.startBtn.style.display = 'none';
         document.querySelector('results-panel').breakdownRendered = false;
         
-        sdk.poplarModel.selectedTree = this.$.treeInput.value;
+        sdk.collections.growthProfiles.selectedTree = this.$.treeInput.value;
         
         var options = {
             lat : this.lat,
