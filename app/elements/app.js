@@ -11,7 +11,6 @@ function App() {
     var runConsole;
     var ee = new events();
     
-    
     sdk.init(function(){
         console.log('budget loaded');
     });

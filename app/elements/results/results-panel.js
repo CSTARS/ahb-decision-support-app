@@ -46,7 +46,7 @@ var async = require('async');
         var parcelCollection = sdk.collections.parcels;
         var refinery = sdk.collections.refineries.selected;
 
-
+debugger;
         var url = `${window.location.protocol}//${window.location.host}/#l/${refineryController.lat.toFixed(4)}/${refineryController.lng.toFixed(4)}/${refineryController.radius}/${encodeURIComponent(refinery.name)}/${encodeURIComponent(sdk.collections.growthProfiles.selectedTree)}`;
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
@@ -215,7 +215,7 @@ var async = require('async');
               
                   if( price >= parcel.properties.ucd.adoptionPrice ) {
                     item.poplar.acres += parcel.properties.usableSize;
-                    item.poplar.yield += growthProfile.data.total / growthProfile.data.years;
+                    item.poplar.yield += (growthProfile.data.totalPerAcre * parcel.properties.usableSize) / growthProfile.data.years;
                   } else {
                     crop = parcel.properties.ucd.cropInfo.swap.join(', ');
                     if( !crops[crop] ) {

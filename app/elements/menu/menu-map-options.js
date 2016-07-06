@@ -29,7 +29,7 @@ Polymer({
   },
 
   updateSelected : function() {
-    this.$.parcels.innerHTML = sdk.collections.parcels.selectCount + ' of ' +
+    this.$.parcels.innerHTML = sdk.collections.parcels.selectedCount + ' of ' +
                       sdk.collections.parcels.validCount;
   }
 });
