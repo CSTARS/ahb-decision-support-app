@@ -1,7 +1,7 @@
 var sdk = require('../../sdk');
 
 function renderer(ctx, xyPoints, map, canvasFeature) {
-    if( canvasFeature.type === 'Polygon' ||  canvasFeature.type === 'Polygon' ) {
+    if( canvasFeature.type === 'Polygon' ||  canvasFeature.type === 'MultiPolygon' ) {
         polyRenderer(ctx, xyPoints, map, canvasFeature);
     } else {
         lineRenderer(ctx, xyPoints, map, canvasFeature);
@@ -34,7 +34,7 @@ function drawPolygon(ctx, xyPoints, feature) {
     }
     ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-    var a = feature.adoptionPricePercentile;
+    var a = feature.render.adoptionPricePercentile;
     //if( a < 0.2 ) a = 0.2;
     //if( a > 0.8 ) a = 0.8;
     
@@ -81,7 +81,7 @@ function lineRenderer(ctx, xyPoints, map, feature) {
         last = point;
     }
 
-    if( feature.lineType === 'start') {
+    if( feature.render.lineType === 'start') {
         ctx.strokeStyle = '#CFD8DC';
         ctx.lineCap = 'round';
     } else {

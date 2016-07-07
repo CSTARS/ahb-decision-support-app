@@ -72,12 +72,13 @@ var FilterBehavior = {
         /**
          * Now let's handle the transportation polyline
          */
-        if( props.transportation.error ) {
+        var transportation = sdk.collections.transportation.get(parcel.properties.id);
+        if( transportation.error ) {
             return;
         }
 
         // set the current network
-        var path = props.transportation.path;
+        var path = transportation.path;
         if( !path ) {
             return next();
         }

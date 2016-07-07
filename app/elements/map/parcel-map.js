@@ -85,7 +85,6 @@ var async = require('async');
           
           var hash = window.location.hash.replace('#', '').split('/');
           if( hash[0] === 'l' ) {
-            console.log(hash);
             var latlng = L.latLng(parseFloat(hash[1]), parseFloat(hash[2]));
             this.setLatLng(latlng);
             setTimeout(() => {
