@@ -46,7 +46,6 @@ var async = require('async');
         var parcelCollection = sdk.collections.parcels;
         var refinery = sdk.collections.refineries.selected;
 
-debugger;
         var url = `${window.location.protocol}//${window.location.host}/#l/${refineryController.lat.toFixed(4)}/${refineryController.lng.toFixed(4)}/${refineryController.radius}/${encodeURIComponent(refinery.name)}/${encodeURIComponent(sdk.collections.growthProfiles.selectedTree)}`;
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
@@ -56,9 +55,14 @@ debugger;
         this.$.validParcelPercent.innerHTML = Math.floor(100 * ( parcelCollection.selectedCount / parcelCollection.validCount))+'%';
         this.$.parcelCount.innerHTML = parcelCollection.selectedCount;
         
-        this.$.farmersMWA.innerHTML = parcelCollection.mwa;
+        if( parcelCollection.mwa === -1 ) {
+          this.$.farmersMWA.innerHTML = '<span style="color:red">Unable to calculate</span>';
+        } else {
+          this.$.farmersMWA.innerHTML = parcelCollection.mwa;
+        }
+        
         this.$.poplarPriceInput.value = refinery.poplarPrice;
-        this.$.refineryMWP.innerHTML = refinery.maxWillingToPay;
+        this.$.refineryMWP.innerHTML = refinery.maxWillingToPay.toFixed(2);
 
         var data = [
           ['Parcel Type', 'Parcel Number'],
@@ -174,7 +178,6 @@ debugger;
 
       updatePriceBreakdown : function() {
         if( !this.breakdownRendered ) {
-          this.breakdown = app.breakdown;
           this.renderBreakdown();
         } else {
           this.renderBreakdown();
@@ -182,13 +185,13 @@ debugger;
       },
       
       renderBreakdown : function() {
-        var breakdown = this.breakdown;
+        var parcelsCollections = sdk.collections.parcels;
         
         var crops = {};
         var priceData = [];
         var parcel, crop, item;
         
-        var adoptionPrice = sdk.collections.parcels.adoptionPrice;
+        var adoptionPrice = parcelsCollections.adoptionPrice;
 
         for( var price = adoptionPrice.min; price <= adoptionPrice.max; price += 0.5 ) {
           item = {
@@ -202,18 +205,18 @@ debugger;
         }
 
         async.eachSeries(
-          sdk.collections.parcels.validIds,
+          parcelsCollections.validIds,
           (id, next) => {
 
-            sdk.localdb.get('parcels', id, (parcel) => {
-              sdk.localdb.get('growthProfiles', parcel.properties.ucd.modelProfileId, (growthProfile) => {
+            parcelsCollections.get(id, (parcel) => {
+              sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
                 growthProfile = JSON.parse(growthProfile.data);
 
                 var item;
                 for( var i = 0; i < priceData.length; i++ ) {
                   item = priceData[i];
               
-                  if( price >= parcel.properties.ucd.adoptionPrice ) {
+                  if( item.price >= parcel.properties.ucd.adoptionPrice ) {
                     item.poplar.acres += parcel.properties.usableSize;
                     item.poplar.yield += (growthProfile.data.totalPerAcre * parcel.properties.usableSize) / growthProfile.data.years;
                   } else {
@@ -229,17 +232,19 @@ debugger;
                   }
                 }
 
+                next();
+
               }); // get growth profile
             }); // get parcel
 
           },
           () => {
-            this.onPriceDataReady(priceData);
+            this.onPriceDataReady(priceData, crops);
           }
         );
       },
 
-      onPriceDataReady : function(priceData) {
+      onPriceDataReady : function(priceData, crops) {
         var header = ['price', 'poplar'];
         for( var key in crops ) {
           header.push(key);
@@ -316,8 +321,6 @@ debugger;
       },
       
       renderYieldAdoption : function(priceData) {
-        var breakdown = this.breakdown;
-
         var dt = new google.visualization.DataTable();
 
         var data = [];
