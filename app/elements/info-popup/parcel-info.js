@@ -107,6 +107,8 @@ var app = require('../app');
           }
         }
         
+        if( this.parcel.properties.id === '334000346815' ) debugger;
+
         var cropIncome, cropCost, poplarIncome, poplarCost;
         for( var i = 0; i < cost.poplar.yearlyData.length; i++ ) {
           cropCost = cost.crops.yearlyData[i];

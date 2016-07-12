@@ -39,6 +39,7 @@ Polymer({
         sdk.eventBus.on('results-summary-end', this.onSummaryEnd.bind(this));
 
         sdk.eventBus.on('optimize-start', this.onOptimizeStart.bind(this));
+        sdk.eventBus.on('optimize-update', this.onOptimizeUpdate.bind(this));
         sdk.eventBus.on('optimize-end', this.onOptimizeEnd.bind(this));
 
         sdk.eventBus.on('harvests-start', this.onHarvestsStart.bind(this));
@@ -149,11 +150,15 @@ Polymer({
     },
 
     onOptimizeStart : function() {
-        this.createLine('optimize', 'Optimizing price','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('optimize', 'Calulating price','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+    },
+
+    onOptimizeUpdate : function(e) {
+        this.updateLine('optimize', 'Calulating price %'+ (e*100).toFixed(0));
     },
 
     onOptimizeEnd : function() {
-        this.updateLine('optimize', 'Price optimized.','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('optimize', 'Optimal price calculated.','text text-success','<i class="fa fa-check"></i>');
     },
 
     onWeatherStart : function() {

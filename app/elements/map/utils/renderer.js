@@ -35,11 +35,13 @@ function drawPolygon(ctx, xyPoints, feature) {
     ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
     if( feature.render.aboveRefineryWillingToPay ) {
-        ctx.fillStyle = 'rgba(200,200,200,.6)';
+        //ctx.fillStyle = 'rgba(200,200,200,.6)';
+        ctx.fillStyle = 'rgba(255,165,0,.6)';
     } else {
         var a = feature.render.adoptionPricePercentile;
-        var v = Math.floor(200 * a);
-        ctx.fillStyle = 'rgba('+v+',200,'+v+',.8)';
+        var v = Math.floor(200 * (1-a));
+        var v2 = Math.floor(200 * a);
+        ctx.fillStyle = 'rgba(0,'+v2+','+v+',.8)';
     }
 
     ctx.fill();

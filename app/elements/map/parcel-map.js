@@ -142,22 +142,6 @@ var async = require('async');
       // DSSDK.datastore.on('transportation-updated', this.renderRoads);
       onSelectedUpdated : function() {
         this.onParcelsLoaded();
-
-        var cropTypes = {};
-
-        sdk.localdb.forEach(
-          'parcels',
-          (parcel, next) => {
-            parcel.properties.ucd.cropInfo.swap.forEach(function(crop){
-              cropTypes[crop] = 1;
-            });
-            next();
-          },
-          () => {
-            this.cropTypes = Object.keys(cropTypes);
-            this.renderFilters();
-          }
-        );
       },
 
       renderFilters : function() {
@@ -198,6 +182,8 @@ var async = require('async');
         this.canvasLayer.removeAll();
         var c = 0;
 
+        var cropTypes = {};
+
         var clFeature;
         sdk.localdb.forEach(
           'parcels',
@@ -205,9 +191,17 @@ var async = require('async');
             c++;
             clFeature = new L.CanvasFeature(parcel, parcel.properties.id);
             this.canvasLayer.addCanvasFeature(clFeature);
+
+            parcel.properties.ucd.cropInfo.swap.forEach(function(crop){
+              cropTypes[crop] = 1;
+            });
+
             next();
           },
           () => {
+            this.cropTypes = Object.keys(cropTypes);
+            this.renderFilters();
+
             this.canvasLayer.render();
 
             if( c > 0 ) {
