@@ -52,22 +52,17 @@ var app = require('../app');
         if( !this.parcel.properties.ucd.modelProfileId ) return;
 
         var refinery = sdk.collections.refineries.selected;
-        var poplarTotal = this.parcel.properties.ucd.harvest.totalHarvest * refinery.poplarPrice;
+        var poplarTotal = this.parcel.properties.usableSize * this.growthProfile.data.totalPerAcre * refinery.poplarPrice;
 
         var label = 'success';
-        if( poplarTotal < this.parcel.properties.ucd.crop.total ) {
+        if( poplarTotal < this.parcel.properties.ucd.adoptionPrice ) {
           label = 'primary';
-        } else {
-          console.log('TODO');
-          debugger;
-        //  sdk.datastore.selectParcel(this.parcel);
         }
 
         setTimeout(this.updateChart.bind(this), 300);
       },
 
       updateChart : function() {
-        if( !this.parcel.properties.ucd.modelProfileId ) return;
 
         var dt = new google.visualization.DataTable();
         dt.addColumn('string', 'Year'); // Implicit domain label col.
@@ -76,17 +71,16 @@ var app = require('../app');
         dt.addColumn('number', '$ Current Crop(s)');
         dt.addColumn({type: 'string', role: 'tooltip'});
 
-        var id = this.parcel.properties.ucd.modelProfileId;
-        var poplarConfig = sdk.poplarModel.profiles[id].config;
-        if( !id ) return;
-        var d = new Date(poplarConfig.manage.dateCoppiced.getTime());
+        var poplarConfig = this.growthProfile.config;
+
+        var d = new Date(poplarConfig.manage.dateCoppiced);
         var startYear = d.getFullYear();
 
         var data = [];
         var c = 1;
         
-        var size = this.parcel.properties.ucd.harvest.growArea;
-        var poplarAveragePerYear = this.parcel.properties.ucd.harvest.total / this.parcel.properties.ucd.harvest.years;
+        var size = this.parcel.properties.usableSize;
+        var poplarAveragePerYear = (this.growthProfile.data.totalPerAcre * size) / sdk.collections.growthProfiles.years;
         var poplarAveragePerAcre = poplarAveragePerYear / size;
         
         
@@ -165,21 +159,22 @@ var app = require('../app');
         var cropInfo = this.parcel.properties.ucd.cropInfo;
         for( var i = 0; i < cropInfo.swap.length; i++ ) {
           var priceYield = sdk.collections.crops.getCropPriceAndYield(cropInfo.swap[i]);
-          
+          var budget = sdk.collections.budgets.get(this.parcel.properties.ucd.budgetIds[i]);
+
           html += '<b>'+cropInfo.swap[i] + '</b><br />'+
-          '&nbsp;&nbsp;<b>Cost:</b> $'+cropInfo.cropBudgets[i].budget.total.toFixed(2)+' / Acre - <a href="http://farmbudgets.org/#' +
-          cropInfo.cropBudgets[i].id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
+          '&nbsp;&nbsp;<b>Cost:</b> $'+budget.budget.total+' / Acre - <a href="http://farmbudgets.org/#' +
+          budget.id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
           '&nbsp;&nbsp;<b>Price:</b> '+priceYield.price.price+' '+priceYield.price.unit+'<br />'+
           '&nbsp;&nbsp;<b>Yield:</b> '+(priceYield.yield.yield)+' '+priceYield.yield.unit;
         }
         this.$.crops.innerHTML = html;
 
-        if( this.parcel.properties.ucd.harvest.growthError ) {
+        if( this.growthProfile.growthError ) {
           this.$.poplar.innerHTML = '<div class="alert alert-danger"><i class="fa fa-warning"></i> Failed to grow poplar :(</div>';
         } else {
           this.$.poplar.innerHTML =
                   '<b>Cost:</b> $'+sdk.collections.budgets.poplarTotal.toFixed(2)+' / Acre ' +
-                  ' - <a href="http://farmbudgets.org/#'+sdk.budget.getPoplarBudget().getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
+                  ' - <a href="http://farmbudgets.org/#'+sdk.collections.budgets.poplarBudget.getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
                   '<b>Price:</b> $'+sdk.collections.refineries.selected.poplarPrice+' / Mg<br />'+
                   '<b>Water Cost:</b> $'+stats.water.avg.toFixed()+' / Acre / Year <br />'+
                   '<b>Land Cost:</b> $'+stats.land.avg.toFixed()+' / Acre / Year <br />'+
@@ -187,12 +182,13 @@ var app = require('../app');
                   '<b>Avg Yield / Acre / Year:</b> '+poplarAveragePerAcre.toFixed(2)+' Mg <br />';
         }
         
-        var size = this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel;
+        var size = this.parcel.properties.usableSize;
+        var transportation = sdk.collections.transportation.get(this.parcel.properties.id);
         
         this.$.transportation.innerHTML =
             '<b>Avg Transportation Cost / Acre:</b> $'+stats.transportation.avg.toFixed()+'<br />'+
             '<b>Avg Transportation Cost / Mg:</b> $'+(stats.transportation.avg / poplarAveragePerAcre).toFixed() +'<br />'+
-            '<b>Distance:</b> '+(this.parcel.properties.ucd.transportation.distance*0.621371).toFixed(2)+' mi';
+            '<b>Distance:</b> '+(transportation.distance*0.621371).toFixed(2)+' mi';
 
         var options = {
           width : $(this.$.revenueChart).parent().width(),
@@ -222,15 +218,14 @@ var app = require('../app');
         dt.addColumn('string', 'Year'); // Implicit domain label col.
 
         var id = this.parcel.properties.ucd.modelProfileId;
-        var poplarConfig = sdk.poplarModel.profiles[id].config;
-        if( !id ) return;
 
         this.drawPoplar();
       },
       
       drawPoplar : function() {
         var id = this.parcel.properties.ucd.modelProfileId;
-        var alldata = sdk.poplarModel.profiles[id].allData;
+        var alldata = this.growthProfile.allData;
+        
         var dt = new google.visualization.DataTable();
         dt.addColumn('string', 'Month');
         dt.addColumn('number', 'Poplar (Mg / Acre)');

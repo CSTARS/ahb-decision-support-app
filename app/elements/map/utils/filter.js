@@ -67,7 +67,9 @@ var FilterBehavior = {
             return next();
         }
 
+        clFeature.render.isParcel = true;
         clFeature.render.adoptionPricePercentile = props.adoptionPricePercentile;
+        clFeature.render.aboveRefineryWillingToPay = props.aboveRefineryWillingToPay ? true : false;
 
         /**
          * Now let's handle the transportation polyline

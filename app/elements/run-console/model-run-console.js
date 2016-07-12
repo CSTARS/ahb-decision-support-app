@@ -35,9 +35,17 @@ Polymer({
         sdk.eventBus.on('budgets-update-start', this.onBudgetsStart.bind(this));
         sdk.eventBus.on('budgets-update-end', this.onBudgetsEnd.bind(this));
 
+        sdk.eventBus.on('results-summary-start', this.onSummaryStart.bind(this));
+        sdk.eventBus.on('results-summary-end', this.onSummaryEnd.bind(this));
+
+        sdk.eventBus.on('optimize-start', this.onOptimizeStart.bind(this));
+        sdk.eventBus.on('optimize-end', this.onOptimizeEnd.bind(this));
+
         sdk.eventBus.on('harvests-start', this.onHarvestsStart.bind(this));
         sdk.eventBus.on('harvests-updated', this.onHarvestsUpdated.bind(this));
         sdk.eventBus.on('harvests-end', this.onHarvestsEnd.bind(this));
+
+        sdk.eventBus.on('refinery-model-run-complete', this.onEnd.bind(this));
     },
 
     onStart : function(options) {
@@ -49,12 +57,12 @@ Polymer({
         var lng = options.lng.toFixed(4);
         var r = options.radius / 1000;
         
-        this.createLine('start', `Starting run for ${options.refinery} refinery @ ${lat}, ${lat} Radius: ${r}`);
+        this.createLine('start', `Starting run for ${options.refinery} refinery @ ${lat}, ${lng} Radius: ${r}`);
     },
 
     onEnd : function() {
         this.createLine('end', 'Finished. Execution Time: '+((new Date().getTime() - this.startTime) / 1000).toFixed(2)+'s');
-        
+
         var yieldRequired = sdk.collections.refineries.selected.feedstockCapacity.value;
         var ayield = sdk.collections.parcels.summary.avgYearHarvest;
         
@@ -132,6 +140,22 @@ Polymer({
         this.updateLine('budget', 'Farm budgets loaded','text text-success','<i class="fa fa-check"></i>');
     },
 
+    onSummaryStart : function() {
+        this.createLine('summary', 'Summarizing results','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+    },
+
+    onSummaryEnd : function() {
+        this.updateLine('summary', 'Results summarized.','text text-success','<i class="fa fa-check"></i>');
+    },
+
+    onOptimizeStart : function() {
+        this.createLine('optimize', 'Optimizing price','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+    },
+
+    onOptimizeEnd : function() {
+        this.updateLine('optimize', 'Price optimized.','text text-success','<i class="fa fa-check"></i>');
+    },
+
     onWeatherStart : function() {
         this.createLine('weather', 'Loading weather data','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
     },
@@ -159,6 +183,8 @@ Polymer({
 
         this.lines[id] = line;
         this.appendChild(line);
+
+        this.fire('line-added');
     },
 
     updateLine : function(id, msg, className, icon) {

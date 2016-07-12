@@ -13,6 +13,14 @@ var async = require('async');
         app.setOnCompleteListener(this.update.bind(this));
         app.on('poplar-price-update', this.onPriceRecalc.bind(this));
         $(window).on('resize', this.resize.bind(this));
+
+
+        sdk.eventBus.on('optimize-start',() => {
+          this.$.updateOverlay.style.display = 'block';
+        });
+        sdk.eventBus.on('results-summary-end',() => {
+          this.$.updateOverlay.style.display = 'none';
+        });
       },
 
       resize : function() {
@@ -60,7 +68,7 @@ var async = require('async');
         } else {
           this.$.farmersMWA.innerHTML = parcelCollection.mwa;
         }
-        
+
         this.$.poplarPriceInput.value = refinery.poplarPrice;
         this.$.refineryMWP.innerHTML = refinery.maxWillingToPay.toFixed(2);
 
@@ -191,9 +199,9 @@ var async = require('async');
         var priceData = [];
         var parcel, crop, item;
         
-        var adoptionPrice = parcelsCollections.adoptionPrice;
+        var refineryGatePrice = parcelsCollections.refineryGatePrice;
 
-        for( var price = adoptionPrice.min; price <= adoptionPrice.max; price += 0.5 ) {
+        for( var price = refineryGatePrice.min; price <= refineryGatePrice.max; price += 0.5 ) {
           item = {
             price : price,
             poplar : {
@@ -216,9 +224,11 @@ var async = require('async');
                 for( var i = 0; i < priceData.length; i++ ) {
                   item = priceData[i];
               
-                  if( item.price >= parcel.properties.ucd.adoptionPrice ) {
+                //JM
+                  if( item.price >= parcel.properties.ucd.refineryGateCost ) {
+                  //if( item.price >= parcel.properties.ucd.adoptionPrice ) {
                     item.poplar.acres += parcel.properties.usableSize;
-                    item.poplar.yield += (growthProfile.data.totalPerAcre * parcel.properties.usableSize) / growthProfile.data.years;
+                    item.poplar.yield += growthProfile.data.totalPerAcre * parcel.properties.usableSize;
                   } else {
                     crop = parcel.properties.ucd.cropInfo.swap.join(', ');
                     if( !crops[crop] ) {
@@ -324,9 +334,10 @@ var async = require('async');
         var dt = new google.visualization.DataTable();
 
         var data = [];
-        var header = ['price', 'poplar'];
+        var header = ['price', 'poplar', 'required'];
         dt.addColumn({id:'price', label: 'Price', type:'string'});
         dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
+        dt.addColumn({id: 'required', label: 'Required Yield', type: 'number'});
         dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
         dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
 
@@ -335,14 +346,16 @@ var async = require('async');
         var row, y, rowData;
         var currentPriceNotSet = true;
         var refinery = sdk.collections.refineries.selected;
+        var yieldRequired = refinery.feedstockCapacity.value;
+        var years = sdk.collections.growthProfiles.years;
         
         for( var i = 0; i < priceData.length; i++ ) {
           rowData = priceData[i];
-          row = [rowData.price+'', rowData.poplar.yield];
+          row = [rowData.price+'', rowData.poplar.yield / years, yieldRequired];
           
           if( refinery.poplarPrice > lastPrice && refinery.poplarPrice <= rowData.price && currentPriceNotSet ) {
             currentPriceNotSet = false;
-            row.push(rowData.poplar.yield);
+            row.push(rowData.poplar.yield / years);
             row.push('Current Price: '+refinery.poplarPrice+' $ / Mg');
           } else {
             row.push(null);
@@ -365,8 +378,7 @@ var async = require('async');
           },
           height: 400,
           vAxis : {
-            //title : 'Parcels (#)'
-            title : 'Total Yield'
+            title : 'Average Yield / Year'
           },
           seriesType: "bars",
           series :{},
@@ -404,7 +416,7 @@ var async = require('async');
         }
 
         this.breakdownRendered = false;
-        app.recalc();
+        sdk.controllers.refinery.optimize();
       },
 
       setPoplarPrice : function(price) {

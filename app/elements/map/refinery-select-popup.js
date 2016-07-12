@@ -19,6 +19,12 @@ var utils = require('../utils');
           html += `<option value="${type}">${type}</option>`;
         }
         this.$.treeInput.innerHTML = html;
+
+        this.popup.on('line-added', () => {
+          $(this.$.popup).animate({
+            scrollTop : $(this.$.popupContent).height()+'px' 
+          }, 300);
+        });
       },
 
       show : function(lat, lng) {

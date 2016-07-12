@@ -10,7 +10,24 @@
       .bold {
         font-weight: bold;
       }
+      .update-overlay {
+        position: fixed;
+        background: rgba(255,255,255,.8);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 150px 20px 20px 20px;
+        text-align: center;
+        color: #888;
+        font-size: 28px;
+        display: none;
+      }
     </style>
+
+    <div id="updateOverlay" class="update-overlay">
+      <i class="fa fa-spinner fa-spin"></i> Updating...
+    </div>
 
     <price-yield-popup id="priceYieldPopup" on-yield-price-change="onPriceYieldChange"></price-yield-popup>
 
@@ -44,7 +61,7 @@
         <td id="avgPerYear"></td>
       </tr>
       <tr>
-        <td class="bold">Average Yield / Acre / Year</td>
+        <td class="bold">Average Yield per (Acre / Year)</td>
         <td id="avgYield"></td>
       </tr>
       <tr>

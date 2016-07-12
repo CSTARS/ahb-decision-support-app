@@ -106,8 +106,13 @@ var async = require('async');
         if( this.mode === 'set' ) return;
 
         for( var i = 0; i < features.length; i++ ) {
-          if( features[i].properties.ucd ) {
-            this.parcelPopup.show(features[i]);
+          if( features[i].render && features[i].render.isParcel ) {
+            sdk.collections.parcels.get(features[i].id, (parcel) => {
+              sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
+                growthProfile = JSON.parse(growthProfile.data);
+                this.parcelPopup.show(parcel, growthProfile);
+              });
+            });
             return;
           }
         }

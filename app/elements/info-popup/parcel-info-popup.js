@@ -9,9 +9,10 @@ Polymer({
         });
     },
 
-    show : function(parcel) {
+    show : function(parcel, growthProfile) {
         this.popup.modal('show');
         setTimeout(function(){
+            this.$.parcelInfo.growthProfile = growthProfile;
             this.$.parcelInfo.parcel = parcel;
         }.bind(this), 500);
     },
