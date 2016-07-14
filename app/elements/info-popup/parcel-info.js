@@ -160,14 +160,15 @@ var app = require('../app');
         var html = '';
         var cropInfo = this.parcel.properties.ucd.cropInfo;
         for( var i = 0; i < cropInfo.swap.length; i++ ) {
-          var priceYield = sdk.collections.crops.getCropPriceAndYield(cropInfo.swap[i]);
+          var priceYield = sdk.collections.crops.getCropPriceAndYield(cropInfo.swap[i], cropInfo.fips);
           var budget = sdk.collections.budgets.get(this.parcel.properties.ucd.budgetIds[i]);
+          var irrigationType = cropInfo.pasture ? 'non-irrigated' : 'irrigated';
 
           html += '<b>'+cropInfo.swap[i] + '</b><br />'+
           '&nbsp;&nbsp;<b>Cost:</b> $'+budget.budget.total+' / Acre - <a href="http://farmbudgets.org/#' +
           budget.id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
           '&nbsp;&nbsp;<b>Price:</b> '+priceYield.price.price+' '+priceYield.price.unit+'<br />'+
-          '&nbsp;&nbsp;<b>Yield:</b> '+(priceYield.yield.yield)+' '+priceYield.yield.unit;
+          '&nbsp;&nbsp;<b>Yield ('+irrigationType+'):</b> '+(priceYield.yield[irrigationType])+' '+priceYield.yield.unit;
         }
         this.$.crops.innerHTML = html;
 
@@ -226,17 +227,14 @@ var app = require('../app');
       
       drawPoplar : function() {
         var id = this.parcel.properties.ucd.modelProfileId;
-        var alldata = this.growthProfile.allData;
+        var ws = this.growthProfile.ws;
         
         var dt = new google.visualization.DataTable();
         dt.addColumn('string', 'Month');
         dt.addColumn('number', 'Poplar (Mg / Acre)');
         var data = [];
-        for( var i = 0; i < alldata.length; i++ ) {
-          if( typeof alldata[i][31] === 'string' ) {
-            continue;
-          }
-          data.push([i+'', alldata[i][31] / 2.47105]);
+        for( var i = 0; i < ws.length; i++ ) {
+          data.push([i+'', ws[i] / 2.47105]);
         }
         dt.addRows(data);
         

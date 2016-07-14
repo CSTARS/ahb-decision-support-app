@@ -4,6 +4,8 @@ var async = require('async');
 
 var FilterBehavior = {
     filter : function() {
+        this.filteredCount = 0;
+
         // remove all transportation polyline's, they will be added 
         // back in once filtering is complete.
         for( var i = this.canvasLayer.features.length-1; i >= 0; i-- ) {
@@ -21,22 +23,11 @@ var FilterBehavior = {
             this.filtersHash[this.filters[i]] = 1;
         }
 
-        async.eachLimit(
-            sdk.collections.parcels.validIds, 
-            50,
-            (id, next) => {
-                localdb.get('parcels', id, (parcel) => {
-                    this._filterParcel(parcel, next);
-                });
-            },
-            this._onFilteringComplete.bind(this)
-        );
-
-        /*localdb.forEach(
+        localdb.forEach(
             'parcels',
             this._filterParcel.bind(this),
             this._onFilteringComplete.bind(this)
-        );*/
+        );
     },
 
     _onFilteringComplete : function() {
@@ -54,6 +45,11 @@ var FilterBehavior = {
     },
 
     _filterParcel : function(parcel, next) {
+        this.filteredCount++;
+        if( this.filteredCount % 500  === 0 ) {
+            this.canvasLayer.render();
+        }
+
         var clFeature = this.canvasLayer.getCanvasFeatureById(parcel.properties.id);
 
         var props = parcel.properties.ucd;

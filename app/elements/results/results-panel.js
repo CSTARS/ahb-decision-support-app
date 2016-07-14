@@ -36,8 +36,6 @@ var async = require('async');
 
       _resize : function() {
         var w = $(this).width();
-        this.$.chart.style.width = w+'px';
-        this.$.adoptionChart.style.width = w+'px';
 
         for( var key in this.charts ) {
           var c = this.charts[key];
@@ -72,24 +70,7 @@ var async = require('async');
         this.$.poplarPriceInput.value = refinery.poplarPrice;
         this.$.refineryMWP.innerHTML = refinery.maxWillingToPay.toFixed(2);
 
-        var data = [
-          ['Parcel Type', 'Parcel Number'],
-          ['Adopted', parcelCollection.selectedCount],
-          ['Not Adopted', parcelCollection.validCount - parcelCollection.selectedCount]
-        ];
-
-
-        data = google.visualization.arrayToDataTable(data);
-        var options = {
-          title: 'Adoption of Competing Parcels @ $'+refinery.poplarPrice+' / Mg',
-          animation:{
-            duration: 1000,
-            easing: 'out',
-          },
-          height: 350
-        };
-
-        this.drawChart('overviewChart', data, options, this.$.overviewChart, 'PieChart');
+        this.$.adoptionCompetingPieChart.render(parcelCollection, refinery);
 
         // render overview data
         var totals = sdk.collections.parcels.summary;
@@ -113,7 +94,7 @@ var async = require('async');
         // render refinery data
         var years = sdk.collections.growthProfiles.years;
         
-        var poplarCost = refinery.utils.poplarCost(totals.harvested, refinery.poplarPrice, years);
+        var poplarCost = refinery.utils.poplarCost(refinery.feedstockCapacity.value, refinery.poplarPrice);
         var transportationCost = sdk.collections.transportation.totalCost;
         var refineryIncome = refinery.utils.income(refinery, totals.years);
         var operatingCost = refinery.operatingCost.value * years;
@@ -131,37 +112,22 @@ var async = require('async');
                                            `<div class="help-block">
                                               (${refinery.yield.value} ${refinery.yield.units}) x
                                               (${refinery.product.price} ${refinery.product.units}) x
-                                              (${refinery.feedstockCapacity.value} Mg)
+                                              (${refinery.feedstockCapacity.value} Mg) x
+                                              (${years} years)
                                            </div>`;
         
         var net = refineryIncome - (totalCost);
-        var roi;
-        if( totalCost > net ) {
-          roi = 100 * (net / totalCost);
-        } else {
-          roi = 100 * (totalCost / net);
-        }
-         
-        this.$.refineryRoi.innerHTML = '$'+utils.formatAmount(net)+'<br />  ROI: %'+roi.toFixed(0);
-
-        data = [['Crop', 'Parcel Adoption']];
-        for( var key in totals.cropCounts ) {
-          data.push([key, totals.cropCounts[key]]);
-        }
-
-        data = google.visualization.arrayToDataTable(data);
-        options = {
-          title: 'Adoption By Crop @ $'+refinery.poplarPrice+' / Mg',
-          animation:{
-            duration: 1000,
-            easing: 'out',
-          },
-          height: 350
-        };
-
-        this.drawChart('cropAdoption', data, options, this.$.chart, 'PieChart');
+        css = 'danger';
+        if( net > 0 ) var css = 'success';
+        
+        var ror = Math.pow( (net / refinery.capitalCost ), (1 / years) ) - 1;
+        ror = (ror * 100).toFixed(2);
+        
+        this.$.refineryNet.innerHTML = utils.formatAmount(net);
+        this.$.refineryRor.innerHTML = `%${ror}`;
 
         this.$.adoptionAmount.innerHTML = ' @ $'+refinery.poplarPrice+' / Mg';
+        this.$.adoptionCropPieChart.render(totals, refinery);
 
         this.updatePriceBreakdown();
       },
@@ -423,9 +389,9 @@ var async = require('async');
         this.$.poplarPriceInput.value = price;
       },
 
-      showPriceYieldPopup : function() {
-        this.$.priceYieldPopup.show();
-      },
+      // showPriceYieldPopup : function() {
+      //   this.$.priceYieldPopup.show();
+      // },
       
       exportJson : function() {
         alert("TODO");
