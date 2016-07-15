@@ -109,7 +109,6 @@ var async = require('async');
           if( features[i].render && features[i].render.isParcel ) {
             sdk.collections.parcels.get(features[i].id, (parcel) => {
               sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
-                growthProfile = JSON.parse(growthProfile.data);
                 this.parcelPopup.show(parcel, growthProfile);
               });
             });

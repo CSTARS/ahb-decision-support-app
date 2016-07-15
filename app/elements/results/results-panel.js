@@ -17,9 +17,15 @@ var async = require('async');
 
         sdk.eventBus.on('optimize-start',() => {
           this.$.updateOverlay.style.display = 'block';
+          this.$.updateOverlay.innerHTML = `Calculating %0 ...`; 
+        });
+        sdk.eventBus.on('optimize-update', (p) => {
+          p = (p * 100).toFixed(0);
+          this.$.updateOverlay.innerHTML = `Calculating %${p} ...`; 
         });
         sdk.eventBus.on('results-summary-end',() => {
           this.$.updateOverlay.style.display = 'none';
+          this.update();
         });
       },
 
@@ -59,7 +65,7 @@ var async = require('async');
         //this.charts = {};
 //        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.allParcels.length))+'%';
         this.$.validParcelPercent.innerHTML = Math.floor(100 * ( parcelCollection.selectedCount / parcelCollection.validCount))+'%';
-        this.$.parcelCount.innerHTML = parcelCollection.selectedCount;
+        this.$.parcelCount.innerHTML = parcelCollection.selectedCount + ' of ' +parcelCollection.validCount;
         
         if( parcelCollection.mwa === -1 ) {
           this.$.farmersMWA.innerHTML = '<span style="color:red">Unable to calculate</span>';
@@ -81,10 +87,13 @@ var async = require('async');
         this.$.harvestTotal.innerHTML = harvestTotal+' Mg';
         
         var yieldRequired = refinery.feedstockCapacity.value;
+        var actualYield;
         var html = utils.formatAmount(totals.avgYearHarvest)+' Mg.<br /><span class="text ';
         if( totals.avgYearHarvest < yieldRequired ) {
+          actualYield = totals.avgYearHarvest
           html += 'text-danger';
         } else {
+          actualYield = yieldRequired;
           html += 'text-success';
         }
         html += '">'+utils.formatAmount(yieldRequired)+' Mg required to run refinery</span>';
@@ -93,10 +102,12 @@ var async = require('async');
         
         // render refinery data
         var years = sdk.collections.growthProfiles.years;
-        
-        var poplarCost = refinery.utils.poplarCost(refinery.feedstockCapacity.value, refinery.poplarPrice);
+
+        var poplarCost = refinery.utils.poplarCost(actualYield, refinery.poplarPrice) * years;
         var transportationCost = sdk.collections.transportation.totalCost;
-        var refineryIncome = refinery.utils.income(refinery, totals.years);
+
+ 
+        var refineryIncome = refinery.utils.income(actualYield, refinery, totals.years);
         var operatingCost = refinery.operatingCost.value * years;
 
         
@@ -105,14 +116,14 @@ var async = require('async');
         this.$.refineryOperatingCost.innerHTML = '$'+utils.formatAmount(operatingCost);
         this.$.refineryPoplarCost.innerHTML = '$'+utils.formatAmount(poplarCost);
         this.$.refineryTransportationCost.innerHTML = '$'+utils.formatAmount(transportationCost);
-        var totalCost = refinery.capitalCost + operatingCost + poplarCost + transportationCost;
+        var totalCost = refinery.capitalCost + operatingCost + poplarCost;
         this.$.refineryTotalCost.innerHTML = '$'+utils.formatAmount(totalCost);
         this.$.refineryProduct.innerHTML = refinery.product.name;
         this.$.refineryIncome.innerHTML = '$'+utils.formatAmount(refineryIncome)+
                                            `<div class="help-block">
                                               (${refinery.yield.value} ${refinery.yield.units}) x
                                               (${refinery.product.price} ${refinery.product.units}) x
-                                              (${refinery.feedstockCapacity.value} Mg) x
+                                              (${utils.formatAmount(actualYield)} Mg) x
                                               (${years} years)
                                            </div>`;
         
@@ -167,7 +178,7 @@ var async = require('async');
         
         var refineryGatePrice = parcelsCollections.refineryGatePrice;
 
-        for( var price = refineryGatePrice.min; price <= refineryGatePrice.max; price += 0.5 ) {
+        for( var price = refineryGatePrice.min; price <= sdk.collections.refineries.selected.maxWillingToPay; price += 0.5 ) {
           item = {
             price : price,
             poplar : {
@@ -184,7 +195,6 @@ var async = require('async');
 
             parcelsCollections.get(id, (parcel) => {
               sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
-                growthProfile = JSON.parse(growthProfile.data);
 
                 var item;
                 for( var i = 0; i < priceData.length; i++ ) {

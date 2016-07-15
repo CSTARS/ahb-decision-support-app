@@ -117,7 +117,6 @@ var app = require('../app');
           cropIncome = income.crops.yearly[i];
           poplarIncome = income.poplar.yearly[i];
           
-          
           stats.poplarRevenue += poplarIncome - poplarCost.cost;
           stats.cropsRevenue += cropIncome - cropCost.cost;
 
@@ -206,6 +205,7 @@ var app = require('../app');
         };
         var chart = new google.visualization.LineChart(this.$.revenueChart);
         chart.draw(dt, options);
+        this.$.revenueChartLabel.innerHTML = '@ $'+sdk.collections.refineries.selected.poplarPrice+'/Mg';
 
         setTimeout(function(){
           options.width = $(this.$.chart).parent().width();

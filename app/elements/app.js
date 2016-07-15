@@ -32,6 +32,8 @@ function App() {
     }
 
     this.run = function(options, callback) {
+        //options.setPoplarPrice = 94;
+
         runConsole.onStart(options);
 
         sdk.controllers.refinery.model(options, () => {
@@ -44,23 +46,11 @@ function App() {
     }
     
     this.setPoplarPrice = function(price) {
-        alert('TODO');
-        /*datastore.poplarPrice = price;
-        
         var options = {
-            minPrice : price-2,
-            maxPrice : price+2,
-            step : 0.05,
-            setPoplarPrice : false
-        };
-        
-        sdk.adoption.breakdown(options, (resp) => {
-            this.breakdown = resp.results;
-            sdk.adoption.selectParcels();
-            datastore.setTotals(() => {
-                ee.emit('poplar-price-update', price);
-            });
-        });*/
+            setPoplarPrice : price
+        }
+
+        sdk.controllers.refinery.optimize(options);
     };
     
     this.getPoplarPrice = function() {

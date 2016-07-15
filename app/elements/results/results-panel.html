@@ -25,9 +25,7 @@
       }
     </style>
 
-    <div id="updateOverlay" class="update-overlay">
-      <i class="fa fa-spinner fa-spin"></i> Updating...
-    </div>
+    <div id="updateOverlay" class="update-overlay"></div>
 
     <!--<price-yield-popup id="priceYieldPopup" on-yield-price-change="onPriceYieldChange"></price-yield-popup>-->
 
@@ -69,7 +67,7 @@
       </tr>
     </table>
     
-    <h4 class="page-header">Price</h4>
+    <h4 class="page-header">Price <small>Refinery Gate</small></h4>
     <table class="table">
       <tr>
         <td style="width: 150px" class="bold">Price ($ / Mg)</td>
@@ -111,9 +109,13 @@
           </tr>
           <tr style="background-color:#eee">
             <td class="bold">Total Cost</td>
-            <td id="refineryTotalCost"></td>
+            <td>
+              <div id="refineryTotalCost"></div>
+              <div class="help-block">Capital Cost + Operating Cost + Poplar Cost</div>
+            </td>
           </tr>
         </table>
+        <div class="help-block">*All values over 20 years</div>
       </div>
       <div class="col-sm-6">
         <table class="table">

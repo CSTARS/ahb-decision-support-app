@@ -18,7 +18,7 @@ var FilterBehavior = {
         this.currentNetwork = {};
 
         this.hasFilters = this.filters.length > 0 ? true : false;
-        this.filterHash = {};
+        this.filtersHash = {};
         for( var i = 0; i < this.filters.length; i++ ) {
             this.filtersHash[this.filters[i]] = 1;
         }
@@ -129,7 +129,7 @@ function filteredParcel(parcel, filters, $this) {
     }
 
     for( var i = 0; i < parcel.properties.ucd.cropInfo.swap.length; i++ ) {
-        if( this.filtersHash[parcel.properties.ucd.cropInfo.swap[i]] ) {
+        if( $this.filtersHash[parcel.properties.ucd.cropInfo.swap[i]] ) {
             return true;
         }
     }
