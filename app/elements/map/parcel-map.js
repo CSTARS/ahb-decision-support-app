@@ -28,11 +28,11 @@ var async = require('async');
         this.parcelPopup = document.createElement('parcel-info-popup');
         document.body.appendChild(this.parcelPopup);
         
-        app.setOnCompleteListener(function(){
+        sdk.eventBus.on('refinery-model-run-complete', () => {
           setTimeout(function(){
             this.onSelectedUpdated();
           }.bind(this), 200);
-        }.bind(this));
+        });
       },
 
       onShow : function() {
@@ -173,7 +173,6 @@ var async = require('async');
             }
           }
 
-          this.reset();
           this.filter();
       },
 

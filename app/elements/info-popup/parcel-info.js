@@ -17,9 +17,9 @@ var app = require('../app');
 
       onParcelUpdate : function() {
         if( !this.parcel ) return;
-        this.parcelId = this.parcel.properties.PolyID;
+        this.parcelId = this.parcel.properties.id;
 
-        var name = ['Parcel ID: '+this.parcel.properties.PolyID];
+        var name = ['Parcel ID: '+this.parcel.properties.id];
         if( this.parcel.properties.SiteAddressFull && this.parcel.properties.SiteAddressFull.trim() ) {
           name.push(this.parcel.properties.SiteAddressFull);
         }
