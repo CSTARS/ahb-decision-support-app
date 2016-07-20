@@ -103,7 +103,7 @@ var async = require('async');
         // render refinery data
         var years = sdk.collections.growthProfiles.years;
 
-        var poplarCost = refinery.utils.poplarCost(actualYield, refinery.poplarPrice) * years;
+        var poplarCost = refinery.utils.poplarCost(actualYield, refinery.poplarPrice, years);
         var transportationCost = sdk.collections.transportation.totalCost;
 
  

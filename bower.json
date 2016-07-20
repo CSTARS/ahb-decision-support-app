@@ -18,6 +18,6 @@
     "bootswatch-dist": "paper",
     "esri-leaflet": "~1.0.3",
     "leaflet": "^0.7.7",
-    "leaflet-canvas-geojson": "v2.1"
+    "leaflet-canvas-geojson": "rtree"
   }
 }

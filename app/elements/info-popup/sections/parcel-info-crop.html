@@ -1,0 +1,42 @@
+
+<dom-module id="parcel-info-crop">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <table class="table table-striped">
+      <tr>
+        <td>Crop</td>
+        <td>[[crop]]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Location FIPS</td>
+        <td>[[fips]]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Cost</td>
+        <td>
+          <div>[[cost]]</div>
+          <div><a id="budgetLink" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></div>
+        </td>
+        <td>$ / Acre</td>
+      </tr>
+      <tr>
+        <td>Price</td>
+        <td>[[price]]</td>
+        <td>[[priceUnit]]</td>
+      </tr>
+      <tr>
+        <td>Yield (<span>[[irrigationType]]</span>)</td>
+        <td>[[yield]]</td>
+        <td>[[yieldUnit]]</td>
+      </tr>
+    </table>
+
+  </template>
+</dom-module>

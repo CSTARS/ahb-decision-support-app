@@ -31,7 +31,7 @@ var app = require('../app');
         this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
         this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
-        
+        this.$.refineryPrice.innerHTML = '$'+sdk.collections.refineries.selected.poplarPrice.toFixed(2);
         this.$.adoptionPrice.innerHTML = '$'+this.parcel.properties.ucd.adoptionPrice.toFixed(2);
 
         var refinery = sdk.collections.refineries.selected;
@@ -79,35 +79,16 @@ var app = require('../app');
         var data = [];
         var c = 1;
         
-        var size = this.parcel.properties.usableSize;
-        var poplarAveragePerYear = (this.growthProfile.data.totalPerAcre * size) / sdk.collections.growthProfiles.years;
-        var poplarAveragePerAcre = poplarAveragePerYear / size;
-        
-        
         var income = this.parcel.properties.ucd.income;
         var cost = this.parcel.properties.ucd.farmCost;
-        
 
         var revenueResults = this.parcel.properties.ucd.revenueResults;
         
         var stats = {
           poplarRevenue : 0,
-          cropsRevenue : 0,
-          transportation : {
-            avg : 0,
-            count : 0
-          },
-          water : {
-            avg : 0,
-            count : 0
-          },
-          land : {
-            avg : 0,
-            count : 0
-          }
+          cropsRevenue : 0
         }
-        
-        if( this.parcel.properties.id === '334000346815' ) debugger;
+
 
         var cropIncome, cropCost, poplarIncome, poplarCost;
         for( var i = 0; i < cost.poplar.yearlyData.length; i++ ) {
@@ -117,8 +98,8 @@ var app = require('../app');
           cropIncome = income.crops.yearly[i];
           poplarIncome = income.poplar.yearly[i];
           
-          stats.poplarRevenue += poplarIncome - poplarCost.cost;
-          stats.cropsRevenue += cropIncome - cropCost.cost;
+          stats.poplarRevenue += poplarIncome - poplarCost.crop - poplarCost.water - poplarCost.land - poplarCost.transportation;
+          stats.cropsRevenue += cropIncome - cropCost.crop;
 
           data.push([
             d.getFullYear()+'',
@@ -128,69 +109,15 @@ var app = require('../app');
             '$'+(stats.cropsRevenue).toFixed(2)
           ]);
           d.setFullYear(d.getFullYear()+1);
-
-          if( poplarCost.transportation ) {
-            stats.transportation.avg += poplarCost.transportation;
-            stats.transportation.count++;
-          }
-          if( poplarCost.water ) {
-            stats.water.avg += poplarCost.water;
-            stats.water.count++;
-          }
-          if( poplarCost.land ) {
-            stats.land.avg += poplarCost.land;
-            stats.land.count++;
-          }
-        }
-
-        if( stats.transportation.count > 0 ) {
-          stats.transportation.avg  = stats.transportation.avg / stats.transportation.count;
-        }
-        if( stats.water.count > 0 ) {
-          stats.water.avg  = stats.water.avg / stats.water.count;
-        }
-        if( stats.land.count > 0 ) {
-          stats.land.avg  = stats.land.avg / stats.land.count;
         }
 
         dt.addRows(data);
+
         this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
 
-        var html = '';
-        var cropInfo = this.parcel.properties.ucd.cropInfo;
-        for( var i = 0; i < cropInfo.swap.length; i++ ) {
-          var priceYield = sdk.collections.crops.getCropPriceAndYield(cropInfo.swap[i], cropInfo.fips);
-          var budget = sdk.collections.budgets.get(this.parcel.properties.ucd.budgetIds[i]);
-          var irrigationType = cropInfo.pasture ? 'non-irrigated' : 'irrigated';
-
-          html += '<b>'+cropInfo.swap[i] + '</b><br />'+
-          '&nbsp;&nbsp;<b>Cost:</b> $'+budget.budget.total+' / Acre - <a href="http://farmbudgets.org/#' +
-          budget.id+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a><br />' +
-          '&nbsp;&nbsp;<b>Price:</b> '+priceYield.price.price+' '+priceYield.price.unit+'<br />'+
-          '&nbsp;&nbsp;<b>Yield ('+irrigationType+'):</b> '+(priceYield.yield[irrigationType])+' '+priceYield.yield.unit;
-        }
-        this.$.crops.innerHTML = html;
-
-        if( this.growthProfile.growthError ) {
-          this.$.poplar.innerHTML = '<div class="alert alert-danger"><i class="fa fa-warning"></i> Failed to grow poplar :(</div>';
-        } else {
-          this.$.poplar.innerHTML =
-                  '<b>Cost:</b> $'+sdk.collections.budgets.poplarTotal.toFixed(2)+' / Acre ' +
-                  ' - <a href="http://farmbudgets.org/#'+sdk.collections.budgets.poplarBudget.getId()+'" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a></a><br />' +
-                  '<b>Price:</b> $'+sdk.collections.refineries.selected.poplarPrice+' / Mg<br />'+
-                  '<b>Water Cost:</b> $'+stats.water.avg.toFixed()+' / Acre / Year <br />'+
-                  '<b>Land Cost:</b> $'+stats.land.avg.toFixed()+' / Acre / Year <br />'+
-                  '<b>Avg Yield / Year:</b> '+poplarAveragePerYear.toFixed(2)+' Mg <br />'+
-                  '<b>Avg Yield / Acre / Year:</b> '+poplarAveragePerAcre.toFixed(2)+' Mg <br />';
-        }
-        
-        var size = this.parcel.properties.usableSize;
-        var transportation = sdk.collections.transportation.get(this.parcel.properties.id);
-        
-        this.$.transportation.innerHTML =
-            '<b>Avg Transportation Cost / Acre:</b> $'+stats.transportation.avg.toFixed()+'<br />'+
-            '<b>Avg Transportation Cost / Mg:</b> $'+(stats.transportation.avg / poplarAveragePerAcre).toFixed() +'<br />'+
-            '<b>Distance:</b> '+(transportation.distance*0.621371).toFixed(2)+' mi';
+        this.$.crops.render(this.parcel);
+        this.$.poplar.render(this.parcel, this.growthProfile);
+        this.$.transportation.render(this.parcel, this.growthProfile);
 
         var options = {
           width : $(this.$.revenueChart).parent().width(),

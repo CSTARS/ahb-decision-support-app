@@ -2,7 +2,7 @@ window.require = require;
 
 var sdk = require('./sdk');
 var events = require('events').EventEmitter;
-
+window.sdk = sdk;
 
 function App() { 
 

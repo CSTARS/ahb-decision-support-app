@@ -46,12 +46,16 @@
           <td><span id="potential"></span>% (<span id="asize"></span>) acres</td>
         </tr>
         <tr>
-          <td class="nlabel">Adoption Price:</td>
+          <td class="nlabel">Parcel Adoption Price:</td>
           <td><span id="adoptionPrice"></span> / Mg</td>
         </tr>
         <tr>
-          <td class="nlabel">Refinery Gate Price:</td>
+          <td class="nlabel">Parcel Refinery Gate Price:</td>
           <td><span id="refineryGatePrice"></span> / Mg</td>
+        </tr>
+        <tr>
+          <td class="nlabel">Current Refinery Price:</td>
+          <td><span id="refineryPrice"></span> / Mg</td>
         </tr>
         <tr>
           <td class="nlabel">Duration</td>
@@ -59,15 +63,21 @@
         </tr>
         <tr>
           <td class="nlabel">Current Crops</td>
-          <td id="crops"></td>
+          <td>
+            <parcel-info-crops id="crops"></parcel-info-crops>
+          </td>
         </tr>
         <tr>
           <td class="nlabel">Poplar</td>
-          <td id="poplar"></td>
+          <td>
+            <parcel-info-poplar id="poplar"></parcel-info-poplar>
+          </td>
         </tr>
         <tr>
           <td class="nlabel">Transportation</td>
-          <td id="transportation"></td>
+          <td>
+            <parcel-info-transportation id="transportation"></parcel-info-transportation>
+          </td>
         </tr>
       </table>
     </div>

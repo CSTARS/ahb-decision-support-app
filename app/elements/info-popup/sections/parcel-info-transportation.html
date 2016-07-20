@@ -1,0 +1,131 @@
+
+<dom-module id="parcel-info-transportation">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #details {
+        display: none;
+      }
+      #details table tr td:nth-child(1) {
+        white-space : nowrap;
+      }
+      #details table tr td:nth-child(3) {
+        white-space : nowrap;
+      }
+    </style>
+
+    <table class="table table-striped" style="margin-bottom:0">
+      <tr>
+        <td>Avg Cost Per Acre</td>
+        <td>[[costAcre]]</td>
+        <td>$ / Acre</td>
+      </tr>
+      <tr>
+        <td>Avg Cost Per Mg</td>
+        <td>[[costTon]]</td>
+        <td>$ / Mg</td>
+      </tr>
+      <tr>
+        <td>Distance</td>
+        <td>
+          <span>[[distance]]</span>
+          (<span>[[distanceMi]]</span>)
+        </td>
+        <td>km (mi)</td>
+      </tr>
+      <tr>
+        <td>Duration</td>
+        <td>[[duration]]</td>
+        <td>Hours</td>
+      </tr>
+    </table>
+
+    <div style="text-align:center">
+      <a style="cursor:pointer" on-click="toggleDetails">Details</a>
+    </div>
+    
+    <div id="details">
+      <h6>Transportation Cost Details (Per Acre)</h6>
+      <table class="table table-striped">
+        <!-- Labor -->
+        <tr class="nowrap">
+          <td>Truck Labor Cost</td>
+          <td>[[truckLaborCost]]</td>
+          <td>$ / Hour</td>
+        </tr>
+        <tr>
+          <td>Drivers Per Truck</td>
+          <td>[[driversPerTruck]]</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Labor</td>
+          <td>
+            <div>[[labor]]</div>
+            <div class="help-block">Truck Labor Cost * Drivers Per Truck * Duration</div>
+          </td>
+          <td>$</td>
+        </tr>
+
+        <!-- Fuel -->
+        <tr>
+          <td>Miles Per Gallon</td>
+          <td>[[milesPerGallon]]</td>
+          <td>mi / gal</td>
+        </tr>
+        <tr>
+          <td>Fuel Cost</td>
+          <td>[[fuelCost]]</td>
+          <td>$ / gal</td>
+        </tr>
+        <tr>
+          <td>Fuel</td>
+          <td>
+            <div>[[fuel]]</div>
+            <div class="help-block">(1/Miles Per Gallon) * Fuel Cost * Distance</div>
+          </td>
+          <td>$</td>
+        </tr>
+
+        <tr>
+          <td>Oil/Other Cost</td>
+          <td>[[oilOtherCost]]</td>
+          <td>$</td>
+        </tr>
+        <tr>
+          <td>Tons Per Truck</td>
+          <td>[[tonsPerTruck]]</td>
+          <td>$</td>
+        </tr>
+        <tr>
+          <td>Cost per Ton</td>
+          <td>
+            <div>[[costPerTon]]</div>
+            <div class="help-block">2 * (Oil/Other Cost + Fuel + Labor) / Tons Per Truck</div>
+          </td>
+          <td>$ / Mg</td>
+        </tr>
+
+        <tr>
+          <td>Loading/Unloading</td>
+          <td>[[loading]]</td>
+          <td>$</td>
+        </tr>
+
+        <tr>
+          <td>Cost per Acre</td>
+          <td>
+            <div>[[costPerAcre]]</div>
+            <div class="help-block">Cost Per Ton * Wet Ton Conversion (<span>[[conversion]]</span>) * 
+                Yield + Loading/Unloading</div>
+          </td>
+          <td>$ / Mg</td>
+        </tr>
+
+      </table>
+    </div>
+
+  </template>
+</dom-module>

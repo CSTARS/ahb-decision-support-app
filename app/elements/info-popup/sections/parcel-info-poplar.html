@@ -1,0 +1,51 @@
+<dom-module id="parcel-info-poplar">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #growthError {
+        display: none;
+      }
+    </style>
+    
+    <div class="alert alert-danger" id="growthError">
+      <i class="fa fa-warning"></i> Failed to grow poplar :(
+    </div>
+
+    <div id="details">
+      <table class="table table-striped">
+        <tr>
+          <td>Poplar Cost</td>
+          <td>
+            <div>[[cost]]</div>
+            <div>
+              <a id="budgetDetailsLink" target="_blank"><i class="fa fa-list-alt"></i> Budget Details</a>
+            </div>
+          </td>
+          <td>$ / Acre</td>
+        </tr>
+        <tr>
+          <td>Water Cost</td>
+          <td>[[waterCost]]</td>
+          <td>$ / Acre</td>
+        </tr>
+        <tr>
+          <td>Land Cost</td>
+          <td>[[landCost]]</td>
+          <td>$ / Acre</td>
+        </tr>
+        <tr>
+          <td>Avg Poplar Yield</td>
+          <td>[[poplarYield]]</td>
+          <td>Mg / Acre</td>
+        </tr>
+        <tr>
+          <td>Avg Poplar Yield for Parcel</td>
+          <td>[[totalPoplarYield]]</td>
+          <td>Mg</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+</dom-module>

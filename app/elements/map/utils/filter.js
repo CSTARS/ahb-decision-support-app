@@ -98,8 +98,8 @@ var FilterBehavior = {
             geometry : {
                 type : 'LineString',
                 coordinates : [
-                f.geometry.coordinates[0],
-                parcel.properties.ucd.center
+                    f.geometry.coordinates[0],
+                    parcel.properties.ucd.center
                 ]
             },
             properties : {
