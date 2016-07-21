@@ -70,9 +70,14 @@ var FilterBehavior = {
         /**
          * Now let's handle the transportation polyline
          */
+        // only render selected parcel polylines
+        if( !props.selected ) {
+            return next();
+        }
+
         var transportation = sdk.collections.transportation.get(parcel.properties.id);
         if( transportation.error ) {
-            return;
+            return next();
         }
 
         // set the current network
@@ -103,7 +108,8 @@ var FilterBehavior = {
                 ]
             },
             properties : {
-                type : 'start'
+                type : 'start',
+                id : 'start-'+path[0]
             }
         };
 

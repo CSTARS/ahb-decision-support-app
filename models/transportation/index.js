@@ -173,7 +173,6 @@ function init() {
 
 function sendUpdate(time, count, total, currentSocket) {
   if( !currentSocket ) return;
-  if( count % 50 !== 0 ) return;
 
   var t2 = new Date().getTime();
 

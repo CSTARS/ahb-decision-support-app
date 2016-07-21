@@ -19,6 +19,8 @@ var app = require('../app');
         if( !this.parcel ) return;
         this.parcelId = this.parcel.properties.id;
 
+        this.$.adopted.style.display = this.parcel.properties.ucd.selected ? 'block' : 'none';
+
         var name = ['Parcel ID: '+this.parcel.properties.id];
         if( this.parcel.properties.SiteAddressFull && this.parcel.properties.SiteAddressFull.trim() ) {
           name.push(this.parcel.properties.SiteAddressFull);

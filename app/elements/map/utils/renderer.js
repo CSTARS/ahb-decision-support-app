@@ -35,7 +35,6 @@ function drawPolygon(ctx, xyPoints, feature) {
     ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
     if( feature.render.aboveRefineryWillingToPay ) {
-        //ctx.fillStyle = 'rgba(200,200,200,.6)';
         ctx.fillStyle = 'rgba(255,165,0,.6)';
     } else {
         var a = feature.render.adoptionPricePercentile;
@@ -69,9 +68,6 @@ function lineRenderer(ctx, xyPoints, map, feature) {
         ctx.strokeStyle = '#CFD8DC';
         ctx.lineCap = 'round';
     } else {
-        //var use = sdk.datastore.networkUse[feature.properties.id];
-        //var p = use / sdk.datastore.maxNetworkUse;
-
         ctx.strokeStyle = '#607D8B';
     }
 
