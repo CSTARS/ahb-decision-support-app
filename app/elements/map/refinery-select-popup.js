@@ -38,6 +38,12 @@ var utils = require('../utils');
             this.refineryOptions = sdk.collections.refineries.getAll();
             this.renderRefinerySelector();
         }
+
+        var ror = 0.10;
+        if( sdk.collections.refineries.selected ) {
+          ror = sdk.collections.refineries.selected.ROR;
+        }
+        this.$.ror.value = ror * 100; 
       },
 
       hide : function() {
@@ -92,7 +98,8 @@ var utils = require('../utils');
             lng : this.lng,
             radius : parseInt(this.$.radiusInput.value)*1000,
             refinery : this.$.refinerySelector.value,
-            routeGeometry : this.$.routeInput.checked ? true : false
+            routeGeometry : this.$.routeInput.checked ? true : false,
+            ROR : parseFloat((parseFloat(this.$.ror.value) / 100).toFixed(2))
         };
 
         app.run(options, function(){

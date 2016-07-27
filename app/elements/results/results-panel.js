@@ -14,6 +14,8 @@ var async = require('async');
         app.on('poplar-price-update', this.onPriceRecalc.bind(this));
         $(window).on('resize', this.resize.bind(this));
 
+        this.removeChild(this.$.updateOverlay);
+        document.body.appendChild(this.$.updateOverlay);
 
         sdk.eventBus.on('optimize-start',() => {
           this.$.updateOverlay.style.display = 'block';
@@ -131,11 +133,17 @@ var async = require('async');
         css = 'danger';
         if( net > 0 ) var css = 'success';
         
-        var ror = Math.pow( (net / refinery.capitalCost ), (1 / years) ) - 1;
-        ror = (ror * 100).toFixed(2);
+        var roiResult = refinery.currentRoi(actualYield);
+        var roi = roiResult.roi.toFixed(2);
+        var presentValue = roiResult.presentValue.toFixed(2);
+
+        //var ror = Math.pow( (net / refinery.capitalCost ), (1 / years) ) - 1;
+        //ror = (ror * 100).toFixed(2);
         
-        this.$.refineryNet.innerHTML = utils.formatAmount(net);
-        this.$.refineryRor.innerHTML = `%${ror}`;
+        this.$.refineryPresentValue.innerHTML = '$'+utils.formatAmount(parseFloat(presentValue));
+        this.$.ror.value = parseFloat((refinery.ROR * 100).toFixed(2));
+        
+        this.$.refineryRor.innerHTML = `%${roi}`;
 
         this.$.adoptionAmount.innerHTML = ' @ $'+refinery.poplarPrice+' / Mg';
         this.$.adoptionCropPieChart.render(totals, refinery);
@@ -378,6 +386,10 @@ var async = require('async');
 
       onPriceChange : function() {
         app.setPoplarPrice(parseFloat(this.$.poplarPriceInput.value));
+      },
+
+      onRorChange : function() {
+         app.setRor(parseFloat(this.$.ror.value / 100));
       },
       
       onPriceRecalc : function() {

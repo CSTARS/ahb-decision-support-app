@@ -10,22 +10,9 @@
       .bold {
         font-weight: bold;
       }
-      .update-overlay {
-        position: fixed;
-        background: rgba(255,255,255,.8);
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        padding: 150px 20px 20px 20px;
-        text-align: center;
-        color: #888;
-        font-size: 28px;
-        display: none;
-      }
     </style>
 
-    <div id="updateOverlay" class="update-overlay"></div>
+    <div id="updateOverlay" style="z-index: 1000; position: fixed; background: rgba(255,255,255,.8); top: 0; left: 0; right: 0; bottom: 0; padding: 150px 20px 20px 20px; text-align: center; color: #888; font-size: 28px; display: none;"></div>
 
     <!--<price-yield-popup id="priceYieldPopup" on-yield-price-change="onPriceYieldChange"></price-yield-popup>-->
 
@@ -87,12 +74,21 @@
     
     
     <h4 class="page-heaader">Refinery <small id="refineryType"></small></h4>
+
+    <div class="form-horizontal">
+      <div class="form-group">
+        <label for="ror" class="col-sm-2 control-label">Rate of Return (%)</label>
+        <div class="col-sm-10">
+          <input type="number" class="form-control" id="ror" placeholder="%" on-change="onRorChange" />
+        </div>
+      </div>
+    </div>
     
     <div class="row">
       <div class="col-sm-6">
         <table class="table">
           <tr>
-            <td class="bold">Capital Cost</td>
+            <td class="bold">Capital Cost (Investment)</td>
             <td id="refineryCapitalCost"></td>
           </tr>
           <tr>
@@ -124,12 +120,27 @@
             <td id="refineryIncome"></td>
           </tr>
           <tr>
-            <td class="bold">Net</td>
-            <td id="refineryNet"></td>
+            <td class="bold">Total Present Value</td>
+            <td>
+              <div id="refineryPresentValue"></div>
+              <div class="help-block">
+                <div class="layout horizontal center">
+                  <div>Capital Cost +&nbsp;</div>
+                  <div>
+                    <div style="font-size: 24px; line-height: 16px; margin-top: 12px">&Sigma;</div>
+                    <div style="font-size: 10px">year</div>
+                  </div>
+                  <div>&nbsp;Income<sub>year</sub> * (1+ROR)^<sup>(year-1)</sup></div>
+                </div>
+              </div>
+            </td>
           </tr>
           <tr style="background-color:#eee">
-            <td class="bold">Annual Rate of Return</td>
-            <td id="refineryRor"></td>
+            <td class="bold">Return on Investment</td>
+            <td>
+              <div id="refineryRor"></div>
+              <div class="help-block">(Total Present Value / Investment)^<sup>(1/years)</sup> - 1</div>
+            </td>
           </tr>
         </table>
       </div>

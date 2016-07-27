@@ -52,6 +52,11 @@ function App() {
 
         sdk.controllers.refinery.optimize(options);
     };
+
+    this.setRor = function(ror) {
+        sdk.collections.refineries.selected.setRor(ror);
+        sdk.controllers.refinery.optimize({});
+    };
     
     this.getPoplarPrice = function() {
         return this.price || 24;
