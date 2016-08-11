@@ -1,0 +1,30 @@
+<dom-module id="parcel-map-legend">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+      .legend-color {
+        display: inline-block;
+        height: 24px;
+        width: 24px;
+      }
+      .legend-label {
+        display: inline-block;
+        padding-left: 20px;
+        vertical-align: top;
+      }
+      .legend {
+        padding: 20px;
+      }
+    </style>
+
+    <h4 style="padding-left: 20px; margin: 0">Legend</h4>
+    <div id="legend" class="legend"></div>
+    <div style="padding-left: 20px">
+      <div class="legend-color" style="background-color: rgba(255,165,0,.6)"></div>
+      <div class="legend-label">Over max willingness to pay</div>
+    </div>
+    
+  </template>
+</dom-module>
