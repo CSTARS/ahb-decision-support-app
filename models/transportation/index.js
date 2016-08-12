@@ -49,9 +49,9 @@ function getRoutes(sources, destination, options, callback) {
     chunks.push(chunk);
   }
   
-  var t = new Date().getTime();
-  var c = 0;
-  console.log('START: '+t);
+  var time = new Date().getTime();
+  var count = 0;
+  var chunkCount = 0;
 
   async.eachSeries(
     chunks,
@@ -67,43 +67,48 @@ function getRoutes(sources, destination, options, callback) {
       }
       
       proxy.query(params, (err, queryResult) => {
-        processPaths(queryResult, result, c, sources, params.steps);
+        processPaths(queryResult, result, count, chunkCount, sources, params.steps);
         
-        c += chunk.length;
-        sendUpdate(t, c, sources.features.length, currentSocket);
+        count += chunk.length;
+        sendUpdate(time, count, sources.features.length, result, currentSocket);
+        result = init();
+        chunkCount++;
         
         next();
       });
     },
     function(err) {
       if( options.requestCancelled ) {
+        result = null;
         return currentSocket.emit('routes-calculated', {error:true, message: 'Request Cancelled'});
       }
       
-      var arr = [];
-      for( var key in result.network.features ){
-        arr.push(result.network.features[key]);
-      }
-      result.network.features = arr;
+      // var arr = [];
+      // for( var key in result.network.features ){
+      //   arr.push(result.network.features[key]);
+      // }
+      // result.network.features = arr;
       
       // Very large JSON objects are crashing, so split up the parsing,
       // perhaps even send 2 packets
-      result.paths = JSON.stringify(result.paths);
-      result.network = JSON.stringify(result.network);
+      // result.paths = JSON.stringify(result.paths);
+      // result.network = JSON.stringify(result.network);
       
+      // currentSocket.emit('routes-calculated', result);
       currentSocket.emit('routes-calculated', result);
+      result = null;
     }
   );
 }
 
 
-function processPaths(pathResults, finalResult, count, sources, steps) {
+function processPaths(pathResults, finalResult, count, chunkCount, sources, steps) {
   for( var i = 0; i < pathResults.length; i++ ) {
-    processPath(pathResults[i], finalResult, sources.features[count+i], steps);
+    processPath(pathResults[i], finalResult, sources.features[count+i], steps, chunkCount);
   }
 }
 
-function processPath(pathResult, finalResult, feature, steps) {
+function processPath(pathResult, finalResult, feature, steps, chunkCount) {
 
   if( steps ) {
     var path = [], start, stop, id;
@@ -122,12 +127,12 @@ function processPath(pathResult, finalResult, feature, steps) {
             coordinates : [start, stop]
           },
           properties : {
-            id : finalResult.networkSegmentCount,
+            id : id,
             count : 0
           }
         }
         
-        path.push(finalResult.networkSegmentCount);
+        path.push(id);
         finalResult.networkSegmentCount++;
       }
     }
@@ -171,7 +176,7 @@ function init() {
   };
 }
 
-function sendUpdate(time, count, total, currentSocket) {
+function sendUpdate(time, count, total, result, currentSocket) {
   if( !currentSocket ) return;
 
   var t2 = new Date().getTime();
@@ -186,6 +191,7 @@ function sendUpdate(time, count, total, currentSocket) {
       total : total,
       percent : p,
       averageTime : t,
+      data : result,
       timeRemaining : ((total - count) * t)
     });
   } catch(e) {
