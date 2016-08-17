@@ -416,8 +416,7 @@ var async = require('async');
       // },
       
       exportJson : function() {
-        alert("TODO");
-        //this.$.exportJsonFormData.value = JSON.stringify(sdk.datastore.exportJson());
+        this.$.exportJsonFormData.value = JSON.stringify(sdk.controllers.export.toJson());
         this.$.exportJsonForm.submit();
       }
     });
