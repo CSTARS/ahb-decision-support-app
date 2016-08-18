@@ -37,7 +37,7 @@ Polymer({
 
     var poplarYield = growthProfile.data.totalPerAcre / sdk.collections.growthProfiles.years;
 
-    this.loading = poplarYield.toFixed(2);
+    this.loading = sdk.models.transportation.getLoadingUnloadingCost().toFixed(2);
 
     this.conversion = collection.DRY_TON_TO_WET_TON;
     this.costPerAcre = (cost * collection.DRY_TON_TO_WET_TON * poplarYield + poplarYield).toFixed(2);
