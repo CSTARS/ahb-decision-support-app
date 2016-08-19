@@ -37,7 +37,9 @@ var async = require('async');
 
       onShow : function() {
         if( this.map ) {
-          this.map.invalidateSize();
+          this.debounce('onShow',function(){
+            this.map.invalidateSize();
+          }, 100);
         }
       },
 
