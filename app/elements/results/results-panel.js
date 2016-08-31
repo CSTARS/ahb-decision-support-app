@@ -142,6 +142,7 @@ var async = require('async');
         
         this.$.refineryPresentValue.innerHTML = '$'+utils.formatAmount(parseFloat(presentValue));
         this.$.ror.value = parseFloat((refinery.ROR * 100).toFixed(2));
+        this.$.maxPastureLand.value = parseFloat((refinery.maxPastureLandAdoption * 100).toFixed(2));
         
         this.$.refineryRor.innerHTML = `%${roi}`;
 
@@ -394,6 +395,10 @@ var async = require('async');
 
       onRorChange : function() {
          app.setRor(parseFloat(this.$.ror.value / 100));
+      },
+
+      onMaxPastureLandChange : function() {
+         app.setMaxPastureLand(parseFloat(this.$.maxPastureLand.value / 100));
       },
       
       onPriceRecalc : function() {

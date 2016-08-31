@@ -57,6 +57,11 @@ function App() {
         sdk.collections.refineries.selected.setRor(ror);
         sdk.controllers.refinery.optimize({});
     };
+
+    this.setMaxPastureLand = function(maxPastureLand) {
+        sdk.collections.refineries.selected.setMaxPastureLand(maxPastureLand);
+        sdk.controllers.refinery.optimize({});
+    };
     
     this.getPoplarPrice = function() {
         return this.price || 24;
