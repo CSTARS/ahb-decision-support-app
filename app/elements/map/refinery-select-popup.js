@@ -43,7 +43,13 @@ var utils = require('../utils');
         if( sdk.collections.refineries.selected ) {
           ror = sdk.collections.refineries.selected.ROR;
         }
-        this.$.ror.value = ror * 100; 
+        this.$.ror.value = ror * 100;
+
+        var maxPastureLand = 0.25;
+        if( sdk.collections.refineries.selected ) {
+          maxPastureLand = sdk.collections.refineries.selected.maxPastureLandAdoption;
+        }
+        this.$.maxPastureLand.value = maxPastureLand * 100;
       },
 
       hide : function() {
@@ -99,7 +105,8 @@ var utils = require('../utils');
             radius : parseInt(this.$.radiusInput.value)*1000,
             refinery : this.$.refinerySelector.value,
             routeGeometry : this.$.routeInput.checked ? true : false,
-            ROR : parseFloat((parseFloat(this.$.ror.value) / 100).toFixed(2))
+            ROR : parseFloat((parseFloat(this.$.ror.value) / 100).toFixed(2)),
+            maxPastureLand : parseFloat((parseFloat(this.$.maxPastureLand.value) / 100).toFixed(2))
         };
 
         app.run(options, function(){

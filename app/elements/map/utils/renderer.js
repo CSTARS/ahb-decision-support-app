@@ -34,7 +34,9 @@ function drawPolygon(ctx, xyPoints, feature) {
     }
     ctx.lineTo(xyPoints[0].x, xyPoints[0].y);
 
-    if( feature.render.aboveRefineryWillingToPay ) {
+    if( feature.render.pastureIgnored ) {
+        ctx.fillStyle = 'rgba(255,0,0,.6)';
+    } else if( feature.render.aboveRefineryWillingToPay ) {
         ctx.fillStyle = 'rgba(255,165,0,.6)';
     } else {
         var a = feature.render.adoptionPricePercentile;
