@@ -202,6 +202,10 @@ var async = require('async');
           (id, next) => {
 
             parcelsCollections.get(id, (parcel) => {
+              if( parcel.properties.ucd.pastureIgnored ) {
+                return next();
+              }
+
               sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
 
                 var item;
