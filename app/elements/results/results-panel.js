@@ -425,7 +425,24 @@ var async = require('async');
       // },
       
       exportJson : function() {
-        this.$.exportJsonFormData.value = JSON.stringify(sdk.controllers.export.toJson());
-        this.$.exportJsonForm.submit();
+        var data = sdk.controllers.export.toJson();
+        // this.$.exportJsonFormData.value = JSON.stringify(data.parcels) + '\n' + JSON.stringify(data.growthProfiles);
+        // this.$.exportJsonForm.submit();
+
+        var filename = 'export.json'
+
+        if(typeof data === "object"){
+            data = JSON.stringify(data);
+        }
+
+        var blob = new Blob([data], {type: 'text/json'}),
+            e    = document.createEvent('MouseEvents'),
+            a    = document.createElement('a')
+
+        a.download = filename;
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':');
+        e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
       }
     });

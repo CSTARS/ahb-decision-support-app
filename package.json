@@ -12,6 +12,7 @@
   "author": "Justin Merz <jrmerz@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "adm-zip": "^0.4.7",
     "async": "^1.5.2",
     "express": "^4.13.4",
     "extend": "^3.0.0",
