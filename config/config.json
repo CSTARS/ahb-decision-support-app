@@ -30,6 +30,11 @@
             "host" : "localhost",
             "port" : 5434,
             "db" : "ahb"
+        },
+        "parcels" : {
+            "host" : "localhost",
+            "port" : 5432,
+            "db" : "postgres"
         }
     },
 

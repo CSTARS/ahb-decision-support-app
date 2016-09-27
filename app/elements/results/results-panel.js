@@ -323,12 +323,13 @@ var async = require('async');
         var dt = new google.visualization.DataTable();
 
         var data = [];
-        var header = ['price', 'poplar', 'required'];
-        dt.addColumn({id:'price', label: 'Price', type:'string'});
+        // var header = ['price', 'poplar', 'required'];
+        var header = ['price', 'poplar'];
         dt.addColumn({id:'poplar', label: 'Poplar', type:'number'});
-        dt.addColumn({id: 'required', label: 'Required Yield', type: 'number'});
-        dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
-        dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
+        dt.addColumn({id:'price', label: 'Price', type:'number'});
+        // dt.addColumn({id: 'required', label: 'Required Yield', type: 'number'});
+        // dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
+        // dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
 
 
         var max = 0, lastPrice;
@@ -340,16 +341,18 @@ var async = require('async');
         
         for( var i = 0; i < priceData.length; i++ ) {
           rowData = priceData[i];
-          row = [rowData.price+'', rowData.poplar.yield / years, yieldRequired];
+          // row = [rowData.price+'', rowData.poplar.yield / years, yieldRequired];
+          row = [rowData.poplar.yield / years, rowData.price];
           
-          if( refinery.poplarPrice > lastPrice && refinery.poplarPrice <= rowData.price && currentPriceNotSet ) {
-            currentPriceNotSet = false;
-            row.push(rowData.poplar.yield / years);
-            row.push('Current Price: '+refinery.poplarPrice+' $ / Mg');
-          } else {
-            row.push(null);
-            row.push(null);
-          }
+
+          // if( refinery.poplarPrice > lastPrice && refinery.poplarPrice <= rowData.price && currentPriceNotSet ) {
+          //   currentPriceNotSet = false;
+          //   row.push(rowData.poplar.yield / years);
+          //   row.push('Current Price: '+refinery.poplarPrice+' $ / Mg');
+          // } else {
+          //   row.push(null);
+          //   row.push(null);
+          // }
           
           data.push(row);
           lastPrice = rowData.price;
