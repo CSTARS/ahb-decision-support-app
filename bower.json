@@ -18,7 +18,8 @@
     "bootswatch-dist": "paper",
     "esri-leaflet": "~1.0.3",
     "leaflet": "^0.7.7",
-    "jquery" : "1.9.1",
-    "leaflet-canvas-geojson": "v2.2"
+    "jquery": "1.9.1",
+    "leaflet-canvas-geojson": "v2.2",
+    "paper-toggle-button": "PolymerElements/paper-toggle-button#^1.2.0"
   }
 }

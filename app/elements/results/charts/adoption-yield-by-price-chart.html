@@ -1,0 +1,20 @@
+
+<dom-module id="adoption-yield-by-price-chart">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-toggle-button {
+        display: inline-block;
+      }
+      #chart {
+        min-height: 400px
+      }
+    </style>
+    
+    <div id="chart"></div>
+
+    <paper-toggle-button id="toggle" active="{{flipped}}"></paper-toggle-button> Toggle Chart Axis
+  </template>
+</dom-module>
