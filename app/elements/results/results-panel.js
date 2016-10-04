@@ -288,7 +288,7 @@ var async = require('async');
       //   this.$.priceYieldPopup.show();
       // },
       
-      exportJson : function() {
+exportJson : function() {
         var data = sdk.controllers.export.toJson();
         // this.$.exportJsonFormData.value = JSON.stringify(data.parcels) + '\n' + JSON.stringify(data.growthProfiles);
         // this.$.exportJsonForm.submit();
@@ -300,6 +300,54 @@ var async = require('async');
         }
 
         var blob = new Blob([data], {type: 'text/json'}),
+            e    = document.createEvent('MouseEvents'),
+            a    = document.createElement('a')
+
+        a.download = filename;
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':');
+        e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
+      },
+
+      exportKml : function() {
+        var data = sdk.controllers.export.toJson();
+        var filename = 'export.kml'
+
+        data.parcels.features.forEach((p) => {
+          p.type = 'Feature';
+
+          p.properties.stroke = '#ffffff';
+          p.properties['stroke-opacity'] = 0;
+          p.properties['stroke-width'] = 0;
+
+          if( p.properties.ucd.pastureIgnored ) {
+            p.properties.fill = '#ff0000';
+            p.properties['fill-opacity'] = 0.6;
+          } else if( p.properties.ucd.aboveRefineryWillingToPay ) {
+            p.properties.fill = '#ff'+(165).toString(16)+'00';
+            p.properties['fill-opacity'] = 0.6;
+          } else {
+              var a = p.properties.ucd.adoptionPricePercentile;
+              var v = Math.floor(200 * (1-a));
+              var v2 = Math.floor(200 * a);
+
+              v = (v).toString(16);
+              v2 = (v2).toString(16)
+
+              if( v.length === 1 ) v = '0'+v;
+              if( v2.length === 1 ) v = '0'+v2;
+
+              p.properties.fill = '#00'+v2+v;
+              p.properties['fill-opacity'] = 0.8;
+          }
+        });
+
+        var kml = tokml(data.parcels, {
+          simplestyle : true
+        });
+
+        var blob = new Blob([kml], {type: 'application/vnd.google-earth.kml+xml'}),
             e    = document.createEvent('MouseEvents'),
             a    = document.createElement('a')
 

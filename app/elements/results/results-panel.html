@@ -180,11 +180,12 @@
     <div id="renderYieldAdoption"></div>
     
     <h4 class="page-header">Export Data</h4>
-    <div>
-      <form id="exportJsonForm" method="post" action="/export/toJson" target="_blank">
-        <input type="hidden" name="data" value="data" id="exportJsonFormData" />
-        <a on-click="exportJson"><i class="fa fa-download"></i> Export as JSON</a>
-      </form>
+    <div style="padding: 10px">
+      <!--<form id="exportJsonForm" method="post" action="/export/toJson" target="_blank">-->
+        <!--<input type="hidden" name="data" value="data" id="exportJsonFormData" />-->
+        <a on-click="exportJson" style="cursor:pointer"><i class="fa fa-download"></i> Export as JSON</a>&nbsp;&nbsp;&nbsp;
+        <a on-click="exportKml" style="cursor:pointer"><i class="fa fa-download"></i> Export as KML</a>
+      <!--</form>-->
     </div>
 
     </div>

@@ -3,7 +3,7 @@ var sdk = require('../sdk');
 var renderer = require('./utils/renderer');
 var FilterBehavior = require('./utils/filter');
 var async = require('async');
-
+var states = require('./utils/states');
 
     Polymer({
       is: 'parcel-map',
@@ -67,17 +67,36 @@ var async = require('async');
           this.map = L.map(this).setView([44, -121], 6);
           this.map.on('click', this.onClick.bind(this));
           
-          L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',{
+          var baselayer = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',{
           //L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
+
 
           var layer = L.esri.dynamicMapLayer({
             url: 'https://conifer.gis.washington.edu/arcgis/rest/services/AHBNW/AHBNW_20151009_parcel_featureAccess/MapServer',
             opacity: 0.5,
           });
 
-          L.control.layers({}, {Parcels: layer}).addTo(this.map);
+          var statesLayer = L.geoJson(states, {
+            style : function() {
+              return {
+                  fillColor: "#ffffff",
+                  color: "#000",
+                  weight: 1,
+                  opacity: 1,
+                  fillOpacity: 1
+              }
+            }
+          });
+          statesLayer.on('click', this.onClick.bind(this));
+
+          L.control.layers({
+            Baselayer : baselayer,
+            States : statesLayer
+          },{
+            Parcels: layer
+          }).addTo(this.map);
 
           this.canvasLayer = new L.CanvasGeojsonLayer({
             onClick : this.onFeaturesClicked.bind(this)

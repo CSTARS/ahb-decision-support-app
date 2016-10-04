@@ -14,8 +14,10 @@ function get(lat, lng, radius, res) {
   var cursor = pg.willowClient().query(new Cursor(`
           SELECT ST_AsGeoJSON(geometry) as geometry, properties 
           FROM parcel_cache 
-          WHERE ST_DWithin(geometry, ST_MakePoint($1, $2), $3)`,
-          [lng, lat, radius / 111112.21]));
+          where ST_DWITHIN(Geography(geometry), Geography(ST_MakePoint($1, $2)), $3)`,
+          [parseFloat(lng), parseFloat(lat), parseFloat(radius)]));
+          // WHERE ST_DWithin(geometry, ST_MakePoint($1, $2), $3)`,
+          // [lng, lat, radius / 111112.21]));
 
   res.set('Content-Type', 'text/plain');
   read(cursor, res);
