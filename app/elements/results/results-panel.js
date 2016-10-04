@@ -2,6 +2,7 @@ var app = require('../app');
 var sdk = require('../sdk');
 var utils = require('../utils');
 var async = require('async');
+var tokml = require('tokml');
 
     Polymer({
       is: 'results-panel',
