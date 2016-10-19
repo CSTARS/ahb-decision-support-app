@@ -26,7 +26,7 @@ Polymer({
   },
 
   flipChart : function() {
-    this.view = this.$.toggle.active ? 'yield' : 'price';
+    this.view = this.$.toggle.active ? 'price' : 'yield';
     this.render(this.priceData);
   },
 
@@ -39,6 +39,27 @@ Polymer({
     } else {
       this.renderYieldXAxis(priceData);
     }
+  },
+
+  export : function() {
+    if( !this.dataArray ) return;
+
+    var filename = 'adoption-yield-by-price.csv'
+
+    var data = this.dataArray.map((row) => {
+      return row.splice(0, 2).join(',');
+    });
+    data.unshift(['price', 'poplar'].join(','));
+
+    var blob = new Blob([data.join('\n')], {type: 'text/csv'}),
+        e    = document.createEvent('MouseEvents'),
+        a    = document.createElement('a')
+
+    a.download = filename;
+    a.href = window.URL.createObjectURL(blob);
+    a.dataset.downloadurl =  ['text/csv', a.download, a.href].join(':');
+    e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    a.dispatchEvent(e);
   },
 
   renderPriceXAxis : function(priceData) {
@@ -79,6 +100,7 @@ Polymer({
     }
 
     dt.addRows(data);
+    this.dataArray = data;
 
     var options = {
       vAxis : {
@@ -152,6 +174,7 @@ Polymer({
       }
 
       dt.addRows(data);
+      this.dataArray = data;
 
       var options = {
         hAxis : {

@@ -26,7 +26,7 @@ Polymer({
   },
 
   flipChart : function() {
-    this.view = this.$.toggle.active ? 'yield' : 'price';
+    this.view = this.$.toggle.active ? 'price' : 'yield';
     this.render(this.priceData, this.crops);
   },
 
@@ -43,10 +43,31 @@ Polymer({
     }
   },
 
+  export : function() {
+    if( !this.dataArray ) return;
+
+    var filename = 'adoption-by-price.csv'
+
+    var data = this.dataArray.map((row) => {
+      return row.splice(0, row.length-2).join(',');
+    });
+    data.unshift(this.header.join(','));
+
+    var blob = new Blob([data.join('\n')], {type: 'text/csv'}),
+        e    = document.createEvent('MouseEvents'),
+        a    = document.createElement('a')
+
+    a.download = filename;
+    a.href = window.URL.createObjectURL(blob);
+    a.dataset.downloadurl =  ['text/csv', a.download, a.href].join(':');
+    e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    a.dispatchEvent(e);
+  },
+
   renderPriceXAxis : function(priceData, crops) {
-    var header = ['price', 'poplar'];
+    this.header = ['price', 'poplar'];
     for( var key in crops ) {
-      header.push(key);
+      this.header.push(key);
     }
     
     var data = [], row, rowData;
@@ -63,20 +84,20 @@ Polymer({
         row = [rowData.poplar.acres, rowData.price];
         // lastYields.poplar = rowData.poplar.acres;
 
-        for( var i = 2; i < header.length; i++ ) {
+        for( var i = 2; i < this.header.length; i++ ) {
           row.push(null);
         }
         data.push(row);
       // }
       
-      for( var i = 2; i < header.length; i++ ) {
+      for( var i = 2; i < this.header.length; i++ ) {
         // if( lastYields[header[i]] !== (rowData[header[i]] || 0) ) {
-          row = [rowData[header[i]] || 0];
+          row = [rowData[this.header[i]] || 0];
           // lastYields[header[i]] = rowData[header[i]] || 0;
 
           for( var z = 1; z < i; z++ ) row.push(null); 
           row.push(rowData.price);
-          for( var z = i+1; z < header.length; z++ ) row.push(null); 
+          for( var z = i+1; z < this.header.length; z++ ) row.push(null); 
 
           data.push(row);
 
@@ -99,6 +120,7 @@ Polymer({
       dt.addColumn({id:key, label:key, type:'number'});
     }
     
+    this.dataArray = data;
     dt.addRows(data);
     
     var options = {
@@ -137,9 +159,9 @@ Polymer({
   },
 
   renderYieldXAxis : function(priceData, crops) {
-    var header = ['price', 'poplar'];
+    this.header = ['price', 'poplar'];
     for( var key in crops ) {
-      header.push(key);
+      this.header.push(key);
     }
     
     var data = [], row, rowData;
@@ -152,8 +174,8 @@ Polymer({
       rowData = priceData[j];
       row = [rowData.price+'', rowData.poplar.acres];
       
-      for( var i = 2; i < header.length; i++ ) {
-        row.push(rowData[header[i]] || 0);
+      for( var i = 2; i < this.header.length; i++ ) {
+        row.push(rowData[this.header[i]] || 0);
       }
       
       if( refinery.poplarPrice > lastPrice && refinery.poplarPrice <= rowData.price && currentPriceNotSet ) {
@@ -178,6 +200,7 @@ Polymer({
     dt.addColumn({id:'Current Price', label:'Current Price', type:'number'});
     dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
     
+    this.dataArray = data;
     dt.addRows(data);
     
     var options = {
@@ -200,7 +223,7 @@ Polymer({
       }
     }
 
-    for( var i = 0; i < header.length-1; i++ ) {
+    for( var i = 0; i < this.header.length-1; i++ ) {
       options.series[i] = {
         type : 'line',
         targetAxisIndex : 0

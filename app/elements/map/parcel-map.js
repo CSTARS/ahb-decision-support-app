@@ -67,8 +67,8 @@ var states = require('./utils/states');
           this.map = L.map(this).setView([44, -121], 6);
           this.map.on('click', this.onClick.bind(this));
           
-          var baselayer = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',{
-          //L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          // var baselayer = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',{
+          var baselayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(this.map);
 

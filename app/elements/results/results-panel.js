@@ -285,11 +285,7 @@ var tokml = require('tokml');
         this.$.poplarPriceInput.value = price;
       },
 
-      // showPriceYieldPopup : function() {
-      //   this.$.priceYieldPopup.show();
-      // },
-      
-exportJson : function() {
+      exportJson : function() {
         var data = sdk.controllers.export.toJson();
         // this.$.exportJsonFormData.value = JSON.stringify(data.parcels) + '\n' + JSON.stringify(data.growthProfiles);
         // this.$.exportJsonForm.submit();

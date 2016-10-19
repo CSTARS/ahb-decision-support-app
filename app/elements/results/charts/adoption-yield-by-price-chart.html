@@ -15,6 +15,13 @@
     
     <div id="chart"></div>
 
-    <paper-toggle-button id="toggle" active="{{flipped}}"></paper-toggle-button> Toggle Chart Axis
+    <div class="layout horizontal center-justified" style="padding: 10px">
+      <div>
+        <paper-toggle-button id="toggle" active="{{flipped}}"></paper-toggle-button> Toggle Chart Axis
+      </div>
+      <div style="padding-left: 25px">
+        <a class="btn btn-default" on-click="export">Export</a>
+      </div>
+    </div>
   </template>
 </dom-module>
