@@ -163,7 +163,7 @@ var app = require('../app');
         dt.addColumn('number', 'Poplar (Mg / Acre)');
         var data = [];
         for( var i = 0; i < ws.length; i++ ) {
-          data.push([i+'', ws[i] / 2.47105]);
+          data.push([i+'', ws[i] / 2.47105 ]);
         }
         dt.addRows(data);
         

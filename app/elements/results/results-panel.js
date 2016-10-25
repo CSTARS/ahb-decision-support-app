@@ -65,9 +65,6 @@ var tokml = require('tokml');
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
         
-        //this.charts = {};
-//        this.$.parcelPercent.innerHTML = Math.floor(100 * ( sdk.datastore.selectedParcelsCount / sdk.datastore.allParcels.length))+'%';
-        this.$.validParcelPercent.innerHTML = Math.floor(100 * ( parcelCollection.selectedCount / parcelCollection.validCount))+'%';
         this.$.parcelCount.innerHTML = parcelCollection.selectedCount + ' of ' +parcelCollection.validCount;
         
         if( parcelCollection.mwa === -1 ) {
@@ -77,6 +74,7 @@ var tokml = require('tokml');
         }
 
         this.$.poplarPriceInput.value = refinery.poplarPrice;
+        this.$.scaledPrice.innerHTML = (refinery.slidingPoplarPriceTotal / parcelCollection.selectedCount).toFixed(2);
         this.$.refineryMWP.innerHTML = refinery.maxWillingToPay.toFixed(2);
 
         this.$.adoptionCompetingPieChart.render(parcelCollection, refinery);
