@@ -4,8 +4,6 @@ var async = require('async');
 
 var FilterBehavior = {
     filter : function() {
-        this.filteredCount = 0;
-
         // remove all transportation polyline's, they will be added 
         // back in once filtering is complete.
         for( var i = this.canvasLayer.features.length-1; i >= 0; i-- ) {
@@ -23,11 +21,12 @@ var FilterBehavior = {
             this.filtersHash[this.filters[i]] = 1;
         }
 
-        localdb.forEach(
-            'parcels',
-            this._filterParcel.bind(this),
-            this._onFilteringComplete.bind(this)
-        );
+        var parcels = localdb.getAllInline('parcels');
+        for( var key in parcels ) {
+            this._filterParcel(parcels[key]);
+        }
+
+        this._onFilteringComplete();
     },
 
     _onFilteringComplete : function() {
@@ -44,12 +43,7 @@ var FilterBehavior = {
         this.canvasLayer.render();
     },
 
-    _filterParcel : function(parcel, next) {
-        this.filteredCount++;
-        if( this.filteredCount % 500  === 0 ) {
-            this.canvasLayer.render();
-        }
-
+    _filterParcel : function(parcel) {
         var clFeature = this.canvasLayer.getCanvasFeatureById(parcel.properties.id);
 
         var props = parcel.properties.ucd;
@@ -60,7 +54,7 @@ var FilterBehavior = {
         } else {
             clFeature.render.filtered = false;
             clFeature.visible = false;
-            return next();
+            return;
         }
 
         clFeature.render.isParcel = true;
@@ -73,18 +67,18 @@ var FilterBehavior = {
          */
         // only render selected parcel polylines
         if( !props.selected ) {
-            return next();
+            return;
         }
 
         var transportation = sdk.collections.transportation.get(parcel.properties.id);
         if( transportation.error ) {
-            return next();
+            return;
         }
 
         // set the current network
         var path = transportation.path;
         if( !path ) {
-            return next();
+            return;
         }
         
         var id, i;
@@ -115,14 +109,12 @@ var FilterBehavior = {
         };
 
         if( feature.geometry.coordinates[0] === undefined || feature.geometry.coordinates[1] === undefined ) {
-            return next();
+            return;
         }
 
         var clFeature = new L.CanvasFeature(feature);
         clFeature.lineType = 'start';
         this.canvasLayer.addCanvasFeature(clFeature);
-
-        next();
     }
 }
 

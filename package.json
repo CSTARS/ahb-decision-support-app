@@ -14,6 +14,7 @@
   "dependencies": {
     "adm-zip": "^0.4.7",
     "async": "^1.5.2",
+    "csv-stringify": "^1.0.4",
     "express": "^4.13.4",
     "extend": "^3.0.0",
     "farm-budgets-sdk": "0.0.9",

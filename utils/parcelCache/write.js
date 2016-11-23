@@ -1,6 +1,7 @@
 var pg = require('pg');
 var fs = require('fs');
 var async = require('async');
+var isValid = require('./isValid');
 
 var swConfig = {
   "host" : "localhost",
@@ -24,10 +25,10 @@ function connect() {
     client = c;
     console.log('connected');
 
-    var createSQL = fs.readFileSync('./parcelCache.sql','utf-8')
-    client.query(createSQL, function() {
-      read();
-    });
+    //var createSQL = fs.readFileSync('./parcelCache.sql','utf-8')
+    //client.query(createSQL, function() {
+      cleanUp();
+    //});
   });
 }
 
@@ -55,29 +56,76 @@ function read() {
       var geom = JSON.stringify(parcel.geometry);
       var properties = JSON.stringify(parcel.properties);
 
-      client.query(`INSERT INTO parcel_cache (properties, geometry) VALUES ($1, ST_GeomFromGeoJSON('${geom}'));`, [properties], (err) => {
+      client.query(`INSERT INTO parcel_cache (properties, geometry) VALUES ($1,  ST_makevalid(ST_SetSRID(ST_GeomFromGeoJSON('${geom}'), 4326)));`, [properties], (err) => {
           if( err ) {
             throw new Error(err);
           }
           c++;
           next();
-      }),
-      (err) => {
-        client.close();
-        console.log('\ndone');
-        process.exit();
-      }
+      })
+    },
+    (err) => {
+      client.query(`CREATE INDEX idxpid ON parcel_cache ((properties::json->>'id'));`, [properties], (err) => {
+          if( err ) throw new Error(err);
+          cleanUp();
+      });
     }
   );
-
-  // var lineReader = require('readline').createInterface({
-  //   input: fs.createReadStream('./output.txt', 'utf-8')
-  // });
-
-  // lineReader.on('line', function (line) {
-  //   client.query(''
-  // });
 }
 
+function cleanUp() {
+  client.query(`select properties, ST_asGeoJSON(geometry) from parcel_cache where ST_GeometryType(geometry) != 'ST_Polygon' AND ST_GeometryType(geometry) != 'ST_MultiPolygon';`, (err, result) => {
+      if( err ) {
+        throw new Error(err);
+      }
+
+      var features = [];
+      result.rows.forEach((item) => {
+        var feature = {
+          type : 'Feature',
+          geometry : JSON.parse(item.st_asgeojson),
+          properties : JSON.parse(item.properties)
+        }
+        if( isValid(feature) ) features.push(feature);
+      });
+
+      var c = 0;
+      async.eachSeries(
+        features,
+        (parcel, next) => {
+
+          process.stdout.clearLine();
+          process.stdout.cursorTo(0);
+          process.stdout.write('Cleaning up bad geometries %'+ Math.floor((c/features.length)*100));
+
+          var geom = JSON.stringify(parcel.geometry);
+          var properties = JSON.stringify(parcel.properties);
+
+          client.query(`delete from parcel_cache where (properties::json->>'id')::text = '${parcel.properties.id}';`, (err) => {
+            if( err ) console.error(err);
+
+            client.query(`INSERT INTO parcel_cache (properties, geometry) VALUES ($1,  ST_makevalid(ST_SetSRID(ST_GeomFromGeoJSON('${geom}'), 4326)));`, [properties], (err) => {
+                if( err ) {
+                  throw new Error(err);
+                }
+                c++;
+                next();
+            })
+          });
+          
+        },
+        (err) => {
+          console.log('\ndone');
+          process.exit();
+        }
+      );
+
+
+
+      
+  });
+
+}
+
+
 connect();
-//read();

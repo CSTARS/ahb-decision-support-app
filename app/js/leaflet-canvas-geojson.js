@@ -1,0 +1,1 @@
+/Users/jrmerz/dev/watershed/leaflet-canvas-geojson/dist/leaflet-canvas-geojson.js
