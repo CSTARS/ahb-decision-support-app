@@ -3,30 +3,39 @@ var sdk = require('../sdk');
 Polymer({
     is: 'app-layout',
 
-    ready : function() {
-        $(window).on('resize', this.resize.bind(this));
-    },
-
-    attached : function() {
-        this.resize();
-    },
-
-    resize : function() {
-        var h = $(this.$.header).height();
-        this.$.content.style.height = ($(window).height() - h) + 'px';
-    },
-
-    setPage : function(e) {
-        var page = e.detail;
-        $(this).find('.page').hide();
-        this.$[page].style.display = 'block';
-
-        if( this.$[page].onShow ) {
-            this.$[page].onShow();
+    properties : {
+        selectedPage : {
+            type : String,
+            value : 'map'
         }
     },
 
-    toggleMenu : function() {
-        $(this.$.menu).toggleClass('open');
+    ready : function() {
+        window.addEventListener('hashchange', this.setPage.bind(this));
+    },
+
+    attached : function() {
+        this.$.map.selectPanel = this.$.select;
+
+        var hash = window.location.hash.replace('#', '').split('/');
+        if( hash[0] === 'l' ) {
+            var latlng = L.latLng(parseFloat(hash[1]), parseFloat(hash[2]));
+            this.$.map.setLatLng(latlng);
+            setTimeout(() => {
+                this.$.select.setValues({
+                    radius : parseFloat(hash[3]),
+                    refinery : decodeURIComponent(hash[4]),
+                    tree: hash.length > 4 ? decodeURIComponent(hash[5]) : 'Generic'
+                });
+            }, 100);
+        }
+
+        this.setPage();
+    },
+
+    setPage : function() {
+        var location = window.location.hash.replace(/#/,'').split('/');
+        if( location.length === 0 ) location = ['map'];
+        this.selectedPage = location[0];
     }
 });

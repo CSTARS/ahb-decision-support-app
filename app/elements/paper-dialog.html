@@ -1,0 +1,61 @@
+<dom-module id="paper-dialog">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+      :host([active]) {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,.5);
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+      .modal {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: white;
+        box-shadow: 0 0 10px black;
+        padding: 10px;
+      }
+      @media(min-width: 768px) {
+        .modal {
+          padding: 20px;
+        }
+      }
+      .buttons {
+        text-align: right;
+      }
+    </style>
+
+    <div class="modal">
+      <content></content>
+    </div>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'paper-dialog',
+
+      attached : function() {
+        var buttons = this.querySelector('.buttons');
+        buttons.style.textAlign = 'right';
+        buttons.style.marginTop = '15px';
+      },
+
+      open : function() {
+        document.body.style.overflow = 'hidden';
+        this.setAttribute('active','active');
+      },
+
+      close : function() {
+        document.body.style.overflow = '';
+        this.removeAttribute('active');
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,80 @@
+<dom-module id="refinery-select">
+  <template>
+    <style include="shared-styles"></style>
+    <style>
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      select {
+        @apply(--select-input)
+      }
+      select:focus {
+        @apply(--select-input-focus)
+      }
+
+      .form-container {
+        padding: 25px 10px;
+      }
+    </style>
+
+    <div>
+      <a href="#map"><span aria-hidden="true">Back</span></a>
+      <h2 class="modal-title" id="title">Set Refinery Parameters</h2>
+    </div>
+
+    <div class="form-container">
+      <div>Lat, Lng</div>
+      <div id="ll"></div>
+    </div>
+
+    <div class="form-container">
+      <paper-input label="Radius (km)" type="number" id="radiusInput" value="20"></paper-input>
+      <div class="help-block">Query radius from selected biorefinery location to lookup parcels for.</div>
+    </div>
+
+    <div class="form-container">
+      <div>Refinery</div>
+      <select id="refinerySelector" disabled on-change="renderRefineryInfo">
+        <option>Loading...</option>
+      </select>
+      <paper-material style="padding: 10px; margin-top: 10px">
+        <div id="refineryInfo"></div>
+      </paper-material>
+    </div>
+
+    <div class="form-container layout">
+      <paper-input class="flex" style="margin: 0 5px" label="Rate of Return (%)" type="number" value="10" id="ror"></paper-input>
+      <paper-input class="flex" style="margin: 0 5px"label="Expected Pasture Adoption (%)" type="number" value="10" id="maxPastureLand"></paper-input>
+    </div>
+
+    <div class="form-container">
+      <div>Poplar Type</div>
+      <select id="treeInput" class="form-control"></select>
+      <div class="help-block">Which type of poplar tree to use.</div>
+    </div>
+
+    <div class="form-container">
+      <div>
+        <paper-checkbox id="routeInput" ></paper-checkbox>
+        <span>Route Geometry</span>
+      </div>
+      <div class="help-block">Include the transportation route geometry.  This 
+        will take longer to calculate and render for larger runs.</div>
+    </div>
+
+    <div style="text-align: center; margin-top: 25px" id="startBtn">
+      <paper-button raised on-click="run" id="go">
+        <div>
+          <i class="fa fa-industry"></i> Model <span class="hidden-xs">Refinery</span>
+        </div>
+      </paper-button>
+      <paper-button raised on-click="cancel">
+        <div>
+          <i class="fa fa-times"></i> Cancel
+        </div>
+      </paper-button>
+    </div>
+
+  </template>
+</dom-module>

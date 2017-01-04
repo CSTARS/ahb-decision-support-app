@@ -69,13 +69,20 @@ Polymer({
         
         if( ayield < yieldRequired ) {
             this.createLine('warning', 
-                `The current run only produced ${utils.formatAmount(ayield)} Mg/Year or Poplar.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery`,
+                `The current run only produced ${utils.formatAmount(ayield)} Mg/Year of Poplar.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery`,
                 'text text-danger','<i class="fa fa-warning"></i>');
         }
+
+        var btn = document.createElement('paper-button');
+        btn.innerHTML = 'Results';
+        btn.addEventListener('click', function(){
+            window.location.hash = '#results';
+        });
+        Polymer.dom(this.root).appendChild(btn);
     },
 
     onHarvestsStart : function() {
-        this.createLine('harvest', 'Growing Poplar %0','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('harvest', 'Growing Poplar %0','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onHarvestsUpdated : function(e) {
@@ -83,11 +90,11 @@ Polymer({
     },
 
     onHarvestsEnd : function() {
-        this.updateLine('harvest', 'Poplar grown','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('harvest', 'Poplar grown','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onParcelStart : function() {
-        this.createLine('parcel', 'Finding available parcels','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('parcel', 'Finding available parcels','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onParcelUpdated : function(e) {
@@ -96,12 +103,12 @@ Polymer({
 
     onParcelEnd : function(e) {
     // currently parcel count is not available at this point.  TODO: fix this
-        this.updateLine('parcel', 'Parcels loaded. ','text text-success','<i class="fa fa-check"></i>');
-    //    this.updateLine('parcel', 'Parcels loaded. '+e.length,'text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('parcel', 'Parcels loaded. ','text text-success','<iron-icon icon="check"></iron-icon>');
+    //    this.updateLine('parcel', 'Parcels loaded. '+e.length,'text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onTransportationStart : function() {
-        this.createLine('transportation', 'Looking up transportation routes %0','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('transportation', 'Looking up transportation routes %0','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onTransportationUpdate : function(e) {
@@ -110,11 +117,11 @@ Polymer({
     },
 
     onTransportationEnd : function() {
-        this.updateLine('transportation', 'Transportation routes loaded','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('transportation', 'Transportation routes loaded','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onCropsStart : function() {
-        this.createLine('crops', 'Looking up crop type for parcels.','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('crops', 'Looking up crop type for parcels.','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onCropsUpdated : function(e) {
@@ -122,35 +129,35 @@ Polymer({
     },
 
     onCropsEnd : function() {
-        this.updateLine('crops', 'Crop type loaded.','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('crops', 'Crop type loaded.','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onCropPriceYieldStart : function() {
-        this.createLine('cropPriceYield', 'Looking up crop price and yield','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('cropPriceYield', 'Looking up crop price and yield','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onCropPriceYieldEnd : function() {
-        this.updateLine('cropPriceYield', 'Crop price and yield loaded.','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('cropPriceYield', 'Crop price and yield loaded.','text text-success','<iron-icon icon="check"></iron-icon>');
     },
     
     onBudgetsStart : function() {
-        this.createLine('budget', 'Looking up farm budgets from farmbudgets.org','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('budget', 'Looking up farm budgets from farmbudgets.org','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onBudgetsEnd : function() {
-        this.updateLine('budget', 'Farm budgets loaded','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('budget', 'Farm budgets loaded','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onSummaryStart : function() {
-        this.createLine('summary', 'Summarizing results','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('summary', 'Summarizing results','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onSummaryEnd : function() {
-        this.updateLine('summary', 'Results summarized.','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('summary', 'Results summarized.','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onOptimizeStart : function() {
-        this.createLine('optimize', 'Calulating price','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('optimize', 'Calulating price','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onOptimizeUpdate : function(e) {
@@ -158,36 +165,35 @@ Polymer({
     },
 
     onOptimizeEnd : function() {
-        this.updateLine('optimize', 'Optimal price calculated.','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('optimize', 'Optimal price calculated.','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onWeatherStart : function() {
-        this.createLine('weather', 'Loading weather data','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('weather', 'Loading weather data','text text-warning','<paper-spinner-lite style="width:24px;height:24px" style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onWeatherEnd : function() {
-        this.updateLine('weather', 'Weather loaded','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('weather', 'Weather loaded','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     onSoilStart : function() {
-        this.createLine('soil', 'Loading soil data','text text-warning','<i class="fa fa-spin fa-circle-o-notch"></i>');
+        this.createLine('soil', 'Loading soil data','text text-warning','<paper-spinner-lite style="width:24px;height:24px" active></paper-spinner-lite>');
     },
 
     onSoilEnd : function() {
-        this.updateLine('soil', 'Soil loaded','text text-success','<i class="fa fa-check"></i>');
+        this.updateLine('soil', 'Soil loaded','text text-success','<iron-icon icon="check"></iron-icon>');
     },
 
     createLine : function(id, msg, className, icon) {
         var line = document.createElement('module-run-console-line');
         line.setText(msg);
         line.setIcon(icon);
-        if( className !== undefined ) {
-            line.className = className;
-        }
-
+        // if( className !== undefined ) {
+        //     line.className = className;
+        // }
 
         this.lines[id] = line;
-        this.appendChild(line);
+        Polymer.dom(this.root).appendChild(line);
 
         this.fire('line-added');
     },
@@ -202,8 +208,8 @@ Polymer({
         line.setText(msg);
         line.setIcon(icon);
 
-        if( className !== undefined ) {
-            line.className = className;
-        }
+        // if( className !== undefined ) {
+        //     line.className = className;
+        // }
     }
 });

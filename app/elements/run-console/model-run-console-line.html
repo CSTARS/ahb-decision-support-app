@@ -1,12 +1,17 @@
 <dom-module id="module-run-console-line">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
+        padding: 5px;
+      }
+      .layout {
+        align-items: center;
       }
     </style>
 
-    <div class="layout horizontal">
+    <div class="layout">
       <div id="icon"></div>
       <div id="text" class="flex"></div>
     </div>

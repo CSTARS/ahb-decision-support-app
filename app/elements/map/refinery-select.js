@@ -4,14 +4,16 @@ var utils = require('../utils');
 
 
     Polymer({
-      is: 'refinery-select-popup',
+      is: 'refinery-select',
+
+      properties : {
+        active : {
+          type : Boolean,
+          observer : 'onShow'
+        }
+      },
+
       ready : function() {
-        this.popup = $(this.$.popup).remove();
-        $('body').append(this.popup);
-        this.popup.modal({
-          show: false,
-          backdrop : 'static'
-        });
         this.active = false;
         
         var html = '';
@@ -20,15 +22,22 @@ var utils = require('../utils');
         }
         this.$.treeInput.innerHTML = html;
 
-        this.popup.on('line-added', () => {
-          $(this.$.popup).animate({
-            scrollTop : $(this.$.popupContent).height()+'px' 
-          }, 300);
-        });
+        // $(this).on('line-added', () => {
+        //   $(this.$.popup).animate({
+        //     scrollTop : $(this.$.popupContent).height()+'px' 
+        //   }, 300);
+        // });
+      },
+      
+
+      onShow : function() {
+        if( !this.active ) return;
+        if( this.lat === undefined || this.lng === undefined ) {
+          return window.location.hash = '#map';
+        }
       },
 
       show : function(lat, lng) {
-        this.popup.modal('show');
         this.lat = lat;
         this.lng = lng;
         this.$.ll.innerHTML = lat.toFixed(4)+', '+lng.toFixed(4);
@@ -50,10 +59,6 @@ var utils = require('../utils');
           maxPastureLand = sdk.collections.refineries.selected.maxPastureLandAdoption;
         }
         this.$.maxPastureLand.value = maxPastureLand * 100;
-      },
-
-      hide : function() {
-        this.popup.modal('hide');
       },
       
       setValues : function(values) {
@@ -94,6 +99,7 @@ var utils = require('../utils');
       },
 
       run : function() {
+        window.location.hash = '#console';
         this.$.startBtn.style.display = 'none';
         document.querySelector('results-panel').breakdownRendered = false;
         
@@ -109,7 +115,7 @@ var utils = require('../utils');
             maxPastureLand : parseFloat((parseFloat(this.$.maxPastureLand.value) / 100).toFixed(2))
         };
 
-        app.run(options, function(){
+        app.run(options, function() {
           this.$.startBtn.style.display = 'block';
           this.$.go.innerHTML = '<i class="fa fa-undo"></i> Rerun <span class="hidden-xs">Model</span>';
           $('#results-header').show().trigger('click');

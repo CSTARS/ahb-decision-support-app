@@ -1,5 +1,6 @@
 <dom-module id="app-layout">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
@@ -17,6 +18,14 @@
 
       #header {
         border-bottom: 1px solid #888;
+      }
+
+      model-run-console {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
 
       #menu {
@@ -50,29 +59,32 @@
       }
     </style>
 
-    <div class="navbar navbar-inverse" style="z-index:300" id="header">
-      <div class="container-fluid">
-        <h4 style="margin-top: 18px">
-          <a style="margin-right: 20px" class="btn btn-primary visible-xs-inline-block" on-click="toggleMenu">
-            <i class="fa fa-bars"></i>
-          </a>
+    <paper-drawer-panel>
+      <paper-header-panel drawer>
+        <paper-toolbar>
           <span class="hidden-xs">Advanced Hardwood Biofuels</span><span class="visible-xs-inline-block">AHB</span>
+        </paper-toolbar>
+        <div>
+          <app-main-menu on-set-page="setPage"></app-main-menu>
+        </div>
+      </paper-header-panel>
+      <paper-header-panel main>
+        <paper-toolbar>
+          <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
           <small>Decision Support Tool</small>
           
           <span class="pull-right hidden-xs">PROTOTYPE</span>
-        </h4>
-      </div>
-    </div>
 
-    <div class="layout horizontal">
-      <div style="overflow-y:auto; overflow-x: hidden" id="menu">
-        <app-main-menu on-set-page="setPage"></app-main-menu>
-      </div>
-      <div class="flex" style="overflow:auto" id="content">
-        <parcel-map id="map" class="page"></parcel-map>
-        <results-panel id="results" style="display:none" class="page"></results-panel>
-      </div>
-    </div>
+        </paper-toolbar>
+        <iron-pages selected="{{selectedPage}}" attr-for-selected="id" selected-attribute="active">
+          <parcel-map id="map" class="page"></parcel-map>
+          <refinery-select id="select" class="page"></refinery-select>
+          <results-panel id="results" class="page"></results-panel>
+          <model-run-console id="console"></model-run-console>
+        </iron-pages>
+      </paper-header-panel>
+    </paper-drawer-panel>
+
 
   </template>
 </dom-module>

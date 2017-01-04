@@ -8,6 +8,13 @@ var states = require('./utils/states');
     Polymer({
       is: 'parcel-map',
 
+      properties : {
+        active : {
+          type : Boolean,
+          observer : 'onShow'
+        }
+      },
+
       behaviors : [FilterBehavior],
 
       ready : function() {
@@ -22,11 +29,9 @@ var states = require('./utils/states');
 
         $(window).on('resize', this.onResize.bind(this));
 
-        this.popup = document.createElement('refinery-select-popup');
-        document.body.appendChild(this.popup);
-
-        this.parcelPopup = document.createElement('parcel-info-popup');
-        document.body.appendChild(this.parcelPopup);
+        // this.parcelPopup = document.createElement('parcel-info-popup');
+        // document.body.appendChild(this.parcelPopup);
+        
         
         sdk.eventBus.on('refinery-model-run-complete', () => {
           setTimeout(function(){
@@ -36,7 +41,7 @@ var states = require('./utils/states');
       },
 
       onShow : function() {
-        if( this.map ) {
+        if( this.map && this.active ) {
           this.debounce('onShow',function(){
             this.map.invalidateSize();
           }, 100);
@@ -103,19 +108,6 @@ var states = require('./utils/states');
           });
           this.canvasLayer.renderer = renderer;
           this.canvasLayer.addTo(this.map);
-          
-          var hash = window.location.hash.replace('#', '').split('/');
-          if( hash[0] === 'l' ) {
-            var latlng = L.latLng(parseFloat(hash[1]), parseFloat(hash[2]));
-            this.setLatLng(latlng);
-            setTimeout(() => {
-              this.popup.setValues({
-                radius : parseFloat(hash[3]),
-                refinery : decodeURIComponent(hash[4]),
-                tree: hash.length > 4 ? decodeURIComponent(hash[5]) : 'Generic'
-              })
-            }, 100);
-          }
         }
       },
 
@@ -155,7 +147,8 @@ var states = require('./utils/states');
 
         this.marker = L.marker(latlng).addTo(this.map);
 
-        this.popup.show(this.ll.lat, this.ll.lng);
+        window.location = '#select';
+        this.selectPanel.show(this.ll.lat, this.ll.lng);
       },
 
       // TODO: bind to this
@@ -241,7 +234,7 @@ var states = require('./utils/states');
       },
 
       onParcelQueryUpdate : function(percent) {
-        this.popup.updateStatus(percent);
+        this.selectPanel.updateStatus(percent);
       },
 
       setMode : function(mode) {
