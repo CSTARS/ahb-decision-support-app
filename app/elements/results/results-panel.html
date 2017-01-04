@@ -72,7 +72,7 @@
         <tr>
           <td style="width: 150px" class="bold">Price ($ / Mg)</td>
           <td>
-            <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
+            <paper-input type="number" id="poplarPriceInput"  value="24" on-change="onPriceChange" ></paper-input>
           </td>
         </tr>
         <tr>
@@ -99,7 +99,9 @@
       <table class="data">
         <tr>
           <td class="bold">Rate of Return (%)</td>
-          <td><input type="number" class="form-control" id="ror" placeholder="%" on-change="onRorChange" /></td>
+          <td>
+            <paper-input type="number" class="form-control" id="ror" placeholder="%" on-change="onRorChange" ></paper-input>
+          </td>
         </tr>
         <tr>
           <td class="bold">Capital Cost (Investment)</td>
@@ -134,7 +136,7 @@
     <paper-material>
       <table class="data">
         <tr>
-          <td class="bold">Income <small id="refineryProduct"></small></td>
+          <td class="bold"><span id="refineryProduct"></span> Income</td>
           <td id="refineryIncome"></td>
         </tr>
         <tr>
@@ -166,14 +168,7 @@
     <h2>Adoption <span id="adoptionAmount"></span></h2>
 
     <paper-material style="padding: 15px">
-      <div class="form-horizontal">
-        <div class="form-group">
-          <label for="maxPastureLand" class="col-sm-3 control-label">Expected Pasture Adoption (%)</label>
-          <div class="col-sm-9">
-            <input type="number" class="form-control" id="maxPastureLand" placeholder="%" on-change="onMaxPastureLandChange">
-          </div>
-        </div>
-      </div>
+      <paper-input type="number" label="Expected Pasture Adoption (%)" id="maxPastureLand" placeholder="%" on-change="onMaxPastureLandChange"></paper-input>
     </paper-material>
 
     <paper-material style="padding: 15px">

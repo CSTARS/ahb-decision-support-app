@@ -65,7 +65,7 @@ var tokml = require('tokml');
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
         
-        this.$.parcelCount.innerHTML = parcelCollection.selectedCount + ' of ' +parcelCollection.validCount;
+        this.$.parcelCount.innerHTML = parcelCollection.selectedCount + ' adopted, ' +parcelCollection.validCount + ' available';
         
         if( parcelCollection.mwa === -1 ) {
           this.$.farmersMWA.innerHTML = '<span style="color:red">Unable to calculate</span>';
@@ -83,13 +83,13 @@ var tokml = require('tokml');
         var totals = sdk.collections.parcels.summary;
         
         this.$.runtime.innerHTML = '('+totals.years+' Years)';
-        this.$.acreCount.innerHTML = utils.formatAmount(totals.acres);
+        this.$.acreCount.innerHTML = utils.formatAmount(totals.acres)+' adopted';
         var harvestTotal = utils.formatAmount(totals.harvested);
         this.$.harvestTotal.innerHTML = harvestTotal+' Mg';
         
         var yieldRequired = refinery.feedstockCapacity.value;
         var actualYield;
-        var html = utils.formatAmount(totals.avgYearHarvest)+' Mg.<br /><span class="text ';
+        var html = utils.formatAmount(totals.avgYearHarvest)+' Mg.<br /><span class="style-scope results-panel ';
         if( totals.avgYearHarvest < yieldRequired ) {
           actualYield = totals.avgYearHarvest
           html += 'text-danger';
@@ -121,7 +121,7 @@ var tokml = require('tokml');
         this.$.refineryTotalCost.innerHTML = '$'+utils.formatAmount(totalCost);
         this.$.refineryProduct.innerHTML = refinery.product.name;
         this.$.refineryIncome.innerHTML = '$'+utils.formatAmount(refineryIncome)+
-                                           `<div class="help-block">
+                                           `<div class="help-block style-scope results-panel">
                                               (${refinery.yield.value} ${refinery.yield.units}) x
                                               (${refinery.product.price} ${refinery.product.units}) x
                                               (${utils.formatAmount(actualYield)} Mg) x
