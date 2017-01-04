@@ -2,10 +2,12 @@
 
 <dom-module id="app-main-menu">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
         border-right: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
       }
       .content {
         padding: 10px;
@@ -23,8 +25,7 @@
         background-color: #f8f8f8;
       }
       .header.selected {
-        border-bottom: 1px solid #00BCD4;
-        box-shadow: 0 0 5px;
+        border-bottom: 1px solid white;
       }
       .header.selected h4 {
         color: #00BCD4;
@@ -32,23 +33,26 @@
     </style>
 
 
-      <div id="map-header" class="header selected" on-click="setPage" page="map">
-        <h4><i class="fa fa-map-marker"></i> Select Location</h4>
+    <div id="map-header" class="header selected" on-click="setPage" page="map">
+      <div class="layout center">
+        <div class="flex">Map</div>
+        <div><iron-icon id="mapIcon" icon="expand-more"></iron-icon></div>
       </div>
-      <div id="map-content" class="content flex" style="display:block">
-        <menu-map-options></menu-map-options>
-        <parcel-map-legend></parcel-map-legend>
-      </div>
+    </div>
+    <div id="map-content" class="content flex" style="display:block">
+      <menu-map-options></menu-map-options>
+      <parcel-map-legend></parcel-map-legend>
+    </div>
 
-      <div id="results-header" class="header" on-click="setPage" page="results" style="display:none">
-        <h4><i class="fa fa-flag-checkered"></i> Results</h4>
-      </div>
+    <div id="results-header" class="header" on-click="setPage" page="results" style="display:none">
+      <h4>Results</h4>
+    </div>
 
-      <div style="padding: 10px; text-align:center">
-        <a href="http://cstars.github.io/ahb-decision-support-sdk/" target="_blank">SDK Documentation</a> |
-        <a href="https://github.com/CSTARS/ahb-decision-support-app/blob/master/README.md" target="_blank">About</a> |
-        <a href="https://github.com/CSTARS/ahb-decision-support-app/issues" target="_blank">Issues</a>
-      </div>
+    <div style="padding: 10px; text-align:center">
+      <a href="http://cstars.github.io/ahb-decision-support-sdk/" target="_blank">SDK Documentation</a> |
+      <a href="https://github.com/CSTARS/ahb-decision-support-app/blob/master/README.md" target="_blank">About</a> |
+      <a href="https://github.com/CSTARS/ahb-decision-support-app/issues" target="_blank">Issues</a>
+    </div>
 
 
   </template>

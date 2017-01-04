@@ -1,198 +1,225 @@
 <dom-module id="results-panel">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
+        padding: 10px;
       }
-      .page-header {
-        border-bottom: 1px solid #eee;
-      }
+
       .bold {
         font-weight: bold;
+      }
+
+      h2 {
+        font-weight: 200;
+      }
+
+      paper-material {
+        margin: 15px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 13px;
+      }
+      tr {
+        border-bottom: 1px solid #eee;
+      }
+      table.data tr td:first-child {
+        width: 35%;
       }
     </style>
 
     <div id="updateOverlay" style="z-index: 1000; position: fixed; background: rgba(255,255,255,.8); top: 0; left: 0; right: 0; bottom: 0; padding: 150px 20px 20px 20px; text-align: center; color: #888; font-size: 28px; display: none;"></div>
 
-    <!--<price-yield-popup id="priceYieldPopup" on-yield-price-change="onPriceYieldChange"></price-yield-popup>-->
+    
+    <h2>Overview</h2>
 
-    <div style="padding: 0 10px 80px 0">
+    <paper-material>
+      <table class="data">
+        <tr>
+          <td class="bold">Parcels</td>
+          <td id="parcelCount"></td>
+        </tr>
+        <tr>
+          <td class="bold">Total Acres</td>
+          <td id="acreCount"></td>
+        </tr>
+        <tr>
+          <td class="bold">Total Poplar Available <span id="runtime"></span>*</td>
+          <td id="harvestTotal"></td>
+        </tr>
+        <tr>
+          <td class="bold">Average Yearly Poplar Available*</td>
+          <td id="avgPerYear"></td>
+        </tr>
+        <tr>
+          <td class="bold">Average Yield per (Acre / Year)</td>
+          <td id="avgYield"></td>
+        </tr>
+        <tr>
+          <td colspan="2"><div class="help-block">*Based on adoption % below.</div></td>
+        </tr>
+      </table>
+    </paper-material>
+    
+    <h2>Refinery Gate Price</h2>
+    <paper-material>
+      <table class="data">
+        <tr>
+          <td style="width: 150px" class="bold">Price ($ / Mg)</td>
+          <td>
+            <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 150px" class="bold">Average Sliding Scale Price ($ / Mg)</td>
+          <td>
+            <div id="scaledPrice"></div>
+            <div class="help-block">Based on a per parcel contract price of 10% over refinery gate price.</div>
+          </td>
+        </tr>
+        <tr>
+          <td class="bold">Farmers Min Willingness to Accept:</td>
+          <td id="farmersMWA"></td>
+        </tr>
+        <tr>
+          <td class="bold">Refinery Max Willingness to Pay:</td>
+          <td id="refineryMWP"></td>
+        </tr>
+      </table>
+    </paper-material>
+    
+    <h2><span id="refineryType"></span> Refinery</h2>
 
-    <h4>Overview</h4>
-    
-    <div class="help-block">Link: <a id="runLink" target="_blank"></a></div>
-
-    <table class="table">
-      <!--<tr>
-        <td style="width: 150px" class="bold">Crop Price/Yield</td>
-        <td>
-          <a class="btn btn-link" on-click="showPriceYieldPopup">Change</a>
-        </td>
-      </tr>-->
-      <tr>
-        <td class="bold">Parcels</td>
-        <td id="parcelCount"></td>
-      </tr>
-      <tr>
-        <td class="bold">Total Acres</td>
-        <td id="acreCount"></td>
-      </tr>
-      <tr>
-        <td class="bold">Total Poplar Available <span id="runtime"></span>*</td>
-        <td id="harvestTotal"></td>
-      </tr>
-      <tr>
-        <td class="bold">Average Yearly Poplar Available*</td>
-        <td id="avgPerYear"></td>
-      </tr>
-      <tr>
-        <td class="bold">Average Yield per (Acre / Year)</td>
-        <td id="avgYield"></td>
-      </tr>
-      <tr>
-        <td colspan="2"><div class="help-block">*Based on adoption % below.</div></td>
-      </tr>
-    </table>
-    
-    <h4 class="page-header">Price <small>Refinery Gate</small></h4>
-    <table class="table">
-      <tr>
-        <td style="width: 150px" class="bold">Price ($ / Mg)</td>
-        <td>
-          <input type="number" id="poplarPriceInput" class="form-control"  value="24" on-change="onPriceChange" />
-        </td>
-      </tr>
-      <tr>
-        <td style="width: 150px" class="bold">Average Sliding Scale Price ($ / Mg)</td>
-        <td>
-          <div id="scaledPrice"></div>
-          <div class="help-block">Based on a per parcel contract price of 10% over refinery gate price.</div>
-        </td>
-      </tr>
-      <tr>
-        <td class="bold">Farmers Min Willingness to Accept:</td>
-        <td id="farmersMWA"></td>
-      </tr>
-      <tr>
-        <td class="bold">Refinery Max Willingness to Pay:</td>
-        <td id="refineryMWP"></td>
-      </tr>
-    </table>
+    <paper-material>
+      <table class="data">
+        <tr>
+          <td class="bold">Rate of Return (%)</td>
+          <td><input type="number" class="form-control" id="ror" placeholder="%" on-change="onRorChange" /></td>
+        </tr>
+        <tr>
+          <td class="bold">Capital Cost (Investment)</td>
+          <td id="refineryCapitalCost"></td>
+        </tr>
+        <tr>
+          <td class="bold">Operating Cost</td>
+          <td id="refineryOperatingCost"></td>
+        </tr>
+        <tr>
+          <td class="bold">Poplar Cost</td>
+          <td id="refineryPoplarCost"></td>
+        </tr>
+        <tr>
+          <td class="bold">Transporation Cost</td>
+          <td id="refineryTransportationCost"></td>
+        </tr>
+        <tr style="background-color:#eee">
+          <td class="bold">Total Cost</td>
+          <td>
+            <div id="refineryTotalCost"></div>
+            <div class="help-block">Capital Cost + Operating Cost + Poplar Cost</div>
+          </td>
+        </tr>
+        <tr style="background-color:#eee">
+          <td colspan="2"><div class="help-block">*All values over 20 years</div></td>
+        </tr>
+      </table>
+    </paper-material>
     
     
-    <h4 class="page-heaader">Refinery <small id="refineryType"></small></h4>
-
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label for="ror" class="col-sm-2 control-label">Rate of Return (%)</label>
-        <div class="col-sm-10">
-          <input type="number" class="form-control" id="ror" placeholder="%" on-change="onRorChange" />
-        </div>
-      </div>
-    </div>
-    
-    <div class="row">
-      <div class="col-sm-6">
-        <table class="table">
-          <tr>
-            <td class="bold">Capital Cost (Investment)</td>
-            <td id="refineryCapitalCost"></td>
-          </tr>
-          <tr>
-            <td class="bold">Operating Cost</td>
-            <td id="refineryOperatingCost"></td>
-          </tr>
-          <tr>
-            <td class="bold">Poplar Cost</td>
-            <td id="refineryPoplarCost"></td>
-          </tr>
-          <tr>
-            <td class="bold">Transporation Cost</td>
-            <td id="refineryTransportationCost"></td>
-          </tr>
-          <tr style="background-color:#eee">
-            <td class="bold">Total Cost</td>
-            <td>
-              <div id="refineryTotalCost"></div>
-              <div class="help-block">Capital Cost + Operating Cost + Poplar Cost</div>
-            </td>
-          </tr>
-        </table>
-        <div class="help-block">*All values over 20 years</div>
-      </div>
-      <div class="col-sm-6">
-        <table class="table">
-          <tr>
-            <td class="bold">Income <small id="refineryProduct"></small></td>
-            <td id="refineryIncome"></td>
-          </tr>
-          <tr>
-            <td class="bold">Total Present Value</td>
-            <td>
-              <div id="refineryPresentValue"></div>
-              <div class="help-block">
-                <div class="layout horizontal center">
-                  <div>Capital Cost +&nbsp;</div>
-                  <div>
-                    <div style="font-size: 24px; line-height: 16px; margin-top: 12px">&Sigma;</div>
-                    <div style="font-size: 10px">year</div>
-                  </div>
-                  <div>&nbsp;Income<sub>year</sub> * (1+ROR)^<sup>(year-1)</sup></div>
+    <paper-material>
+      <table class="data">
+        <tr>
+          <td class="bold">Income <small id="refineryProduct"></small></td>
+          <td id="refineryIncome"></td>
+        </tr>
+        <tr>
+          <td class="bold">Total Present Value</td>
+          <td>
+            <div id="refineryPresentValue"></div>
+            <div class="help-block">
+              <div class="layout horizontal center">
+                <div>Capital Cost +&nbsp;</div>
+                <div>
+                  <div style="font-size: 24px; line-height: 16px; margin-top: 12px">&Sigma;</div>
+                  <div style="font-size: 10px">year</div>
                 </div>
+                <div>&nbsp;Income<sub>year</sub> * (1+ROR)^<sup>(year-1)</sup></div>
               </div>
-            </td>
-          </tr>
-          <tr style="background-color:#eee">
-            <td class="bold">Return on Investment</td>
-            <td>
-              <div id="refineryRor"></div>
-              <div class="help-block">(Total Present Value / Investment)^<sup>(1/years)</sup> - 1</div>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    
+            </div>
+          </td>
+        </tr>
+        <tr style="background-color:#eee">
+          <td class="bold">Return on Investment</td>
+          <td>
+            <div id="refineryRor"></div>
+            <div class="help-block">(Total Present Value / Investment)^<sup>(1/years)</sup> - 1</div>
+          </td>
+        </tr>
+      </table>
+    </paper-material>
 
-      <tr>
-        <td colspan="2"></td>
-      </tr>
+    <h2>Adoption <span id="adoptionAmount"></span></h2>
 
-    </table>
-
-    <h4 class="page-header">Adoption <span id="adoptionAmount"></span></h4>
-
-    <div class="form-horizontal">
-      <div class="form-group">
-        <label for="maxPastureLand" class="col-sm-3 control-label">Expected Pasture Adoption (%)</label>
-        <div class="col-sm-9">
-          <input type="number" class="form-control" id="maxPastureLand" placeholder="%" on-change="onMaxPastureLandChange">
+    <paper-material style="padding: 15px">
+      <div class="form-horizontal">
+        <div class="form-group">
+          <label for="maxPastureLand" class="col-sm-3 control-label">Expected Pasture Adoption (%)</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="maxPastureLand" placeholder="%" on-change="onMaxPastureLandChange">
+          </div>
         </div>
       </div>
-    </div>
+    </paper-material>
 
-    <adoption-competing-pie-chart id="adoptionCompetingPieChart"></adoption-competing-pie-chart>
+    <paper-material style="padding: 15px">
+      <adoption-competing-pie-chart id="adoptionCompetingPieChart"></adoption-competing-pie-chart>
+    </paper-material>
 
-    <adoption-crop-pie-chart id="adoptionCropPieChart"></adoption-crop-pie-chart>
+    <paper-material style="padding: 15px">
+      <adoption-crop-pie-chart id="adoptionCropPieChart"></adoption-crop-pie-chart>
+    </paper-material>
 
-    <h4 class="page-header">Adoption By Price</h4>
-    <div id="adoptionChart"></div>
-    <adoption-by-price-chart id="adoptionPriceChart"></adoption-by-price-chart>
+    <paper-material>
+      <table>
+        <tr>
+          <td><h4>Adoption By Price</h4></td>
+        </tr>
+        <tr>
+          <td>
+            <adoption-by-price-chart id="adoptionPriceChart"></adoption-by-price-chart>
+          </td>
+        </tr>
+      </table>
+    </paper-material>
     
-    <h4 class="page-header">Poplar Adoption Yield By Price</h4>
-    <adoption-yield-by-price-chart id="adoptionYieldPriceChart"></adoption-yield-by-price-chart>
-    <div id="renderYieldAdoption"></div>
+    <paper-material>
+      <table>
+        <tr>
+          <td><h4>Poplar Adoption Yield By Price</h4></td>
+        </tr>
+        <tr>
+          <td>
+            <adoption-yield-by-price-chart id="adoptionYieldPriceChart"></adoption-yield-by-price-chart>
+          </td>
+        </tr>
+      </table>
+    </paper-material>
     
-    <h4 class="page-header">Export Data</h4>
-    <div style="padding: 10px">
-      <!--<form id="exportJsonForm" method="post" action="/export/toJson" target="_blank">-->
-        <!--<input type="hidden" name="data" value="data" id="exportJsonFormData" />-->
+    <h2>Export Data</h2>
+    <paper-material style="padding: 15px">
+      <div>
         <a on-click="exportJson" style="cursor:pointer"><i class="fa fa-download"></i> Export as JSON</a>&nbsp;&nbsp;&nbsp;
         <a on-click="exportKml" style="cursor:pointer"><i class="fa fa-download"></i> Export as KML</a>
-      <!--</form>-->
-    </div>
+      </div>
 
-    </div>
+      <div>Shareable Link: <a id="runLink" target="_blank"></a></div>
+    </paper-material>
+
 
   </template>
 </dom-module>

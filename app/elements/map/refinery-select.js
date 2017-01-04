@@ -100,6 +100,7 @@ var utils = require('../utils');
 
       run : function() {
         window.location.hash = '#console';
+        
         this.$.startBtn.style.display = 'none';
         document.querySelector('results-panel').breakdownRendered = false;
         
@@ -118,8 +119,6 @@ var utils = require('../utils');
         app.run(options, function() {
           this.$.startBtn.style.display = 'block';
           this.$.go.innerHTML = '<i class="fa fa-undo"></i> Rerun <span class="hidden-xs">Model</span>';
-          $('#results-header').show().trigger('click');
-          $('#map-header').html('<h4><i class="fa fa-map-marker"></i> Parcel Map</h4>');
         }.bind(this));
       }
     });

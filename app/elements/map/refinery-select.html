@@ -24,7 +24,7 @@
     </div>
 
     <div class="form-container">
-      <div>Lat, Lng</div>
+      <div class="floated-label">Latitude & Longitude</div>
       <div id="ll"></div>
     </div>
 
@@ -34,7 +34,7 @@
     </div>
 
     <div class="form-container">
-      <div>Refinery</div>
+      <div class="floated-label">Refinery Type</div>
       <select id="refinerySelector" disabled on-change="renderRefineryInfo">
         <option>Loading...</option>
       </select>
@@ -49,7 +49,7 @@
     </div>
 
     <div class="form-container">
-      <div>Poplar Type</div>
+      <div class="floated-label">Poplar Type</div>
       <select id="treeInput" class="form-control"></select>
       <div class="help-block">Which type of poplar tree to use.</div>
     </div>
@@ -57,7 +57,7 @@
     <div class="form-container">
       <div>
         <paper-checkbox id="routeInput" ></paper-checkbox>
-        <span>Route Geometry</span>
+        <span class="floated-label">Route Geometry</span>
       </div>
       <div class="help-block">Include the transportation route geometry.  This 
         will take longer to calculate and render for larger runs.</div>

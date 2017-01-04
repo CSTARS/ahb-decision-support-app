@@ -32,7 +32,6 @@ var states = require('./utils/states');
         // this.parcelPopup = document.createElement('parcel-info-popup');
         // document.body.appendChild(this.parcelPopup);
         
-        
         sdk.eventBus.on('refinery-model-run-complete', () => {
           setTimeout(function(){
             this.onSelectedUpdated();

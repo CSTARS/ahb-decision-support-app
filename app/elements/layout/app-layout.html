@@ -7,19 +7,6 @@
         height: 100%;
       }
 
-      .navbar.navbar-inverse {
-        margin: 0 !important;
-        border-radius: 0 !important;
-      }
-
-      .navbar.navbar-inverse h4 {
-        color: white;
-      }
-
-      #header {
-        border-bottom: 1px solid #888;
-      }
-
       model-run-console {
         position: absolute;
         top: 0;
@@ -28,33 +15,19 @@
         bottom: 0;
       }
 
-      #menu {
-        position: absolute;
-        left: -320px;
-        background-color: white;
-        z-index: 200;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-
-        transition: left 300ms linear;
-        -webit-transition: left 300ms linear;
-        -ms-transition: left 300ms linear;
-        -moz-transition: left 300ms linear;
+      .short-title {
+        display: block;
       }
-
-      #menu.open {
-        position: absolute;
-        left: 0px;
-        background-color: white;
-        z-index: 2001;
+      .long-title {
+        display: none;
       }
 
       @media(min-width: 768px) {
-        #menu {
-          position: relative;
-          left: 0;
+        .short-title {
+          display: none;
         }
-        #menu.open {
-          left: 0;
+        .long-title {
+          display: block;
         }
       }
     </style>
@@ -62,7 +35,8 @@
     <paper-drawer-panel>
       <paper-header-panel drawer>
         <paper-toolbar>
-          <span class="hidden-xs">Advanced Hardwood Biofuels</span><span class="visible-xs-inline-block">AHB</span>
+          <span class="long-title">Advanced Hardwood Biofuels</span>
+          <span class="short-title">AHB</span>
         </paper-toolbar>
         <div>
           <app-main-menu on-set-page="setPage"></app-main-menu>
@@ -71,9 +45,9 @@
       <paper-header-panel main>
         <paper-toolbar>
           <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-          <small>Decision Support Tool</small>
+          <div>Decision Support Tool</div>
           
-          <span class="pull-right hidden-xs">PROTOTYPE</span>
+          <div class="flex" style="text-align:right">PROTOTYPE</div>
 
         </paper-toolbar>
         <iron-pages selected="{{selectedPage}}" attr-for-selected="id" selected-attribute="active">
