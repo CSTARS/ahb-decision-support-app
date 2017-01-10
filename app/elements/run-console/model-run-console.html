@@ -3,13 +3,29 @@
     <style include="shared-styles"></style>
     <style>
       :host {
-        display: none;
+        display: block;
+        padding: 10px;
+      }
+      #console {
         border: 1px solid #aaa;
         padding: 10px;
+        margin: 15px;
         background-color: #111;
         color: white;
       }
+      h1, h2 {
+        font-weight: 200;
+      }
+
     </style>
+
+    <h1>Refinery Simulation Console</h1>
+
+    <div id="console"></div>
+
+    <div style="text-align: center">
+      <paper-button raised on-click="goToResults" id="resultsBtn">Results</paper-button>
+    </div>
 
   </template>
 </dom-module>

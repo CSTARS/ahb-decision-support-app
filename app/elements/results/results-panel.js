@@ -7,16 +7,26 @@ var tokml = require('tokml');
     Polymer({
       is: 'results-panel',
 
+      properties : {
+        active : {
+          type : Boolean,
+          observer : 'onShow'
+        }
+      },
+
       ready : function() {
         this.breakdownRendered = false;
         this.charts = {};
         this.resizeTimer = -1;
         app.setOnCompleteListener(this.update.bind(this));
         app.on('poplar-price-update', this.onPriceRecalc.bind(this));
-        $(window).on('resize', this.resize.bind(this));
 
-        this.removeChild(this.$.updateOverlay);
-        document.body.appendChild(this.$.updateOverlay);
+        this.charts = [
+          this.$.adoptionCompetingPieChart,
+          this.$.adoptionCropPieChart,
+          this.$.adoptionPriceChart,
+          this.$.adoptionYieldPriceChart
+        ];
 
         sdk.eventBus.on('optimize-start',() => {
           this.$.updateOverlay.style.display = 'block';
@@ -32,28 +42,12 @@ var tokml = require('tokml');
         });
       },
 
-      resize : function() {
-        if( this.resizeTimer !== -1 ) {
-          clearTimeout(this.resizeTimer);
-        }
-
-        this.resizeTimer = setTimeout(function(){
-          this.resizeTimer = -1;
-          this._resize();
-        }.bind(this), 100);
-      },
-
-      _resize : function() {
-        var w = $(this).width();
-
-        for( var key in this.charts ) {
-          var c = this.charts[key];
-          c.chart.draw(c.data, c.options);
-        }
-      },
-
       onShow : function() {
-        this.resize();
+        if( !this.active ) return;
+
+        this.charts.forEach(function(chart){
+          chart.redraw();
+        });
       },
 
       update : function() {
@@ -149,24 +143,6 @@ var tokml = require('tokml');
         this.$.adoptionCropPieChart.render(totals, refinery);
 
         this.updatePriceBreakdown();
-      },
-
-      drawChart : function(name, data, options, ele, type) {
-        if( this.charts[name] ) {
-          this.charts[name].chart.draw(data, options);
-          this.charts[name].data = data;
-          this.charts[name].options = options;
-          return;
-        }
-
-        var chart = new google.visualization[type](ele);
-        chart.draw(data, options);
-
-        this.charts[name] = {
-          chart : chart,
-          data : data,
-          options : options
-        }
       },
 
       updatePriceBreakdown : function() {

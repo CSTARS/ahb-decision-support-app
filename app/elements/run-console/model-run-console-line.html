@@ -4,14 +4,14 @@
     <style>
       :host {
         display: block;
-        padding: 5px;
+        padding: 2px;
       }
       .layout {
         align-items: center;
       }
     </style>
 
-    <div class="layout">
+    <div id="root" class="layout">
       <div id="icon"></div>
       <div id="text" class="flex"></div>
     </div>
@@ -30,6 +30,10 @@
         if( icon === undefined ) return;
         this.$.icon.style.paddingRight = '15px';
         this.$.icon.innerHTML = icon;
+      },
+
+      setClassName : function(className) {
+        this.$.root.className = 'module-run-console-line style-scope layout '+className;
       }
 
     });

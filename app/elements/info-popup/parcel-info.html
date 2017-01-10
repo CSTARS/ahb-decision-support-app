@@ -1,8 +1,10 @@
 <dom-module id="parcel-info">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
+        padding: 15px;
       }
       #expand {
         display:block;
@@ -25,77 +27,94 @@
         -ms-transform : rotate(90deg);
         -moz-transform : rotate(90deg);
       }
-      .nlabel {
-        font-weight: bold;
-      }
       #adopted {
         display: none;
       }
+      table {
+        width: 100%;
+      }
+      paper-material {
+        margin: 15px;
+      }
+      h1, h2 {
+        font-weight: 200;
+      }
     </style>
 
-    <h5 id="adopted" class="text text-success"><i class="fa fa-star"></i> Adopted</h5>
+    <div class="layout">
+      <h1>Parcel Information</h1>
+      <h4 id="adopted" class="highlight"><i class="fa fa-star"></i> Adopted</h4>
+    </div>
 
-    <h5>
+    <h4>
       <div id="name"></div>
       <div id="inner" ></div>
-    </h5>
+    </h4>
 
-    <div id="details" >
-      <table class="table">
+    <h2>Overview</h2>
+    <paper-material>
+      <table class="data fixed">
         <tr>
-          <td class="nlabel">Parcel Size:</td>
-          <td><span id="size"></span> acres</td>
+          <td>Parcel Size:</td>
+          <td id="size"></td>
+          <td>acres</td>
         </tr>
         <tr>
-          <td class="nlabel">% Size Available:</td>
-          <td><span id="potential"></span>% (<span id="asize"></span>) acres</td>
+          <td>% Size Available:</td>
+          <td><span id="potential"></span>% (<span id="asize"></span>)</td>
+          <td>acres</td>
         </tr>
         <tr>
-          <td class="nlabel">Parcel Adoption Price:</td>
-          <td><span id="adoptionPrice"></span> / Mg</td>
+          <td>Parcel Adoption Price:</td>
+          <td id="adoptionPrice"></td>
+          <td>$ / Mg</td>
         </tr>
         <tr>
-          <td class="nlabel">Parcel Refinery Gate Price:</td>
-          <td><span id="refineryGatePrice"></span> / Mg</td>
+          <td>Parcel Refinery Gate Price:</td>
+          <td id="refineryGatePrice"></td>
+          <td>$ / Mg</td>
         </tr>
         <tr>
-          <td class="nlabel">Current Refinery Price:</td>
-          <td><span id="refineryPrice"></span> / Mg</td>
+          <td>Current Refinery Price:</td>
+          <td id="refineryPrice"></td>
+          <td>$ / Mg</td>
         </tr>
         <tr>
-          <td class="nlabel">Duration</td>
+          <td>Duration</td>
           <td id="duration"></td>
-        </tr>
-        <tr>
-          <td class="nlabel">Current Crops</td>
-          <td>
-            <parcel-info-crops id="crops"></parcel-info-crops>
-          </td>
-        </tr>
-        <tr>
-          <td class="nlabel">Poplar</td>
-          <td>
-            <parcel-info-poplar id="poplar"></parcel-info-poplar>
-          </td>
-        </tr>
-        <tr>
-          <td class="nlabel">Transportation</td>
-          <td>
-            <parcel-info-transportation id="transportation"></parcel-info-transportation>
-          </td>
+          <td>Years</td>
         </tr>
       </table>
-    </div>
+     </paper-material>
 
-    <h4>Revenue / Acre <small id="revenueChartLabel"></small></h4>
-    <div id="revenueChart"></div>
+     <h2>Current Crops</h2>
+     <paper-material>
+       <parcel-info-crops id="crops"></parcel-info-crops>
+     </paper-material>
 
-    <h4>Poplar Growth (Mg / Acre)</h4>
-    <div class="help-block">
-      Cliffs are harvest events
-      <span class="pull-right" id="irrigFrac"></div>
-    </div>
-    <div id="poplarChart"></div>
+      <h2>Poplar</h2>
+      <paper-material>
+        <parcel-info-poplar id="poplar"></parcel-info-poplar>
+      </paper-material>
+
+      <h2>Transportation</h2>
+      <paper-material>
+        <parcel-info-transportation id="transportation"></parcel-info-transportation>
+      </paper-material>
+
+      <h2>Revenue / Acre <small id="revenueChartLabel"></small></h2>
+      <paper-material style="padding:5px">
+        <div id="revenueChart"></div>
+      </paper-material>
+
+      <h2>Poplar Growth (Mg / Acre)</h2>
+      <paper-material style="padding:5px">
+        <div class="help-block">
+          Cliffs are harvest events
+          <span class="pull-right" id="irrigFrac"></div>
+        </div>
+        <div id="poplarChart"></div>
+      </paper-material>
     
   </template>
 </dom-module>

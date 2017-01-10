@@ -4,6 +4,7 @@
     <style>
       :host {
         display: block;
+        position: relative;
         padding: 10px;
       }
 
@@ -18,28 +19,31 @@
       paper-material {
         margin: 15px;
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
+
+      #updateOverlay {
+        z-index: 1000; 
+        position: absolute; 
+        background: white; 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        padding: 150px 20px 20px 20px; 
+        text-align: center; 
+        color: #888; 
+        font-size: 28px; 
+        display: none;
       }
-      th, td {
-        padding: 13px;
-      }
-      tr {
-        border-bottom: 1px solid #eee;
-      }
-      table.data tr td:first-child {
-        width: 35%;
-      }
+
     </style>
 
-    <div id="updateOverlay" style="z-index: 1000; position: fixed; background: rgba(255,255,255,.8); top: 0; left: 0; right: 0; bottom: 0; padding: 150px 20px 20px 20px; text-align: center; color: #888; font-size: 28px; display: none;"></div>
+    <div id="updateOverlay" ></div>
 
     
     <h2>Overview</h2>
 
     <paper-material>
-      <table class="data">
+      <table class="data fixed">
         <tr>
           <td class="bold">Parcels</td>
           <td id="parcelCount"></td>
@@ -68,7 +72,7 @@
     
     <h2>Refinery Gate Price</h2>
     <paper-material>
-      <table class="data">
+      <table class="data fixed">
         <tr>
           <td style="width: 150px" class="bold">Price ($ / Mg)</td>
           <td>
@@ -96,7 +100,7 @@
     <h2><span id="refineryType"></span> Refinery</h2>
 
     <paper-material>
-      <table class="data">
+      <table class="data fixed">
         <tr>
           <td class="bold">Rate of Return (%)</td>
           <td>
@@ -134,7 +138,7 @@
     
     
     <paper-material>
-      <table class="data">
+      <table class="data fixed">
         <tr>
           <td class="bold"><span id="refineryProduct"></span> Income</td>
           <td id="refineryIncome"></td>
@@ -180,7 +184,7 @@
     </paper-material>
 
     <paper-material>
-      <table>
+      <table class="data">
         <tr>
           <td><h4>Adoption By Price</h4></td>
         </tr>
@@ -193,7 +197,7 @@
     </paper-material>
     
     <paper-material>
-      <table>
+      <table class="data">
         <tr>
           <td><h4>Poplar Adoption Yield By Price</h4></td>
         </tr>
@@ -206,13 +210,20 @@
     </paper-material>
     
     <h2>Export Data</h2>
-    <paper-material style="padding: 15px">
-      <div>
-        <a on-click="exportJson" style="cursor:pointer"><i class="fa fa-download"></i> Export as JSON</a>&nbsp;&nbsp;&nbsp;
-        <a on-click="exportKml" style="cursor:pointer"><i class="fa fa-download"></i> Export as KML</a>
-      </div>
-
-      <div>Shareable Link: <a id="runLink" target="_blank"></a></div>
+    <paper-material>
+      <table class="data">
+        <tr>
+          <td>
+            <paper-button on-click="exportJson" raised><i class="fa fa-download"></i> Export as JSON</paper-button>&nbsp;&nbsp;&nbsp;
+            <paper-button on-click="exportKml" raised><i class="fa fa-download"></i> Export as KML</paper-button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div>Shareable Link: <a id="runLink" target="_blank"></a></div>
+          </td>
+        </tr>
+      </table>
     </paper-material>
 
 

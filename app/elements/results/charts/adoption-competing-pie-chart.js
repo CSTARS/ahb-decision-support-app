@@ -23,7 +23,7 @@ Polymer({
       height: 350
     };
 
-    this.style.width = this.parentElement.offsetWidth+'px';
+    // this.style.width = this.parentElement.offsetWidth+'px';
 
     this.draw(data, options, 'PieChart', this);
     this.resize();

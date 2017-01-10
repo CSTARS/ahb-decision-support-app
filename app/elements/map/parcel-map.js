@@ -120,11 +120,7 @@ var states = require('./utils/states');
 
         for( var i = 0; i < features.length; i++ ) {
           if( features[i].render && features[i].render.isParcel ) {
-            sdk.collections.parcels.get(features[i].id, (parcel) => {
-              sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
-                this.parcelPopup.show(parcel, growthProfile);
-              });
-            });
+            window.location.hash = 'parcel/'+features[i].id;
             return;
           }
         }

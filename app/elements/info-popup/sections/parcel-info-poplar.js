@@ -13,8 +13,9 @@ Polymer({
     this.$.growthError.style.display = 'none';
     this.$.details.style.display = 'block';
 
-    this.cost = sdk.collections.budgets.poplarTotal.toFixed(2);
-    this.$.budgetDetailsLink.setAttribute('href', 'http://farmbudgets.org/#'+sdk.collections.budgets.poplarBudget.getId());
+    var poplarBudget = sdk.collections.budgets.getPoplarBudget(parcel.properties.ucd.poplarBudgetId);
+    this.cost = poplarBudget.total.toFixed(2);
+    this.$.budgetDetailsLink.setAttribute('href', 'http://farmbudgets.org/#'+parcel.properties.ucd.poplarBudgetId);
 
     var water = 0;
     var land = 0;

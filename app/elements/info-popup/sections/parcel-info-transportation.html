@@ -1,9 +1,13 @@
 
 <dom-module id="parcel-info-transportation">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
+      }
+      table {
+        width: 100%;
       }
       #details {
         display: none;
@@ -16,7 +20,7 @@
       }
     </style>
 
-    <table class="table table-striped" style="margin-bottom:0">
+    <table class="data fixed" style="margin-bottom:0">
       <tr>
         <td>Avg Cost Per Acre</td>
         <td>[[costAcre]]</td>
@@ -48,7 +52,7 @@
     
     <div id="details">
       <h6>Transportation Cost Details (Per Acre)</h6>
-      <table class="table table-striped">
+      <table class="data fixed">
         <!-- Labor -->
         <tr class="nowrap">
           <td>Truck Labor Cost</td>

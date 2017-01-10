@@ -1,4 +1,5 @@
 var sdk = require('../../sdk');
+var ChartBehavior = require('./ChartBehavior');
 
 Polymer({
   is: 'adoption-by-price-chart',
@@ -15,15 +16,7 @@ Polymer({
     }
   },
 
-  ready : function() {
-    $(window).on('resize', () => {
-      if( !this.chartInfo ) return;
-
-      this.debounce('chartRender', () => {
-        this.drawChart(this.chartInfo.data, this.chartInfo.options, this.chartInfo.type)
-      }, 100);
-    });
-  },
+  behaviors : [ChartBehavior],
 
   flipChart : function() {
     this.view = this.$.toggle.active ? 'price' : 'yield';
@@ -142,20 +135,7 @@ Polymer({
       }
     }
 
-    this.drawChart(dt, options, 'LineChart');
-  },
-
-  drawChart : function(data, options, type) {
-    this.$.chart.innerHTML = '';
-
-    var chart = new google.visualization[type](this.$.chart);
-    chart.draw(data, options);
-
-    this.chartInfo = {
-      data : data,
-      options : options,
-      type : type
-    }
+    this.draw(dt, options, 'LineChart', this.$.chart);
   },
 
   renderYieldXAxis : function(priceData, crops) {
@@ -230,6 +210,6 @@ Polymer({
       }
     }
 
-    this.drawChart(dt, options, 'ComboChart');
+    this.draw(dt, options, 'ComboChart', this.$.chart);
   }
 });

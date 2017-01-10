@@ -12,12 +12,12 @@ var ChartBehavior = {
     this.resizeTimer = setTimeout(function(){
       this.resizeTimer = -1;
       this.redraw();
-    }.bind(this), 100);
+    }.bind(this), 300);
   },
 
   redraw : function() {
     if( !this.chartInfo ) return;
-    this.chartInfo.ele.style.width = this.parentElement.offsetWidth + 'px';
+    // this.chartInfo.ele.style.width = this.parentElement.offsetWidth + 'px';
     this.chartInfo.chart.draw(this.chartInfo.data, this.chartInfo.options);
   },
 

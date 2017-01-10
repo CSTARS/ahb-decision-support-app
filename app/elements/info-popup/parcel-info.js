@@ -5,17 +5,27 @@ var app = require('../app');
       is: 'parcel-info',
 
       properties : {
-        parcel : {
-          type : Object,
-          observer : 'onParcelUpdate'
-        },
-        parcelId : {
-          type : String,
-          reflectToAttribute : true
+        active : {
+          type : Boolean,
+          observer : 'onShow'
         }
       },
 
-      onParcelUpdate : function() {
+      onShow : function() {
+        if( !this.active ) return;
+
+        var id = window.location.hash.split('/')[1];
+
+        sdk.collections.parcels.get(id, (parcel) => {
+          sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
+            this.growthProfile = growthProfile;
+            this.parcel = parcel;
+            this.render();
+          });
+        });
+      },
+
+      render : function() {
         if( !this.parcel ) return;
         this.parcelId = this.parcel.properties.id;
 
@@ -33,15 +43,15 @@ var app = require('../app');
         this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
         this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
-        this.$.refineryPrice.innerHTML = '$'+sdk.collections.refineries.selected.poplarPrice.toFixed(2);
-        this.$.adoptionPrice.innerHTML = '$'+this.parcel.properties.ucd.adoptionPrice.toFixed(2);
+        this.$.refineryPrice.innerHTML = sdk.collections.refineries.selected.poplarPrice.toFixed(2);
+        this.$.adoptionPrice.innerHTML = this.parcel.properties.ucd.adoptionPrice.toFixed(2);
 
         var refinery = sdk.collections.refineries.selected;
         if( refinery.maxWillingToPay < this.parcel.properties.ucd.refineryGateCost ) {
           this.$.refineryGatePrice.innerHTML = '<span class="text text-danger">$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2)+
                                           ' (Above refinery max willing to accept price of $'+refinery.maxWillingToPay.toFixed(2)+')</span>';
         } else {
-          this.$.refineryGatePrice.innerHTML = '$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2);
+          this.$.refineryGatePrice.innerHTML = this.parcel.properties.ucd.refineryGateCost.toFixed(2);
         }
         
 
@@ -115,7 +125,7 @@ var app = require('../app');
 
         dt.addRows(data);
 
-        this.$.duration.innerHTML = (d.getFullYear()-startYear)+' Years';
+        this.$.duration.innerHTML = d.getFullYear() - startYear;
 
         this.$.crops.render(this.parcel);
         this.$.poplar.render(this.parcel, this.growthProfile);

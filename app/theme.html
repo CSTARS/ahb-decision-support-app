@@ -27,6 +27,8 @@
         --paper-input-container-color:       var(--default-primary-color);
         --paper-input-container-focus-color: var(--dark-primary-color);
         --paper-toolbar-background:       var(--default-primary-color);
+        --paper-spinner-color: orange;
+        --paper-spinner-stroke-width: 2px;
 
         /* select input wrapper */
         --select-input: {
@@ -85,6 +87,31 @@
         color: var(--default-primary-color);
         font-size: 12px;
         font-weight: 400;
+      }
+
+      .text-danger {
+        color : red;
+      }
+      .text-warning {
+        color: orange;
+      }
+
+      .highlight {
+        color: var(--accent-color);
+      }
+
+      table.data {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table.data th, table.data td {
+        padding: 13px;
+      }
+      table.data tr {
+        border-bottom: 1px solid #eee;
+      }
+      table.data.fixed tr td:first-child {
+        width: 35%;
       }
     </style>
   </template>

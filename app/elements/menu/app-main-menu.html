@@ -11,10 +11,8 @@
         padding: 10px;
         display: none;
         overflow: auto;
-        border-bottom: 1px solid #ccc;
       }
       .header {
-        border-bottom: 1px solid #ccc;
         padding: 15px;
         cursor: pointer;
         background-color: white;
@@ -25,17 +23,17 @@
       .header.selected {
         border-bottom: 1px solid white;
       }
-      .header.selected h4 {
+      .header.selected {
         color: #00BCD4;
       }
     </style>
 
-    <div id="map-header" class="header selected" on-click="setPage" page="map">
+    <paper-material id="map-header" class="header selected" on-click="setPage" page="map">
       <div class="layout center">
         <div><iron-icon icon="maps:map"></iron-icon></div>
         <div class="flex">Map</div>
       </div>
-    </div>
+    </paper-material>
 
     <div id="map-content" class="content flex" style="display:block">
       <menu-map-options id="options"></menu-map-options>
@@ -43,12 +41,12 @@
       <parcel-map-filters id="filters"></parcel-map-filters>
     </div>
 
-    <div id="results-header" class="header" on-click="setPage" page="results" style="display:none">
+    <paper-material id="results-header" class="header" on-click="setPage" page="results" style="display:none">
       <div class="layout center">
         <div><iron-icon icon="assessment"></iron-icon></div>
         <div class="flex">Results</div>
       </div>
-    </div>
+    </paper-material>
 
     <div style="padding: 10px; text-align:center">
       <a href="http://cstars.github.io/ahb-decision-support-sdk/" target="_blank">SDK Documentation</a> |
