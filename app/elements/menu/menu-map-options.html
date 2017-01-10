@@ -1,33 +1,20 @@
 <dom-module id="menu-map-options">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
       }
     </style>
 
-    <div class="checkbox">
-      <label>
-        <input type="checkbox" id="mode" on-click="updateMode"> Select Refinery Location Mode
-      </label>
-      <p class="help-block">When checked, clicking map will set biorefinery location.</p>
-    </div>
-
-    <div id="info" style="display:none">
-      <table class="table">
-        <tr>
-          <td><b>Refinery Location<b></td>
-          <td id="ll"></td>
-        </tr>
-        <tr>
-          <td><b>Refinery Radius</b></td>
-          <td id="radius"></td>
-        </tr>
-        <tr>
-          <td><b>Selected Parcels</b></td>
-          <td id="parcels"></td>
-        </tr>
-      </table>
+    <div class="layout">
+      <div>
+        <paper-checkbox type="checkbox" id="mode" on-click="updateMode"></paper-checkbox>
+      </div>
+      <div>
+        <div>Select Refinery Location Mode</div>
+        <p class="help-block">When checked, clicking map will set biorefinery location.</p>
+      </div>
     </div>
 
   </template>

@@ -22,8 +22,8 @@ Polymer({
       var color = document.createElement('div');
       var label = document.createElement('div');
 
+      root.className = 'layout center';
       color.className = 'legend-color';
-      label.className = 'legend-label';
       root.appendChild(color);
       root.appendChild(label);
 

@@ -6,8 +6,6 @@
     <style>
       :host {
         display: block;
-        border-right: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
       }
       .content {
         padding: 10px;
@@ -32,20 +30,24 @@
       }
     </style>
 
-
     <div id="map-header" class="header selected" on-click="setPage" page="map">
       <div class="layout center">
+        <div><iron-icon icon="maps:map"></iron-icon></div>
         <div class="flex">Map</div>
-        <div><iron-icon id="mapIcon" icon="expand-more"></iron-icon></div>
       </div>
     </div>
+
     <div id="map-content" class="content flex" style="display:block">
-      <menu-map-options></menu-map-options>
+      <menu-map-options id="options"></menu-map-options>
       <parcel-map-legend></parcel-map-legend>
+      <parcel-map-filters id="filters"></parcel-map-filters>
     </div>
 
     <div id="results-header" class="header" on-click="setPage" page="results" style="display:none">
-      <h4>Results</h4>
+      <div class="layout center">
+        <div><iron-icon icon="assessment"></iron-icon></div>
+        <div class="flex">Results</div>
+      </div>
     </div>
 
     <div style="padding: 10px; text-align:center">

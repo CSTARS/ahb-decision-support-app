@@ -55,6 +55,7 @@ var states = require('./utils/states');
       setMenu : function(ele) {
         this.menu = ele;
         this.menu.setMode(this.mode);
+        this.menu.wireEvents(this);
       },
 
       attached : function() {
@@ -156,39 +157,6 @@ var states = require('./utils/states');
         this.onParcelsLoaded();
       },
 
-      renderFilters : function() {
-        this.filters = [];
-        var html = '';
-        
-        for( var i = 0; i < this.cropTypes.length; i++ ) {
-          html += '<div><input type="checkbox" value="'+this.cropTypes[i]+'" /> '+this.cropTypes[i]+'</div>';
-        }
-
-        this.$.filters.innerHTML = html;
-        $(this.$.filters)
-          .find('input')
-          .on('click', this.onFilterClicked.bind(this));
-
-        this.filter();
-      },
-
-      onFilterClicked : function(e) {
-          var crop = e.currentTarget.getAttribute('value');
-          var index = this.filters.indexOf(crop);
-
-          if( e.currentTarget.checked ) {
-            if( index === -1 ) {
-              this.filters.push(crop);
-            }
-          } else {
-            if( index > -1 ) {
-              this.filters.splice(index, 1);
-            }
-          }
-
-          this.filter();
-      },
-
       reset : function(callback) {
         this.canvasLayer.removeAll();
         var c = 0;
@@ -211,14 +179,14 @@ var states = require('./utils/states');
           },
           () => {
             this.cropTypes = Object.keys(cropTypes);
-            this.renderFilters();
+
+            this.fire('render-filters', this.cropTypes);
 
             this.canvasLayer.render();
 
             if( c > 0 ) {
               this.mode = 'select';
               this.menu.setMode(this.mode);
-              this.$.info.style.display = 'block';
             }
 
             if( callback ) callback();
@@ -227,9 +195,7 @@ var states = require('./utils/states');
       },
 
       onParcelsLoaded : function() {
-        this.reset(() => {
-          this.menu.updateSelected();
-        });
+        this.reset();
       },
 
       onParcelQueryUpdate : function(percent) {

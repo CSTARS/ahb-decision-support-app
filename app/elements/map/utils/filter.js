@@ -39,7 +39,6 @@ var FilterBehavior = {
             this.canvasLayer.addCanvasFeature(new L.CanvasFeature(feature));
         }
 
-        this.menu.updateSelected();
         this.canvasLayer.render();
     },
 

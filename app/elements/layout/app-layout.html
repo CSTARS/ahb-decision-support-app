@@ -30,6 +30,13 @@
           display: block;
         }
       }
+
+      paper-header-panel[drawer] {
+        --paper-header-panel-container: {
+          box-shadow: 0px 5px 6px 3px rgba(0, 0, 0, 0.4);
+          z-index: 1;
+        }
+      }
     </style>
 
     <paper-drawer-panel>
@@ -39,7 +46,7 @@
           <span class="short-title">AHB</span>
         </paper-toolbar>
         <div>
-          <app-main-menu on-set-page="setPage"></app-main-menu>
+          <app-main-menu id="menu" page="{{selectedPage}}"></app-main-menu>
         </div>
       </paper-header-panel>
       <paper-header-panel main>

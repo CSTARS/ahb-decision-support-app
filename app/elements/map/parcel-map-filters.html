@@ -1,0 +1,59 @@
+<dom-module id="parcel-map-filters">
+  <template>
+    <style include="shared-styles"></style>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+
+    <h4 style="margin-bottom: 5px">Filter Parcels</h4>
+    <div style="padding-left: 10px">
+      <div id="filters">
+        <template is="dom-repeat" items="[[cropTypes]]">
+          <div class="layout horizontal" style="margin-bottom: 5px">
+            <paper-checkbox type="checkbox" value$="[[item]]" on-click="onFilterClicked" ></paper-checkbox>
+            <div>[[item]]</div>
+          </div>
+        </template>
+      </div>
+
+      <div class="layout center">
+        <paper-checkbox type="checkbox" on-click="toggleSelectedParcels" ></paper-checkbox>
+        <div>Show All Competing Parcels</div>
+      </div>
+    </div>
+    <div class="help-block">Click parcel to view details.</div>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'parcel-map-filters',
+
+      renderFilters : function(cropTypes) {
+        this.filters = [];
+        this.cropTypes = cropTypes.slice(0);
+        this.style.display = 'block';
+        this.fire('update-filters', this.filters);
+      },
+
+      onFilterClicked : function(e) {
+          var crop = e.currentTarget.getAttribute('value');
+          var index = this.filters.indexOf(crop);
+
+          if( e.currentTarget.checked ) {
+            if( index === -1 ) {
+              this.filters.push(crop);
+            }
+          } else {
+            if( index > -1 ) {
+              this.filters.splice(index, 1);
+            }
+          }
+
+          this.fire('update-filters', this.filters);
+      },
+
+    });
+  </script>
+</dom-module>

@@ -5,32 +5,7 @@
         position: relative;
         display: block;
       }
-      #info {
-        position: absolute;
-        z-index: 1000;
-        bottom: 0;
-        left: 0;
-        background: white;
-        padding: 5px;
-        display:none;
-      }
-      .sfilter {
-        padding-top: 2px;
-        margin-top: 2px;
-        border-top: 1px dashed #eee;
-      }
     </style>
-
-    <div id="info">
-      <div>
-        <b>Filter Parcels</b>
-        <div id="filters"></div>
-        <div class="sfilter">
-          <input type="checkbox" on-click="toggleSelectedParcels" /> Show All Competing Parcels
-        </div>
-      </div>
-      <div class="help-block">Click parcel to view details.</div>
-    </div>
 
   </template>
 </dom-module>

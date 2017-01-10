@@ -28,9 +28,10 @@ Polymer({
                     tree: hash.length > 4 ? decodeURIComponent(hash[5]) : 'Generic'
                 });
             }, 100);
+            window.location.hash = '#map';
         }
 
-        this.setPage();
+        this.$.map.setMenu(this.$.menu);
     },
 
     setPage : function() {
