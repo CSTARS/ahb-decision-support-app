@@ -21,14 +21,11 @@ var utils = require('../utils');
           html += `<option value="${type}">${type}</option>`;
         }
         this.$.treeInput.innerHTML = html;
-
-        // $(this).on('line-added', () => {
-        //   $(this.$.popup).animate({
-        //     scrollTop : $(this.$.popupContent).height()+'px' 
-        //   }, 300);
-        // });
       },
       
+      back : function() {
+        window.location.hash = '#map';
+      },
 
       onShow : function() {
         if( !this.active ) return;
@@ -41,7 +38,6 @@ var utils = require('../utils');
         this.lat = lat;
         this.lng = lng;
         this.$.ll.innerHTML = lat.toFixed(4)+', '+lng.toFixed(4);
-        this.$.go.innerHTML = '<i class="fa fa-industry"></i> Model <span class="hidden-xs">Refinery</span>';
         
         if( !this.refineryOptions ) {
             this.refineryOptions = sdk.collections.refineries.getAll();
@@ -88,7 +84,7 @@ var utils = require('../utils');
         
         
         this.$.refineryInfo.innerHTML = `
-          <table class="table">
+          <table class="data style-scope refinery-select">
             <tr><td><b>Capital Cost:</b></td><td>$${utils.formatAmount(r.capitalCost)}</td></tr>
             <tr><td><b>Operating Cost:</b></td><td>${utils.formatAmount(r.operatingCost.value)} (${r.operatingCost.units})</td></tr>
             <tr><td><b>${r.product.name} Yield:</b></td><td>${r.yield.value} (${r.yield.units})</td></tr>
@@ -118,7 +114,6 @@ var utils = require('../utils');
 
         app.run(options, function() {
           this.$.startBtn.style.display = 'block';
-          this.$.go.innerHTML = '<i class="fa fa-undo"></i> Rerun <span class="hidden-xs">Model</span>';
         }.bind(this));
       }
     });

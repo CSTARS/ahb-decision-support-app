@@ -25,6 +25,10 @@ var app = require('../app');
         });
       },
 
+      back : function() {
+        window.location.hash = '#map';
+      },
+
       render : function() {
         if( !this.parcel ) return;
         this.parcelId = this.parcel.properties.id;

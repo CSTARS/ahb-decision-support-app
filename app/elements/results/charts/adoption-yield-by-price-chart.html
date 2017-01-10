@@ -1,6 +1,7 @@
 
 <dom-module id="adoption-yield-by-price-chart">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
@@ -15,12 +16,13 @@
     
     <div id="chart"></div>
 
-    <div class="layout horizontal center-justified" style="padding: 10px">
+    <div class="layout horizontal center" style="padding: 10px">
       <div>
-        <paper-toggle-button id="toggle" active="{{flipped}}"></paper-toggle-button> Toggle Chart Axis
+        <paper-toggle-button id="toggle" active="{{flipped}}"></paper-toggle-button>
       </div>
-      <div style="padding-left: 25px">
-        <a class="btn btn-default" on-click="export">Export</a>
+      <div class="flex">Toggle Chart Axis</div>
+      <div>
+        <paper-button raised on-click="export">Export Chart Data</paper-button>
       </div>
     </div>
   </template>

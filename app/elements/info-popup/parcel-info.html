@@ -34,12 +34,30 @@
         width: 100%;
       }
       paper-material {
-        margin: 15px;
+        margin: 10px 3px;
       }
       h1, h2 {
         font-weight: 200;
       }
+
+      @media(min-width: 601px) {
+        paper-fab {
+          top: 75px;
+        }
+        paper-material {
+          margin: 15px;
+        }
+      }
+
+      paper-fab {
+        position: fixed;
+        top: 27px;
+        right: 15px;
+        z-index: 100;
+      }
     </style>
+
+    <paper-fab icon="arrow-back" on-click="back"></paper-fab>
 
     <div class="layout">
       <h1>Parcel Information</h1>
@@ -57,12 +75,12 @@
         <tr>
           <td>Parcel Size:</td>
           <td id="size"></td>
-          <td>acres</td>
+          <td>Acre</td>
         </tr>
         <tr>
           <td>% Size Available:</td>
           <td><span id="potential"></span>% (<span id="asize"></span>)</td>
-          <td>acres</td>
+          <td>(Acre)</td>
         </tr>
         <tr>
           <td>Parcel Adoption Price:</td>

@@ -27,8 +27,6 @@ var states = require('./utils/states');
         this.mode = 'set';
         this.radius = 40000;
 
-        $(window).on('resize', this.onResize.bind(this));
-
         // this.parcelPopup = document.createElement('parcel-info-popup');
         // document.body.appendChild(this.parcelPopup);
         
@@ -68,7 +66,6 @@ var states = require('./utils/states');
         if( !this.map ) {
           L.Icon.Default.imagePath = '/images/leaflet';
           
-          this.onResize();
           this.map = L.map(this).setView([44, -121], 6);
           this.map.on('click', this.onClick.bind(this));
           
@@ -106,13 +103,16 @@ var states = require('./utils/states');
           this.canvasLayer = new L.CanvasGeojsonLayer({
             onClick : this.onFeaturesClicked.bind(this)
           });
+
+          // HACK: adjust the z-index on the default controls
+          var controls = this.querySelectorAll('.leaflet-control');
+          for( var i = 0; i < controls.length; i++ ) {
+            controls[i].style.zIndex = 5;
+          }
+
           this.canvasLayer.renderer = renderer;
           this.canvasLayer.addTo(this.map);
         }
-      },
-
-      onResize : function() {
-        this.style.height = ($(window).height()-64)+'px';
       },
 
       onFeaturesClicked : function(features) {

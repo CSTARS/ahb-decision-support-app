@@ -17,6 +17,10 @@ Polymer({
     this.mapElement.setMode(this.mode);
   },
 
+  setMap : function(mapElement) {
+    this.mapElement = mapElement;
+  },
+
   setInfo : function(lat, lng, radius) {
     this.$.info.style.display = 'block';
     this.$.ll.innerHTML = lat.toFixed(4)+', '+lng.toFixed(4);

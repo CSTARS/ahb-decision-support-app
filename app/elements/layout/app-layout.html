@@ -4,6 +4,7 @@
     <style>
       :host {
         display: block;
+        position: relative;
         height: 100%;
       }
 
@@ -12,6 +13,14 @@
       }
       .long-title {
         display: none;
+      }
+
+      parcel-map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
 
       @media(min-width: 768px) {
@@ -23,15 +32,30 @@
         }
       }
 
+      paper-header-panel[main] {
+        --paper-header-panel-shadow: {
+          z-index: 50;
+        }
+      }
+
       paper-header-panel[drawer] {
         --paper-header-panel-container: {
           box-shadow: 0px 5px 6px 3px rgba(0, 0, 0, 0.4);
           z-index: 1;
         }
       }
+
+      paper-drawer-panel {
+         --paper-drawer-panel-scrim: {
+          z-index: 50;
+        }
+        --paper-drawer-panel-left-drawer-container: {
+          z-index: 51;
+        }
+      }
     </style>
 
-    <paper-drawer-panel>
+    <paper-drawer-panel id="drawerPanel">
       <paper-header-panel drawer>
         <paper-toolbar>
           <span class="long-title">Advanced Hardwood Biofuels</span>
@@ -45,9 +69,6 @@
         <paper-toolbar>
           <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
           <div>Decision Support Tool</div>
-          
-          <div class="flex" style="text-align:right">PROTOTYPE</div>
-
         </paper-toolbar>
         <iron-pages selected="{{selectedPage}}" attr-for-selected="id" selected-attribute="active">
           <parcel-map id="map" class="page"></parcel-map>

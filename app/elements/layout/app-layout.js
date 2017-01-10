@@ -15,6 +15,23 @@ Polymer({
     },
 
     attached : function() {
+        // HACK for paper-drawer closing too easily....
+        // https://github.com/PolymerElements/paper-drawer-panel/issues/140
+       this.$.drawerPanel._trackEnd = function(event) {
+          if (this.dragging) {
+            var xDirection = event.detail.dx > -100;
+            this._setDragging(false);
+            this._transition = true;
+            this._moveDrawer(null);
+            if (this.rightDrawer) {
+              this[xDirection ? 'closeDrawer' : 'openDrawer']();
+            } else {
+              this[xDirection ? 'openDrawer' : 'closeDrawer']();
+            }
+          }
+        }.bind(this.$.drawerPanel);
+
+
         this.$.map.selectPanel = this.$.select;
 
         var hash = window.location.hash.replace('#', '').split('/');

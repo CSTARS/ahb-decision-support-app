@@ -41,6 +41,7 @@ var sdk = require('../sdk');
       },
 
       wireEvents : function(mapElement) {
+        this.$.options.setMap(mapElement);
         this.$.filters.addEventListener('update-filters', (e) => {
           mapElement.filter(e.detail);
         });

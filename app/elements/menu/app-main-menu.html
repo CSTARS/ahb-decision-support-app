@@ -26,6 +26,9 @@
       .header.selected {
         color: #00BCD4;
       }
+      #filters {
+        margin-top: 10px;
+      }
     </style>
 
     <paper-material id="map-header" class="header selected" on-click="setPage" page="map">
@@ -35,7 +38,7 @@
       </div>
     </paper-material>
 
-    <div id="map-content" class="content flex" style="display:block">
+    <div id="map-content" class="content flex" style="display:block; background-color: #f8f8f8">
       <menu-map-options id="options"></menu-map-options>
       <parcel-map-legend></parcel-map-legend>
       <parcel-map-filters id="filters"></parcel-map-filters>
@@ -52,6 +55,10 @@
       <a href="http://cstars.github.io/ahb-decision-support-sdk/" target="_blank">SDK Documentation</a> |
       <a href="https://github.com/CSTARS/ahb-decision-support-app/blob/master/README.md" target="_blank">About</a> |
       <a href="https://github.com/CSTARS/ahb-decision-support-app/issues" target="_blank">Issues</a>
+    </div>
+
+    <div class="help-block" style="text-align:center; padding: 3px">
+      Copyright &copy; The Regents of the University of California, Davis campus. All rights reserved.
     </div>
 
 

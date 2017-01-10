@@ -5,24 +5,36 @@
       :host {
         display: none;
       }
+      h3 {
+        font-weight: 200;
+      }
+      .all-competing {
+        margin-top: 3px;
+        border-top: #ddd 1px solid;
+        padding-top: 3px;
+      }
     </style>
 
-    <h4 style="margin-bottom: 5px">Filter Parcels</h4>
-    <div style="padding-left: 10px">
-      <div id="filters">
-        <template is="dom-repeat" items="[[cropTypes]]">
-          <div class="layout horizontal" style="margin-bottom: 5px">
-            <paper-checkbox type="checkbox" value$="[[item]]" on-click="onFilterClicked" ></paper-checkbox>
-            <div>[[item]]</div>
-          </div>
-        </template>
-      </div>
+    <h3 style="margin: 5px">Filter Parcels</h3>
 
-      <div class="layout center">
-        <paper-checkbox type="checkbox" on-click="toggleSelectedParcels" ></paper-checkbox>
-        <div>Show All Competing Parcels</div>
+    <paper-material style="padding:8px 3px; margin-bottom: 10px; background-color: white">
+      <div style="padding-left: 10px">
+        <div id="filters">
+          <template is="dom-repeat" items="[[cropTypes]]">
+            <div class="layout horizontal" style="margin-bottom: 5px">
+              <paper-checkbox type="checkbox" value$="[[item]]" on-click="onFilterClicked" ></paper-checkbox>
+              <div>[[item]]</div>
+            </div>
+          </template>
+        </div>
+
+        <div class="layout center all-competing">
+          <paper-checkbox type="checkbox" on-click="toggleSelectedParcels" ></paper-checkbox>
+          <div>Show All Competing Parcels</div>
+        </div>
       </div>
-    </div>
+    </paper-material>
+
     <div class="help-block">Click parcel to view details.</div>
     
   </template>
