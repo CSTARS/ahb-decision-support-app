@@ -45,8 +45,8 @@ var states = require('./utils/states');
         }
       },
 
-      toggleSelectedParcels : function() {
-        this.showAllParcels = !this.showAllParcels;
+      toggleSelectedParcels : function(show) {
+        this.showAllParcels = show;
         this.filter();
       },
 

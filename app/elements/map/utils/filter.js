@@ -3,7 +3,10 @@ var localdb = sdk.localdb;
 var async = require('async');
 
 var FilterBehavior = {
-    filter : function() {
+    filter : function(filters) {
+        if( filters ) this.filters = filters;
+        if( !this.filters ) this.filters = [];
+
         // remove all transportation polyline's, they will be added 
         // back in once filtering is complete.
         for( var i = this.canvasLayer.features.length-1; i >= 0; i-- ) {

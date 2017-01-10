@@ -45,6 +45,9 @@ var sdk = require('../sdk');
         this.$.filters.addEventListener('update-filters', (e) => {
           mapElement.filter(e.detail);
         });
+        this.$.filters.addEventListener('toggle-all-parcels', (e) => {
+          mapElement.toggleSelectedParcels(e.detail);
+        });
 
         mapElement.addEventListener('render-filters', (e) => {
           this.$.filters.renderFilters(e.detail);

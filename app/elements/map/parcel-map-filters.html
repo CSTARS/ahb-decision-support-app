@@ -62,9 +62,13 @@
               this.filters.splice(index, 1);
             }
           }
-
+          
           this.fire('update-filters', this.filters);
       },
+
+      toggleSelectedParcels : function(e) {
+        this.fire('toggle-all-parcels', e.currentTarget.checked);
+      }
 
     });
   </script>

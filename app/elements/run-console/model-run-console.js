@@ -6,13 +6,6 @@ var utils = require('../utils');
 Polymer({
     is: 'model-run-console',
 
-    properties : {
-        active : {
-            type : Boolean,
-            observer : 'onShow'
-        }
-    },
-
     ready : function() {
         app.registerRunConsole(this);
 
