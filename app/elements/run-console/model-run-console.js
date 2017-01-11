@@ -1,52 +1,57 @@
-var sdk = require('../sdk');
-var app = require('../app');
 var utils = require('../utils');
-
 
 Polymer({
     is: 'model-run-console',
 
-    ready : function() {
-        app.registerRunConsole(this);
+    properties : {
+        lines : {
+            type : Array,
+            value : function() {
+                return [];
+            }
+        }
+    },
 
-        this.lines = {};
+    behaviors : [EventBusBehavior],
 
-        sdk.eventBus.on('transportation-update-start', this.onTransportationStart.bind(this));
-        sdk.eventBus.on('transportation-update-end', this.onTransportationEnd.bind(this));
-        sdk.eventBus.on('transportation-update', this.onTransportationUpdate.bind(this));
-
-        sdk.eventBus.on('weather-update-start', this.onWeatherStart.bind(this));
-        sdk.eventBus.on('weather-update-end', this.onWeatherEnd.bind(this));
-
-        sdk.eventBus.on('soil-update-start', this.onSoilStart.bind(this));
-        sdk.eventBus.on('soil-update-end', this.onSoilEnd.bind(this));
-
-        sdk.eventBus.on('parcels-update-start', this.onParcelStart.bind(this));
-        sdk.eventBus.on('parcels-update-updated', this.onParcelUpdated.bind(this));
-        sdk.eventBus.on('parcels-update-end', this.onParcelEnd.bind(this));
-
-        sdk.eventBus.on('crops-update-start', this.onCropsStart.bind(this));
-        sdk.eventBus.on('crops-update-updated', this.onCropsUpdated.bind(this));
-        sdk.eventBus.on('crops-update-end', this.onCropsEnd.bind(this));
-
-        sdk.eventBus.on('crop-priceyield-update-start', this.onCropPriceYieldStart.bind(this));
-        sdk.eventBus.on('crop-priceyield-update-end', this.onCropPriceYieldEnd.bind(this));
-
-        sdk.eventBus.on('budgets-update-start', this.onBudgetsStart.bind(this));
-        sdk.eventBus.on('budgets-update-end', this.onBudgetsEnd.bind(this));
-
-        sdk.eventBus.on('results-summary-start', this.onSummaryStart.bind(this));
-        sdk.eventBus.on('results-summary-end', this.onSummaryEnd.bind(this));
-
-        sdk.eventBus.on('optimize-start', this.onOptimizeStart.bind(this));
-        sdk.eventBus.on('optimize-update', this.onOptimizeUpdate.bind(this));
-        sdk.eventBus.on('optimize-end', this.onOptimizeEnd.bind(this));
-
-        sdk.eventBus.on('harvests-start', this.onHarvestsStart.bind(this));
-        sdk.eventBus.on('harvests-updated', this.onHarvestsUpdated.bind(this));
-        sdk.eventBus.on('harvests-end', this.onHarvestsEnd.bind(this));
-
-        sdk.eventBus.on('refinery-model-run-complete', this.onEnd.bind(this));
+    ebBind : {
+        // kickoff event
+        'simulation-start': 'onStart',
+        'refinery-model-run-complete': 'onEnd',
+        // transportation events
+        'transportation-update-start': 'onTransportationStart',
+        'transportation-update-end': 'onTransportationEnd',
+        'transportation-update' : 'onTransportationUpdate',
+        // weather events
+        'weather-update-start': 'onWeatherStart',
+        'weather-update-end': 'onWeatherEnd',
+        // soil events
+        'soil-update-start': 'onSoilStart',
+        'soil-update-end': 'onSoilEnd',
+        // parcel events
+        'parcels-update-start': 'onParcelStart',
+        'parcels-update-updated': 'onParcelUpdated',
+        'parcels-update-end': 'onParcelEnd',
+        // crop events
+        'crops-update-start': 'onCropsStart',
+        'crops-update-updated': 'onCropsUpdated',
+        'crops-update-end': 'onCropsEnd',
+        'crop-priceyield-update-start': 'onCropPriceYieldStart',
+        'crop-priceyield-update-end': 'onCropPriceYieldEnd',
+        // budget events
+        'budgets-update-start': 'onBudgetsStart',
+        'budgets-update-end': 'onBudgetsEnd',
+        // summary events
+        'results-summary-start': 'onSummaryStart',
+        'results-summary-end': 'onSummaryEnd',
+        // optimize events
+        'optimize-start': 'onOptimizeStart',
+        'optimize-update': 'onOptimizeUpdate',
+        'optimize-end': 'onOptimizeEnd',
+        // harvest events
+        'harvests-start': 'onHarvestsStart',
+        'harvests-updated': 'onHarvestsUpdated',
+        'harvests-end': 'onHarvestsEnd',
     },
 
     onStart : function(options) {
@@ -65,16 +70,42 @@ Polymer({
     onEnd : function() {
         this.createLine('end', 'Finished. Execution Time: '+((new Date().getTime() - this.startTime) / 1000).toFixed(2)+'s');
 
-        var yieldRequired = sdk.collections.refineries.selected.feedstockCapacity.value;
-        var ayield = sdk.collections.parcels.summary.avgYearHarvest;
-        
-        if( ayield < yieldRequired ) {
-            this.createLine('warning', 
-                `The current run only produced ${utils.formatAmount(ayield)} Mg/Year of Poplar.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery`,
-                'text text-danger','<i class="fa fa-warning"></i>');
-        }
+        this.getSimulationData((selectedRefinery, summary) => {
+            var yieldRequired = selectedRefinery.feedstockCapacity.value;
+            var ayield = summary.avgYearHarvest;
+    
+            if( ayield < yieldRequired ) {
+                this.createLine('warning', 
+                    `The current run only produced ${utils.formatAmount(ayield)} Mg/Year of Poplar.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery`,
+                    'text text-danger','<i class="fa fa-warning"></i>');
+            }
 
-        this.$.resultsBtn.style.display = 'inline-block';
+            this.$.resultsBtn.style.display = 'inline-block';
+        });
+    },
+
+    getSimulationData : function(callback) {
+        // Would be nice to do something like...
+        // this.ebChain([
+        //         {method: 'get-selected-refinery'},
+        //         {method: 'get-parcels-summary'}
+        //     ],
+        //     callback
+        // );
+
+        this.getSelectedRefinery((selectedRefinery) => {
+            this.getParcelSummary((summary) => {
+                callback(selectedRefinery, summary);
+            });
+        });
+    },
+
+    getSelectedRefinery : function(callback) {
+        this._eventBus.emit('get-selected-refinery', {handler: callback});
+    },
+
+    getParcelSummary : function(callback) {
+        this._eventBus.emit('get-parcels-summary', {handler: callback});
     },
 
     goToResults : function() {

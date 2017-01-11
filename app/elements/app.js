@@ -4,11 +4,13 @@ var sdk = require('./sdk');
 var events = require('events').EventEmitter;
 window.sdk = sdk;
 
+// set global variable for Polymer EventBusBehavior
+window.EventBus = sdk.eventBus;
+
 function App() { 
 
     var listeners = [];
     var grown = false;
-    var runConsole;
     var ee = new events();
     
     sdk.init(function(){
@@ -26,15 +28,11 @@ function App() {
     this.getOnCompleteListeners = function() {
         return listeners;
     };
-    
-    this.registerRunConsole = function(rc) {
-        runConsole = rc;
-    }
 
     this.run = function(options, callback) {
         //options.setPoplarPrice = 94;
 
-        runConsole.onStart(options);
+        sdk.eventBus.emit('simulation-start', options);
 
         sdk.controllers.refinery.model(options, () => {
             this.getOnCompleteListeners().forEach(function(fn){

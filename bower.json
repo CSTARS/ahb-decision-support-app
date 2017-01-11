@@ -34,6 +34,7 @@
     "paper-checkbox": "PolymerElements/paper-checkbox#^1.4.2",
     "paper-button": "PolymerElements/paper-button#^1.0.14",
     "paper-styles": "PolymerElements/paper-styles#^1.1.5",
-    "paper-fab": "PolymerElements/paper-fab#^1.2.1"
+    "paper-fab": "PolymerElements/paper-fab#^1.2.1",
+    "event-bus-behavior": "jrmerz/event-bus-behavior"
   }
 }
