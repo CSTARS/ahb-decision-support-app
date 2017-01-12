@@ -1,19 +1,27 @@
-var sdk = require('../sdk');
-
 Polymer({
   is: 'parcel-map-legend',
 
-  ready : function() {
-    sdk.eventBus.on('optimize-end', this.onOptimizeEnd.bind(this));
+  behaviors : [EventBusBehavior],
+
+  ebBind : {
+    'optimize-end': 'onOptimizeEnd'
   },
 
   onOptimizeEnd : function() {
-    this.debounce('onOptimizeEnd', this._onOptimizeEnd, 200);
+    this.debounce('onOptimizeEnd', () => {
+      this._getRefineryGatePrice((refineryGatePrice) => {
+        this.prices = refineryGatePrice;
+        this._onOptimizeEnd();
+      }); 
+    }, 200);
+  },
+
+  _getRefineryGatePrice : function(callback) {
+    this._eventBus.emit('get-parcels-refinery-gate-price', {handler: callback});
   },
 
   _onOptimizeEnd : function() {
     this.$.legend.innerHTML = '';
-    this.prices = sdk.collections.parcels.refineryGatePrice;
     var step = (this.prices.max - this.prices.min) / 10;
     
     var price = this.prices.min;

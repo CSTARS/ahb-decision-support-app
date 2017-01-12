@@ -1,4 +1,3 @@
-var sdk = require('../sdk');
 var renderer = require('./utils/renderer');
 var FilterBehavior = require('./utils/filter');
 var async = require('async');
@@ -160,7 +159,7 @@ var states = require('./utils/states');
           for( var key in parcels ) {
             parcel = parcels[key];
             c++;
-            
+
             clFeature = new L.CanvasFeature(parcel, parcel.properties.id);
             this.canvasLayer.addCanvasFeature(clFeature);
 

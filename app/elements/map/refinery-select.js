@@ -1,5 +1,4 @@
 var app = require('../app');
-var sdk = require('../sdk');
 var utils = require('../utils');
 
 
@@ -13,18 +12,39 @@ var utils = require('../utils');
         }
       },
 
+      behaviors : [EventBusBehavior],
+
+      ebBind : {
+        'simulation-start' : 'onSimulationStart',
+        'refinery-model-run-complete' : 'onSimulationComplete'
+      },
+
       ready : function() {
         this.active = false;
         
-        var html = '';
-        for( var type in sdk.collections.growthProfiles.trees ) {
-          html += `<option value="${type}">${type}</option>`;
-        }
-        this.$.treeInput.innerHTML = html;
+        this.getTreeType((trees) => {
+          var html = '';
+          for( var type in trees ) {
+            html += `<option value="${type}">${type}</option>`;
+          }
+          this.$.treeInput.innerHTML = html;
+        });
+      },
+
+      getTreeType : function(callback) {
+        this._eventBus.emit('get-tree-types', {handler: callback});
       },
       
       back : function() {
         window.location.hash = '#map';
+      },
+
+      onSimulationComplete : function() {
+        this.$.startBtn.style.display = 'block';
+      },
+
+      onSimulationStart : function() {
+        this.$.startBtn.style.display = 'none';
       },
 
       onShow : function() {
@@ -39,22 +59,36 @@ var utils = require('../utils');
         this.lng = lng;
         this.$.ll.innerHTML = lat.toFixed(4)+', '+lng.toFixed(4);
         
-        if( !this.refineryOptions ) {
-            this.refineryOptions = sdk.collections.refineries.getAll();
-            this.renderRefinerySelector();
-        }
+        this.getRefineryData((refineries, selected) => {
+          if( !this.refineryOptions ) {
+              this.refineryOptions = refineries;
+              this.renderRefinerySelector();
+          }
 
-        var ror = 0.10;
-        if( sdk.collections.refineries.selected ) {
-          ror = sdk.collections.refineries.selected.ROR;
-        }
-        this.$.ror.value = ror * 100;
+          var ror = 0.10;
+          if( selected ) {
+            ror = selected.ROR;
+          }
+          this.$.ror.value = ror * 100;
 
-        var maxPastureLand = 0.25;
-        if( sdk.collections.refineries.selected ) {
-          maxPastureLand = sdk.collections.refineries.selected.maxPastureLandAdoption;
-        }
-        this.$.maxPastureLand.value = maxPastureLand * 100;
+          var maxPastureLand = 0.25;
+          if( selected ) {
+            maxPastureLand = selected.maxPastureLandAdoption;
+          }
+          this.$.maxPastureLand.value = maxPastureLand * 100;
+        });
+      },
+
+      getRefineryData : function(callback) {
+        this.ebChain(
+          [
+            'get-all-refineries',
+            'get-selected-refinery'
+          ],
+          (results) => {
+            callback.apply(this, results);
+          }
+        )
       },
       
       setValues : function(values) {
@@ -96,12 +130,9 @@ var utils = require('../utils');
 
       run : function() {
         window.location.hash = '#console';
-        
-        this.$.startBtn.style.display = 'none';
-        document.querySelector('results-panel').breakdownRendered = false;
-        
-        sdk.collections.growthProfiles.selectedTree = this.$.treeInput.value;
-        
+
+        this._eventBus.emit('set-selected-tree', this.$.treeInput.value);
+
         var options = {
             lat : this.lat,
             lng : this.lng,
@@ -112,8 +143,6 @@ var utils = require('../utils');
             maxPastureLand : parseFloat((parseFloat(this.$.maxPastureLand.value) / 100).toFixed(2))
         };
 
-        app.run(options, function() {
-          this.$.startBtn.style.display = 'block';
-        }.bind(this));
+        app.run(options);
       }
     });

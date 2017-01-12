@@ -1,5 +1,4 @@
 var app = require('../app');
-var sdk = require('../sdk');
 var utils = require('../utils');
 var async = require('async');
 var tokml = require('tokml');
@@ -63,16 +62,16 @@ var tokml = require('tokml');
       getData : function(callback) {
         this.ebChain(
           [
-            {event: 'get-selected-refinery'},
-            {event: 'get-refinery-parameters'},
-            {event: 'get-selected-tree-name'},
-            {event: 'get-parcels-summary'},
-            {event: 'get-growth-time'},
-            {event: 'get-transportation-total-cost'},
-            {event: 'get-parcels-refinery-gate-price'}
+            'get-selected-refinery',
+            'get-refinery-parameters',
+            'get-selected-tree',
+            'get-parcels-summary',
+            'get-growth-time',
+            'get-transportation-total-cost',
+            'get-parcels-refinery-gate-price'
           ],
           (results) => {
-            callback.apply(results);
+            callback.apply(this, results);
           }
         )
       },
@@ -83,7 +82,7 @@ var tokml = require('tokml');
       
       _update : function(refinery, refineryQuery, treeName, parcelSummary, growthTime, transportationCost, parcelsRefineryGatePrice) {
 
-        var url = `${window.location.protocol}//${window.location.host}/#l/${refineryQuery.lat.toFixed(4)}/${refineryQuery.lng.toFixed(4)}/${refineryController.radius}/${encodeURIComponent(refinery.name)}/${encodeURIComponent(treeName)}`;
+        var url = `${window.location.protocol}//${window.location.host}/#l/${refineryQuery.lat.toFixed(4)}/${refineryQuery.lng.toFixed(4)}/${refineryQuery.radius}/${encodeURIComponent(refinery.name)}/${encodeURIComponent(treeName)}`;
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
         
@@ -103,10 +102,8 @@ var tokml = require('tokml');
         this.$.adoptionCompetingPieChart.render(parcelSummary, refinery);
 
         // render overview data
-        this.$.runtime.innerHTML = '('+parcelSummary.years+' Years)';
+        // this.$.runtime.innerHTML = '('+parcelSummary.years+' Years)';
         this.$.acreCount.innerHTML = utils.formatAmount(parcelSummary.acres)+' adopted';
-        var harvestTotal = utils.formatAmount(parcelSummary.harvested);
-        this.$.harvestTotal.innerHTML = harvestTotal+' Mg';
         
         var yieldRequired = refinery.feedstockCapacity.value;
         var actualYield;
@@ -125,7 +122,7 @@ var tokml = require('tokml');
         // render refinery data
         var poplarCost = refinery.utils.poplarCost(actualYield, refinery.poplarPrice, growthTime);
  
-        var refineryIncome = refinery.utils.income(actualYield, refinery, totals.years);
+        var refineryIncome = refinery.utils.income(actualYield, refinery, parcelSummary.years);
         var operatingCost = refinery.operatingCost.value * growthTime;
 
         this.$.refineryType.innerHTML = refinery.name;
@@ -159,14 +156,12 @@ var tokml = require('tokml');
         this.$.refineryRor.innerHTML = `%${roi}`;
 
         this.$.adoptionAmount.innerHTML = ' @ $'+refinery.poplarPrice+' / Mg';
-        this.$.adoptionCropPieChart.render(totals, refinery);
+        this.$.adoptionCropPieChart.render(parcelSummary, refinery);
 
         this.renderBreakdown(refinery, parcelsRefineryGatePrice, growthTime);
       },
 
       renderBreakdown : function(refinery, refineryGatePrice, growthTime) {
-        var parcelsCollections = sdk.collections.parcels;
-        
         var crops = {};
         var priceData = [];
         var parcel, crop, item;
@@ -240,7 +235,7 @@ var tokml = require('tokml');
         this._eventBus.emit('get-valid-parcel-ids', {handler: callback});
       },
 
-      getParcelInformation : function(id) {
+      getParcelInformation : function(id, callback) {
         this.ebChain([
                 {event: 'get-parcel', payload: {id}},
                 {event: 'get-growth', stream: {id : (results) => results[0].properties.ucd.modelProfileId}}
@@ -287,7 +282,7 @@ var tokml = require('tokml');
           this._eventBus.emit('set-price-yield-value', e)
         }
 
-        sdk.controllers.refinery.optimize();
+        this._eventBus.emit('optimize-refinery', {});
       },
 
       setPoplarPrice : function(price) {
