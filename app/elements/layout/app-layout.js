@@ -1,4 +1,3 @@
-var sdk = require('../sdk');
 
 Polymer({
     is: 'app-layout',

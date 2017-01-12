@@ -1,5 +1,3 @@
-var sdk = require('../sdk');
-
     Polymer({
       is: 'app-main-menu',
 
@@ -10,8 +8,10 @@ var sdk = require('../sdk');
         }
       },
 
-      ready : function() {
-        sdk.eventBus.on('refinery-model-run-complete', this.onEnd.bind(this));
+      behaviors : [EventBusBehavior],
+
+      ebBind : {
+        'refinery-model-run-complete': 'onEnd'
       },
 
       setPage : function(e) {

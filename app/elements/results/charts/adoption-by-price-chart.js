@@ -1,4 +1,3 @@
-var sdk = require('../../sdk');
 var ChartBehavior = require('./ChartBehavior');
 
 Polymer({
@@ -23,16 +22,16 @@ Polymer({
     this.render(this.priceData, this.crops);
   },
 
-  render : function(priceData, crops) {
+  render : function(priceData, crops, refinery) {
     if( !priceData ) return;
 
     this.priceData = priceData;
     this.crops = crops;
 
     if( this.view === 'price' ) {
-      this.renderPriceXAxis(priceData, crops);
+      this.renderPriceXAxis(priceData, crops, refinery);
     } else {
-      this.renderYieldXAxis(priceData, crops);
+      this.renderYieldXAxis(priceData, crops, refinery);
     }
   },
 
@@ -57,7 +56,7 @@ Polymer({
     a.dispatchEvent(e);
   },
 
-  renderPriceXAxis : function(priceData, crops) {
+  renderPriceXAxis : function(priceData, crops, refinery) {
     this.header = ['price', 'poplar'];
     for( var key in crops ) {
       this.header.push(key);
@@ -65,8 +64,6 @@ Polymer({
     
     var data = [], row, rowData;
     var currentPriceNotSet = true;
-
-    var refinery = sdk.collections.refineries.selected;
     
     var lastYields = {};
 
@@ -138,7 +135,7 @@ Polymer({
     this.draw(dt, options, 'LineChart', this.$.chart);
   },
 
-  renderYieldXAxis : function(priceData, crops) {
+  renderYieldXAxis : function(priceData, crops, refinery) {
     this.header = ['price', 'poplar'];
     for( var key in crops ) {
       this.header.push(key);
@@ -147,8 +144,6 @@ Polymer({
     var data = [], row, rowData;
     var lastPrice = 0;
     var currentPriceNotSet = true;
-
-    var refinery = sdk.collections.refineries.selected;
     
     for( var j = 0; j < priceData.length; j++ ) {
       rowData = priceData[j];

@@ -1,7 +1,3 @@
-var sdk = require('../../sdk');
-var localdb = sdk.localdb;
-var async = require('async');
-
 var FilterBehavior = {
     filter : function(filters) {
         if( filters ) this.filters = filters;
@@ -24,17 +20,34 @@ var FilterBehavior = {
             this.filtersHash[this.filters[i]] = 1;
         }
 
-        var parcels = localdb.getAllInline('parcels');
-        for( var key in parcels ) {
-            this._filterParcel(parcels[key]);
-        }
+        this._getFilterData((parcels, routes, paths) => {
+            var transportation = {routes, paths};
 
-        this._onFilteringComplete();
+            for( var key in parcels ) {
+                this._filterParcel(parcels[key], transportation);
+            }
+
+            this._onFilteringComplete(transportation);
+        });
     },
 
-    _onFilteringComplete : function() {
+    _getFilterData : function(callback) {
+        this.ebChain(
+            [
+                {event: 'get-parcels'},
+                {event: 'get-transportation-routes'},
+                {event: 'get-transportation-paths'}
+            ],
+            (results) => {
+                callback.apply(this, results);
+            }
+        )
+    },
+
+
+    _onFilteringComplete : function(transportationData) {
         for( var id in this.currentNetwork ) {
-            var feature = sdk.collections.transportation.network[id];
+            var feature = transportationData.paths[id];
             if( feature.properties.error ) {
                 continue;
             }
@@ -45,7 +58,7 @@ var FilterBehavior = {
         this.canvasLayer.render();
     },
 
-    _filterParcel : function(parcel) {
+    _filterParcel : function(parcel, transportationData) {
         var clFeature = this.canvasLayer.getCanvasFeatureById(parcel.properties.id);
 
         var props = parcel.properties.ucd;
@@ -72,7 +85,7 @@ var FilterBehavior = {
             return;
         }
 
-        var transportation = sdk.collections.transportation.get(parcel.properties.id);
+        var transportation = transportationData.routes[parcel.properties.id];
         if( transportation.error ) {
             return;
         }
@@ -94,7 +107,7 @@ var FilterBehavior = {
         }
 
         // render a line for shortest path vertex to feature centroid
-        var f = sdk.collections.transportation.network[path[0]];
+        var f = transportationData.paths[path[0]];
         var feature = {
             type : 'Feature',
             geometry : {

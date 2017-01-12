@@ -1,5 +1,3 @@
-var sdk = require('../../sdk');
-
 Polymer({
   is: 'parcel-info-transportation',
 

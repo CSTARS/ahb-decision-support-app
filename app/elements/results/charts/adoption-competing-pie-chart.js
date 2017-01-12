@@ -5,11 +5,11 @@ Polymer({
 
   behaviors : [ChartBehavior],
 
-  render : function(parcelCollection, refinery) {
+  render : function(parcelSummary, refinery) {
     var data = [
       ['Parcel Type', 'Parcel Number'],
-      ['Adopted', parcelCollection.selectedCount],
-      ['Not Adopted', parcelCollection.validCount - parcelCollection.selectedCount]
+      ['Adopted', parcelSummary.selectedCount],
+      ['Not Adopted', parcelSummary.validCount - parcelSummary.selectedCount]
     ];
 
 

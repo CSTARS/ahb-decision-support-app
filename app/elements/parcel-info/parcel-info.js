@@ -1,5 +1,4 @@
-var sdk = require('../sdk');
-var app = require('../app');
+
 
     Polymer({
       is: 'parcel-info',
@@ -11,17 +10,18 @@ var app = require('../app');
         }
       },
 
+      behaviors : [EventBusBehavior],
+
       onShow : function() {
         if( !this.active ) return;
 
         var id = window.location.hash.split('/')[1];
+        this.getData(id, (parcel, growthProfile, refinery) => {
+          this.growthProfile = growthProfile;
+          this.parcel = parcel;
+          this.refinery = refinery;
 
-        sdk.collections.parcels.get(id, (parcel) => {
-          sdk.collections.growthProfiles.get(parcel.properties.ucd.modelProfileId, (growthProfile) => {
-            this.growthProfile = growthProfile;
-            this.parcel = parcel;
-            this.render();
-          });
+          this.render();
         });
       },
 
@@ -47,13 +47,12 @@ var app = require('../app');
         this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
         this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
-        this.$.refineryPrice.innerHTML = sdk.collections.refineries.selected.poplarPrice.toFixed(2);
+        this.$.refineryPrice.innerHTML = this.refinery.poplarPrice.toFixed(2);
         this.$.adoptionPrice.innerHTML = this.parcel.properties.ucd.adoptionPrice.toFixed(2);
 
-        var refinery = sdk.collections.refineries.selected;
-        if( refinery.maxWillingToPay < this.parcel.properties.ucd.refineryGateCost ) {
+        if( this.refinery.maxWillingToPay < this.parcel.properties.ucd.refineryGateCost ) {
           this.$.refineryGatePrice.innerHTML = '<span class="text text-danger">$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2)+
-                                          ' (Above refinery max willing to accept price of $'+refinery.maxWillingToPay.toFixed(2)+')</span>';
+                                          ' (Above refinery max willing to accept price of $'+this.refinery.maxWillingToPay.toFixed(2)+')</span>';
         } else {
           this.$.refineryGatePrice.innerHTML = this.parcel.properties.ucd.refineryGateCost.toFixed(2);
         }
@@ -67,8 +66,7 @@ var app = require('../app');
       onComplete : function() {
         if( !this.parcel.properties.ucd.modelProfileId ) return;
 
-        var refinery = sdk.collections.refineries.selected;
-        var poplarTotal = this.parcel.properties.usableSize * this.growthProfile.data.totalPerAcre * refinery.poplarPrice;
+        var poplarTotal = this.parcel.properties.usableSize * this.growthProfile.data.totalPerAcre * this.refinery.poplarPrice;
 
         var label = 'success';
         if( poplarTotal < this.parcel.properties.ucd.adoptionPrice ) {
@@ -148,7 +146,7 @@ var app = require('../app');
         };
         var chart = new google.visualization.LineChart(this.$.revenueChart);
         chart.draw(dt, options);
-        this.$.revenueChartLabel.innerHTML = '@ $'+sdk.collections.refineries.selected.poplarPrice+'/Mg';
+        this.$.revenueChartLabel.innerHTML = '@ $'+this.refinery.poplarPrice+'/Mg';
 
         setTimeout(function(){
           options.width = $(this.$.chart).parent().width();
@@ -222,5 +220,17 @@ var app = require('../app');
           yieldUnits : cropInfo.units,
           yield : 0
         }
+      },
+
+      getData : function(id, callback) {
+        this.ebChain([
+                {event: 'get-parcel', payload: {id}},
+                {event: 'get-growth', stream: {id : (results) => results[0].properties.ucd.modelProfileId}},
+                {event: 'get-selected-refinery'}
+            ],
+            (result) => {
+              callback.apply(this, result);
+            }
+        );
       }
     });

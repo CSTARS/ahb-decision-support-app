@@ -1,4 +1,3 @@
-var sdk = require('../../sdk');
 var ChartBehavior = require('./ChartBehavior');
 
 Polymer({
@@ -23,14 +22,14 @@ Polymer({
     this.render(this.priceData);
   },
 
-  render : function(priceData) {
+  render : function(priceData, refinery, growthTime) {
     if( !priceData ) return;
 
     this.priceData = priceData;
     if( this.view === 'price' ) {
-      this.renderPriceXAxis(priceData);
+      this.renderPriceXAxis(priceData, refinery, growthTime);
     } else {
-      this.renderYieldXAxis(priceData);
+      this.renderYieldXAxis(priceData, refinery, growthTime);
     }
   },
 
@@ -55,7 +54,7 @@ Polymer({
     a.dispatchEvent(e);
   },
 
-  renderPriceXAxis : function(priceData) {
+  renderPriceXAxis : function(priceData, refinery, growthTime) {
     var dt = new google.visualization.DataTable();
 
     var data = [];
@@ -69,13 +68,11 @@ Polymer({
     var max = 0, lastYield, yieldAmount;
     var row, y, rowData;
     var currentPriceNotSet = true;
-    var refinery = sdk.collections.refineries.selected;
     var yieldRequired = refinery.feedstockCapacity.value;
-    var years = sdk.collections.growthProfiles.years;
 
     for( var i = 0; i < priceData.length; i++ ) {
       rowData = priceData[i];
-      yieldAmount = rowData.poplar.yield / years;
+      yieldAmount = rowData.poplar.yield / growthTime;
       if( lastYield === yieldAmount ) {
         continue;
       }
@@ -113,7 +110,7 @@ Polymer({
     this.draw(dt, options, 'LineChart', this.$.chart);
   },
 
-  renderYieldXAxis : function(priceData) {
+  renderYieldXAxis : function(priceData, refinery, growthTime) {
     var dt = new google.visualization.DataTable();
 
       var data = [];
@@ -132,17 +129,15 @@ Polymer({
       var max = 0, lastPrice;
       var row, y, rowData;
       var currentPriceNotSet = true;
-      var refinery = sdk.collections.refineries.selected;
       var yieldRequired = refinery.feedstockCapacity.value;
-      var years = sdk.collections.growthProfiles.years;
       
       for( var i = 0; i < priceData.length; i++ ) {
         rowData = priceData[i];
-        row = [rowData.price+'', rowData.poplar.yield / years, yieldRequired];
+        row = [rowData.price+'', rowData.poplar.yield / growthTime, yieldRequired];
  
         if( refinery.poplarPrice > lastPrice && refinery.poplarPrice <= rowData.price && currentPriceNotSet ) {
           currentPriceNotSet = false;
-          row.push(rowData.poplar.yield / years);
+          row.push(rowData.poplar.yield / growthTime);
           row.push('Current Price: '+refinery.poplarPrice+' $ / Mg');
         } else {
           row.push(null);

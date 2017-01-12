@@ -1,4 +1,3 @@
-var app = require('../app');
 var sdk = require('../sdk');
 var renderer = require('./utils/renderer');
 var FilterBehavior = require('./utils/filter');
@@ -15,7 +14,11 @@ var states = require('./utils/states');
         }
       },
 
-      behaviors : [FilterBehavior],
+      behaviors : [FilterBehavior, EventBusBehavior],
+
+      ebBind : {
+        'refinery-model-run-complete' : 'onSimulationComplete'
+      },
 
       ready : function() {
         // map render/filter stuff
@@ -26,15 +29,12 @@ var states = require('./utils/states');
         // current modes are 'set' (set refinery location) or 'select' which is select parcel
         this.mode = 'set';
         this.radius = 40000;
+      },
 
-        // this.parcelPopup = document.createElement('parcel-info-popup');
-        // document.body.appendChild(this.parcelPopup);
-        
-        sdk.eventBus.on('refinery-model-run-complete', () => {
-          setTimeout(function(){
-            this.onSelectedUpdated();
-          }.bind(this), 200);
-        });
+      onSimulationComplete : function() {
+        this.debounce('onSimulationComplete', () => {
+          this.onSelectedUpdated();
+        }, 200);
       },
 
       onShow : function() {
@@ -147,47 +147,43 @@ var states = require('./utils/states');
         this.selectPanel.show(this.ll.lat, this.ll.lng);
       },
 
-      // TODO: bind to this
-      // DSSDK.datastore.on('transportation-updated', this.renderRoads);
       onSelectedUpdated : function() {
         this.onParcelsLoaded();
       },
 
       reset : function(callback) {
         this.canvasLayer.removeAll();
-        var c = 0;
+        var c = 0, cropTypes = {}, clFeature;
 
-        var cropTypes = {};
-
-        var clFeature;
-        sdk.localdb.forEach(
-          'parcels',
-          (parcel, next) => {
+        this._getParcels((parcels) => {
+          var parcel;
+          for( var key in parcels ) {
+            parcel = parcels[key];
             c++;
+            
             clFeature = new L.CanvasFeature(parcel, parcel.properties.id);
             this.canvasLayer.addCanvasFeature(clFeature);
 
             parcel.properties.ucd.cropInfo.swap.forEach(function(crop){
               cropTypes[crop] = 1;
             });
-
-            next();
-          },
-          () => {
-            this.cropTypes = Object.keys(cropTypes);
-
-            this.fire('render-filters', this.cropTypes);
-
-            this.canvasLayer.render();
-
-            if( c > 0 ) {
-              this.mode = 'select';
-              this.menu.setMode(this.mode);
-            }
-
-            if( callback ) callback();
           }
-        );
+
+          this.cropTypes = Object.keys(cropTypes);
+          this.fire('render-filters', this.cropTypes);
+          this.canvasLayer.render();
+
+          if( c > 0 ) {
+            this.mode = 'select';
+            this.menu.setMode(this.mode);
+          }
+
+          if( callback ) callback();
+        });
+      },
+
+      _getParcels : function(callback) {
+        this._eventBus.emit('get-parcels', {handler: callback});
       },
 
       onParcelsLoaded : function() {

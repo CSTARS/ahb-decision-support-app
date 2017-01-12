@@ -1,5 +1,3 @@
-var sdk = require('../sdk');
-
 Polymer({
   is: 'menu-map-options',
 

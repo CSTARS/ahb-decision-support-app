@@ -24,10 +24,11 @@ function App() {
     this.setOnCompleteListener = function(fn) {
         listeners.push(fn);
     };
-    
-    this.getOnCompleteListeners = function() {
-        return listeners;
-    };
+
+    // use 'refinery-model-run-complete' instead    
+    // this.getOnCompleteListeners = function() {
+    //     return listeners;
+    // };
 
     this.run = function(options, callback) {
         //options.setPoplarPrice = 94;
@@ -42,24 +43,6 @@ function App() {
             if( callback ) callback();
         });
     }
-    
-    this.setPoplarPrice = function(price) {
-        var options = {
-            setPoplarPrice : price
-        }
-
-        sdk.controllers.refinery.optimize(options);
-    };
-
-    this.setRor = function(ror) {
-        sdk.collections.refineries.selected.setRor(ror);
-        sdk.controllers.refinery.optimize({});
-    };
-
-    this.setMaxPastureLand = function(maxPastureLand) {
-        sdk.collections.refineries.selected.setMaxPastureLand(maxPastureLand);
-        sdk.controllers.refinery.optimize({});
-    };
     
     this.getPoplarPrice = function() {
         return this.price || 24;

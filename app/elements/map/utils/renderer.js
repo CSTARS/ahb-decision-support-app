@@ -1,5 +1,3 @@
-var sdk = require('../../sdk');
-
 function renderer(ctx, xyPoints, map, canvasFeature) {
     if( canvasFeature.type === 'Polygon' ||  canvasFeature.type === 'MultiPolygon' ) {
         polyRenderer(ctx, xyPoints, map, canvasFeature);
