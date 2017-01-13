@@ -47,6 +47,14 @@
         z-index: 60;
       }
 
+      #refineryGatePriceIcon {
+        height: 26px;
+        width: 26px;
+        margin: 5px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
       @media(min-width: 601px) {
         paper-fab {
           top: 35px;
@@ -54,6 +62,11 @@
         paper-material {
           margin: 15px;
         }
+      }
+
+      #pastureLandIgnored  {
+        color   :rgba(255,0,0,.6);
+        display : none;
       }
     </style>
 
@@ -64,10 +77,12 @@
       <h4 id="adopted" class="highlight"><i class="fa fa-star"></i> Adopted</h4>
     </div>
 
-    <h4>
+    <h4 style="margin-bottom:3px">
       <div id="name"></div>
       <div id="inner" ></div>
     </h4>
+
+    <div id="pastureLandIgnored">Ignored Pasture Land</div>
 
     <h2>Overview</h2>
     <paper-material>
@@ -89,7 +104,10 @@
         </tr>
         <tr>
           <td>Parcel Refinery Gate Price:</td>
-          <td id="refineryGatePrice"></td>
+          <td>
+            <paper-material id="refineryGatePriceIcon"></paper-material>
+            <span id="refineryGatePrice"></span>
+          </td>
           <td>$ / Mg</td>
         </tr>
         <tr>

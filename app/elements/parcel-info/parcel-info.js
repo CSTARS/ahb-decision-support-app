@@ -44,17 +44,28 @@
         }
         this.$.name.innerHTML = name.join(', ');
 
+        this.$.pastureLandIgnored.style.display = this.parcel.properties.ucd.pastureIgnored ? 'block' : 'none';
+
         this.$.size.innerHTML = Math.round(this.parcel.properties.GISAcres);
         this.$.potential.innerHTML = Math.floor(this.parcel.properties.PotentiallySuitPctOfParcel*100);
         this.$.asize.innerHTML = Math.round(this.parcel.properties.GISAcres * this.parcel.properties.PotentiallySuitPctOfParcel);
         this.$.refineryPrice.innerHTML = this.refinery.poplarPrice.toFixed(2);
         this.$.adoptionPrice.innerHTML = this.parcel.properties.ucd.adoptionPrice.toFixed(2);
 
+
+
         if( this.refinery.maxWillingToPay < this.parcel.properties.ucd.refineryGateCost ) {
           this.$.refineryGatePrice.innerHTML = '<span class="text text-danger">$'+this.parcel.properties.ucd.refineryGateCost.toFixed(2)+
                                           ' (Above refinery max willing to accept price of $'+this.refinery.maxWillingToPay.toFixed(2)+')</span>';
+        
+          this.$.refineryGatePriceIcon.style.backgroundColor = this.getOverRgba();
         } else {
           this.$.refineryGatePrice.innerHTML = this.parcel.properties.ucd.refineryGateCost.toFixed(2);
+
+          this._getRefineryGatePrice((refineryGatePrice) => {
+            this.prices = refineryGatePrice;
+            this.$.refineryGatePriceIcon.style.backgroundColor = this.getRgbaFromPrice(this.parcel.properties.ucd.refineryGateCost);
+          });
         }
         
 
@@ -232,5 +243,23 @@
               callback.apply(this, result);
             }
         );
+      },
+
+      _getRefineryGatePrice : function(callback) {
+        this._eventBus.emit('get-parcels-refinery-gate-price', {handler: callback});
+      },
+
+      getRgbaFromPrice : function(price) {
+        var diff = price - this.prices.min;
+        if( diff === 0 ) diff = 0.001;
+        price = diff / (this.prices.max - this.prices.min);
+
+        var v = Math.floor(200 * (1-price));
+        var v2 = Math.floor(200 * price);
+        return 'rgba(0,'+v2+','+v+',.8)';
+      },
+
+      getOverRgba : function() {
+        return 'rgba(255,165,0,.6)';
       }
     });
