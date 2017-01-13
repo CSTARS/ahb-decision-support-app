@@ -94,7 +94,7 @@
         </tr>
         <tr>
           <td class="bold">Farmers Min Willingness to Accept:</td>
-          <td>$<span id="farmersMWA"></span>/Mg</td>
+          <td><span id="farmersMWA"></span></td>
         </tr>
         <tr>
           <td class="bold">Refinery Max Willingness to Pay:</td>
@@ -181,11 +181,11 @@
       <paper-input type="number" label="Expected Pasture Adoption (%)" id="maxPastureLand" placeholder="%" on-change="onMaxPastureLandChange"></paper-input>
     </paper-material>
 
-    <paper-material style="padding: 15px">
+    <paper-material>
       <adoption-competing-pie-chart id="adoptionCompetingPieChart"></adoption-competing-pie-chart>
     </paper-material>
 
-    <paper-material style="padding: 15px">
+    <paper-material>
       <adoption-crop-pie-chart id="adoptionCropPieChart"></adoption-crop-pie-chart>
     </paper-material>
 
@@ -220,8 +220,8 @@
       <table class="data">
         <tr>
           <td>
-            <paper-button on-click="exportJson" raised><i class="fa fa-download"></i> Export as JSON</paper-button>&nbsp;&nbsp;&nbsp;
-            <paper-button on-click="exportKml" raised><i class="fa fa-download"></i> Export as KML</paper-button>
+            <paper-button on-click="exportJson" raised>Export JSON</paper-button>&nbsp;&nbsp;&nbsp;
+            <paper-button on-click="exportKml" raised>Export KML</paper-button>
           </td>
         </tr>
         <tr>

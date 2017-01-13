@@ -1,11 +1,23 @@
 
 <dom-module id="adoption-competing-pie-chart">
   <template>
+    <style include="shared-styles"></style>
     <style>
       :host {
         display: block;
       }
     </style>
+
+    <table class="data">
+      <tr>
+        <td><h4 id="title"></h4></td>
+      </tr>
+      <tr>
+        <td>
+          <div id="chart"></div>
+        </td>
+      </tr>
+    </table>
     
   </template>
 </dom-module>

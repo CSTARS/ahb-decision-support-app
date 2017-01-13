@@ -91,7 +91,7 @@ var tokml = require('tokml');
         if( parcelSummary.mwa === -1 ) {
           this.$.farmersMWA.innerHTML = '<span style="color:red">Unable to calculate</span>';
         } else {
-          this.$.farmersMWA.innerHTML = parcelSummary.mwa;
+          this.$.farmersMWA.innerHTML = '$'+parcelSummary.mwa+'/Mg';
         }
 
         this.$.poplarPriceInput.value = refinery.poplarPrice;

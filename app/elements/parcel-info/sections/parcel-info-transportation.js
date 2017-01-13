@@ -3,6 +3,13 @@ Polymer({
 
   behaviors : [EventBusBehavior],
 
+  properties : {
+    detailsVisible : {
+      type : Boolean,
+      value : false
+    }
+  },
+
   render : function(parcel, growthProfile) {
     this.getData(parcel.properties.id, (transportationRoute, transportationDefaults, growthTime, loadingUnloadingCost) => {    
       this.costAcre = parcel.properties.ucd.farmCost.poplar.avgTransportationCostPerYear.toFixed(2);
@@ -44,7 +51,8 @@ Polymer({
   },
 
   toggleDetails : function() {
-    $(this.$.details).toggle('slow');
+    this.detailsVisible = !this.detailsVisible;
+    this.$.details.style.display = this.detailsVisible ? 'block' : 'none';
   },
 
   getData : function(parcelId, callback) {

@@ -77,7 +77,7 @@ Polymer({
             if( ayield < yieldRequired ) {
                 this.createLine('warning', 
                     `The current run only produced ${utils.formatAmount(ayield)} Mg/Year of Poplar.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery`,
-                    'text text-danger','<i class="fa fa-warning"></i>');
+                    'text text-danger','<iron-icon icon="report-problem"></iron-icon>');
             }
 
             this.$.resultsBtn.style.display = 'inline-block';

@@ -116,16 +116,14 @@ var utils = require('../utils');
           }
         }
         
-        
-        this.$.refineryInfo.innerHTML = `
-          <table class="data style-scope refinery-select">
-            <tr><td><b>Capital Cost:</b></td><td>$${utils.formatAmount(r.capitalCost)}</td></tr>
-            <tr><td><b>Operating Cost:</b></td><td>${utils.formatAmount(r.operatingCost.value)} (${r.operatingCost.units})</td></tr>
-            <tr><td><b>${r.product.name} Yield:</b></td><td>${r.yield.value} (${r.yield.units})</td></tr>
-            <tr><td><b>Feedstock Capacity:</b></td><td>${utils.formatAmount(r.feedstockCapacity.value)} (${r.feedstockCapacity.units})</td></tr>
-          </table>
-        `;
-        
+        this.$.capitalCost.innerHTML = utils.formatAmount(r.capitalCost);
+        this.$.operatingCost.innerHTML = utils.formatAmount(r.operatingCost.value);
+        this.$.operatingCostUnits.innerHTML = r.operatingCost.units;
+        this.$.productName.innerHTML = r.product.name;
+        this.$.productYield.innerHTML = r.yield.value;
+        this.$.productUnits.innerHTML = r.yield.units;
+        this.$.feedstockCapacity.innerHTML = utils.formatAmount(r.feedstockCapacity.value);
+        this.$.feedstockCapacityUnits.innerHTML = r.feedstockCapacity.units;
       },
 
       run : function() {

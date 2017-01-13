@@ -12,19 +12,16 @@ Polymer({
       data.push([key, totals.cropCounts[key]]);
     }
 
+    this.$.title.innerHTML = 'Adoption By Crop @ $'+refinery.poplarPrice+' / Mg';
+
     data = google.visualization.arrayToDataTable(data);
     var options = {
-      title: 'Adoption By Crop @ $'+refinery.poplarPrice+' / Mg',
-      animation:{
-        duration: 1000,
-        easing: 'out',
-      },
       height: 350
     };
 
     // this.style.width = this.parentElement.offsetWidth+'px';
 
-    this.draw(data, options, 'PieChart', this);
+    this.draw(data, options, 'PieChart', this.$.chart);
     this.resize();
   }
 

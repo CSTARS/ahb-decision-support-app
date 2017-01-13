@@ -35,17 +35,18 @@ Polymer({
 
         var hash = window.location.hash.replace('#', '').split('/');
         if( hash[0] === 'l' ) {
-            var latlng = L.latLng(parseFloat(hash[1]), parseFloat(hash[2]));
-            this.$.map.setLatLng(latlng);
             setTimeout(() => {
+                var latlng = L.latLng(parseFloat(hash[1]), parseFloat(hash[2]));
+                this.$.map.setLatLng(latlng);
+
                 this.$.select.setValues({
                     radius : parseFloat(hash[3]),
                     refinery : decodeURIComponent(hash[4]),
                     tree: hash.length > 4 ? decodeURIComponent(hash[5]) : 'Generic'
                 });
-            }, 100);
-        }
-
+                window.location.hash = '#select';
+            }, 500);
+        } 
         window.location.hash = '#map';
 
         this.$.map.setMenu(this.$.menu);

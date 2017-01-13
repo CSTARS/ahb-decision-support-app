@@ -55,8 +55,13 @@
       <select id="refinerySelector" disabled on-change="renderRefineryInfo">
         <option>Loading...</option>
       </select>
-      <paper-material style="padding: 10px; margin-top: 10px">
-        <div id="refineryInfo"></div>
+      <paper-material style="margin-top: 10px">
+        <table class="data fixed">
+            <tr><td><b>Capital Cost:</b></td><td id="capitalCost"></td></tr>
+            <tr><td><b>Operating Cost:</b></td><td><span id="operatingCost"></span> (<span id="operatingCostUnits"></span>)</td></tr>
+            <tr><td><b><span id="productName"></span> Yield:</b></td><td><span id="productYield"></span> (<span id="productUnits"></span>)</td></tr>
+            <tr><td><b>Feedstock Capacity:</b></td><td><span id="feedstockCapacity"></span> (<span id="feedstockCapacityUnits"></span>)</td></tr>
+        </table>
       </paper-material>
     </div>
 
