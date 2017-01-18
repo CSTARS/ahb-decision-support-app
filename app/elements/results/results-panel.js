@@ -86,6 +86,10 @@ var tokml = require('tokml');
         this.$.runLink.setAttribute('href', url);
         this.$.runLink.innerHTML = url;
         
+        this.$.simulationRadius.innerHTML = (refineryQuery.radius/1000)+'km';
+        this.$.simulationLocation.innerHTML = `${refineryQuery.lat.toFixed(4)}, ${refineryQuery.lng.toFixed(4)}`;
+        this.$.simulationType.innerHTML = refinery.name;
+
         this.$.parcelCount.innerHTML = parcelSummary.selectedCount + ' adopted, ' +parcelSummary.validCount + ' available';
         
         if( parcelSummary.mwa === -1 ) {
@@ -291,6 +295,15 @@ var tokml = require('tokml');
 
       _getJsonExport : function(callback) {
         this._eventBus.emit('export-json', {handler: callback});
+      },
+
+      newRun : function() {
+        this._eventBus.emit('set-map-mode', 'set');
+        window.location.hash = '#map';
+      },
+
+      rerun : function() {
+        window.location.hash = '#select';
       },
 
       exportJson : function() {

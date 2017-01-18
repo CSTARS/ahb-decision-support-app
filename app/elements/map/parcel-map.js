@@ -16,7 +16,8 @@ var states = require('./utils/states');
       behaviors : [FilterBehavior, EventBusBehavior],
 
       ebBind : {
-        'refinery-model-run-complete' : 'onSimulationComplete'
+        'refinery-model-run-complete' : 'onSimulationComplete',
+        'set-map-mode' : 'onModeUpdated'
       },
 
       ready : function() {
@@ -26,7 +27,8 @@ var states = require('./utils/states');
         this.cropTypes = [];
 
         // current modes are 'set' (set refinery location) or 'select' which is select parcel
-        this.mode = 'set';
+        this.setMode('set');
+
         this.radius = 40000;
       },
 
@@ -51,7 +53,6 @@ var states = require('./utils/states');
 
       setMenu : function(ele) {
         this.menu = ele;
-        this.menu.setMode(this.mode);
         this.menu.wireEvents(this);
       },
 
@@ -173,8 +174,7 @@ var states = require('./utils/states');
           this.canvasLayer.render();
 
           if( c > 0 ) {
-            this.mode = 'select';
-            this.menu.setMode(this.mode);
+            this.setMode('select');
           }
 
           if( callback ) callback();
@@ -193,7 +193,12 @@ var states = require('./utils/states');
         this.selectPanel.updateStatus(percent);
       },
 
+      onModeUpdated : function(mode) {
+        this.mode = mode;
+      },
+
       setMode : function(mode) {
         this.mode = mode;
+        this._eventBus.emit('set-map-mode', this.mode);
       }
     });

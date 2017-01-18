@@ -50,7 +50,32 @@
 
     <h1>Refinery Simulation Results</h1>
 
-    <h2>Overview</h2>
+    <h2>Simulation Inputs</h2>
+
+    <paper-material>
+      <table class="data fixed">
+        <tr>
+          <td class="bold">Radius</td>
+          <td id="simulationRadius"></td>
+        </tr>
+        <tr>
+          <td class="bold">Location</td>
+          <td id="simulationLocation"></td>
+        </tr>
+        <tr>
+          <td class="bold">Refinery Type</td>
+          <td id="simulationType"></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <paper-button raised on-click="rerun" style="margin-right: 30px">Rerun Simulation</paper-button>
+            <paper-button raised on-click="newRun">New Simulation</paper-button>
+          </td>
+        </tr>
+      </table>
+    </paper-material>
+
+    <h2>Results Overview</h2>
 
     <paper-material>
       <table class="data fixed">

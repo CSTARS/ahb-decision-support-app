@@ -64,7 +64,7 @@ Polymer({
         var lng = options.lng.toFixed(4);
         var r = options.radius / 1000;
         
-        this.createLine('start', `Starting run for ${options.refinery} refinery @ ${lat}, ${lng} Radius: ${r}`);
+        this.createLine('start', `Starting run for ${options.refinery} refinery @ ${lat}, ${lng} Radius: ${r}km`);
     },
 
     onEnd : function() {
@@ -76,7 +76,7 @@ Polymer({
     
             if( ayield < yieldRequired ) {
                 this.createLine('warning', 
-                    `The current run only produced ${utils.formatAmount(ayield)} Mg/Year of Poplar.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery`,
+                    `The current simulation only produced ${utils.formatAmount(ayield)} Mg/Year of Poplar with a radius of ${selectedRefinery.radius/1000}km.  ${utils.formatAmount(yieldRequired)} Mg/Year is required for the selected refinery.  You may try expanding the simulation radius.`,
                     'text text-danger','<iron-icon icon="report-problem"></iron-icon>');
             }
 

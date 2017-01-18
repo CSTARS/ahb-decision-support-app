@@ -40,8 +40,8 @@
         this.$.options.setMode(mode);
       },
 
+      // TODO: move to event bus
       wireEvents : function(mapElement) {
-        this.$.options.setMap(mapElement);
         this.$.filters.addEventListener('update-filters', (e) => {
           mapElement.filter(e.detail);
         });

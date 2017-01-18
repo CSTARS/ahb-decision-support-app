@@ -1,7 +1,13 @@
 Polymer({
   is: 'menu-map-options',
 
-  setMode : function(mode) {
+  behaviors : [EventBusBehavior],
+
+  ebBind : {
+    'set-map-mode' : 'onModeUpdated'
+  },
+
+  onModeUpdated : function(mode) {
     this.mode = mode;
     if( this.mode === 'set' ) {
       this.$.mode.checked = true;
@@ -12,11 +18,7 @@ Polymer({
 
   updateMode : function() {
     this.mode = this.$.mode.checked ? 'set' : 'select';
-    this.mapElement.setMode(this.mode);
-  },
-
-  setMap : function(mapElement) {
-    this.mapElement = mapElement;
+    this._eventBus.emit('set-map-mode', this.mode);
   },
 
   setInfo : function(lat, lng, radius) {

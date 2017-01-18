@@ -11,6 +11,7 @@ Polymer({
 
     ready : function() {
         window.addEventListener('hashchange', this.setPage.bind(this));
+        document.querySelector('#loading').style.display = 'none';
     },
 
     attached : function() {
