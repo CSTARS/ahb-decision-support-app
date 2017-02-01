@@ -71,7 +71,7 @@ function lineRenderer(ctx, xyPoints, map, feature) {
         ctx.strokeStyle = '#607D8B';
     }
 
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 1;
     ctx.stroke();
 };
 

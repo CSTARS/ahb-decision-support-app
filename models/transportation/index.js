@@ -1,9 +1,11 @@
 var async = require('async');
 var extend = require('extend');
+var simplify = require('simplify-geometry');
 var proxy = require('./proxy');
 var socket = require('../../lib/socket');
 
 var CHUNK_SIZE = 500;
+var tolerance = 0.001;
 
 module.exports = function() {
   return {
@@ -83,18 +85,6 @@ function getRoutes(sources, destination, options, callback) {
         return currentSocket.emit('routes-calculated', {error:true, message: 'Request Cancelled'});
       }
       
-      // var arr = [];
-      // for( var key in result.network.features ){
-      //   arr.push(result.network.features[key]);
-      // }
-      // result.network.features = arr;
-      
-      // Very large JSON objects are crashing, so split up the parsing,
-      // perhaps even send 2 packets
-      // result.paths = JSON.stringify(result.paths);
-      // result.network = JSON.stringify(result.network);
-      
-      // currentSocket.emit('routes-calculated', result);
       currentSocket.emit('routes-calculated', result);
       result = null;
     }
@@ -109,6 +99,11 @@ function processPaths(pathResults, finalResult, count, chunkCount, sources, step
 }
 
 function processPath(pathResult, finalResult, feature, steps, chunkCount) {
+
+  /**
+   * TODO: can we simplify geometry here?
+   */
+  pathResult.steps.coordinates = simplify(pathResult.steps.coordinates, tolerance);
 
   if( steps ) {
     var path = [], start, stop, id;

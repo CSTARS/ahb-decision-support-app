@@ -24,6 +24,7 @@
     "pg": "^4.5.5",
     "pg-cursor": "^1.0.1",
     "poly-next-core": "0.0.4",
+    "simplify-geometry": "0.0.2",
     "socket.io": "^1.4.5",
     "superagent": "^1.8.3",
     "tokml": "^0.4.0"
