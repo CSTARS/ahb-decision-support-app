@@ -100,12 +100,9 @@ function processPaths(pathResults, finalResult, count, chunkCount, sources, step
 
 function processPath(pathResult, finalResult, feature, steps, chunkCount) {
 
-  /**
-   * TODO: can we simplify geometry here?
-   */
-  pathResult.steps.coordinates = simplify(pathResult.steps.coordinates, tolerance);
-
   if( steps ) {
+    pathResult.steps.coordinates = simplify(pathResult.steps.coordinates, tolerance);
+
     var path = [], start, stop, id;
     for( var i = 1; i < pathResult.steps.coordinates.length; i++ ) {
       start = pathResult.steps.coordinates[i-1];
