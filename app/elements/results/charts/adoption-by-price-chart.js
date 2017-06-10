@@ -19,7 +19,7 @@ Polymer({
 
   flipChart : function() {
     this.view = this.$.toggle.active ? 'price' : 'yield';
-    this.render(this.priceData, this.crops);
+    this.render(this.priceData, this.crops, this.refinery);
   },
 
   render : function(priceData, crops, refinery) {
@@ -27,6 +27,7 @@ Polymer({
 
     this.priceData = priceData;
     this.crops = crops;
+    if( refinery ) this.refinery = refinery;
 
     if( this.view === 'price' ) {
       this.renderPriceXAxis(priceData, crops, refinery);

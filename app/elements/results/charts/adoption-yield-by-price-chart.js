@@ -19,13 +19,16 @@ Polymer({
 
   flipChart : function() {
     this.view = this.$.toggle.active ? 'price' : 'yield';
-    this.render(this.priceData);
+    this.render(this.priceData, this.refinery, this.growthTime);
   },
 
   render : function(priceData, refinery, growthTime) {
     if( !priceData ) return;
 
     this.priceData = priceData;
+    this.refinery = refinery;
+    this.growthTime = growthTime;
+
     if( this.view === 'price' ) {
       this.renderPriceXAxis(priceData, refinery, growthTime);
     } else {

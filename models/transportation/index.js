@@ -29,6 +29,7 @@ function getRoutes(sources, destination, options, callback) {
     if( s ) {
       currentSocket = s;
     } else {
+      console.error('SocketId not found: '+options.socketId);
       return callback('SocketId not found: '+options.socketId);
     }
   }
@@ -61,7 +62,7 @@ function getRoutes(sources, destination, options, callback) {
       if( options.requestCancelled ) {
         return next();
       }
-      
+
       var params = {
         sources : JSON.stringify(chunk),
         destination : JSON.stringify(destination.geometry.coordinates),
@@ -89,6 +90,8 @@ function getRoutes(sources, destination, options, callback) {
       result = null;
     }
   );
+
+  callback(null, {success: true, message : 'Route calculation started'});
 }
 
 
@@ -175,7 +178,6 @@ function sendUpdate(time, count, total, result, currentSocket) {
 
   try {
     var p = Math.floor((count/total) * 100);
-
     var t = (t2 - time) / count; // current average time
 
     currentSocket.emit('transportation-update', {
@@ -187,7 +189,7 @@ function sendUpdate(time, count, total, result, currentSocket) {
       timeRemaining : ((total - count) * t)
     });
   } catch(e) {
-
+    console.error(e);
   }
 
 }
