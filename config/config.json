@@ -29,7 +29,7 @@
         "cropTypes" : {
             "host" : "localhost",
             "port" : 5434,
-            "db" : "ahb"
+            "db" : "postgres"
         },
         "parcels" : {
             "host" : "localhost",
