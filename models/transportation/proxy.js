@@ -10,6 +10,7 @@ function query(params, callback) {
     .send(params)
     .end(function(err, res){
       if (err || !res.ok) {
+        console.error(err);
         callback(err || 'Bad response from transportation service');
       } else {
         callback(null, res.body);
