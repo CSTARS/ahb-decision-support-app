@@ -182,7 +182,7 @@ var states = require('./utils/states');
       },
 
       _getParcels : function(callback) {
-        this._eventBus.emit('get-parcels', {handler: callback});
+        this.getEventBus().emit('get-parcels', {handler: callback});
       },
 
       onParcelsLoaded : function() {
@@ -199,6 +199,6 @@ var states = require('./utils/states');
 
       setMode : function(mode) {
         this.mode = mode;
-        this._eventBus.emit('set-map-mode', this.mode);
+        this.getEventBus().emit('set-map-mode', this.mode);
       }
     });

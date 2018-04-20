@@ -236,7 +236,7 @@ var tokml = require('tokml');
       },
 
       getValidParcelIds : function(callback) {
-        this._eventBus.emit('get-valid-parcel-ids', {handler: callback});
+        this.getEventBus().emit('get-valid-parcel-ids', {handler: callback});
       },
 
       getParcelInformation : function(id, callback) {
@@ -260,19 +260,19 @@ var tokml = require('tokml');
             setPoplarPrice : parseFloat(this.$.poplarPriceInput.value)
         }
 
-        this._eventBus.emit('optimize-refinery', options);
+        this.getEventBus().emit('optimize-refinery', options);
       },
 
       onRorChange : function() {
         var newRor = parseFloat(this.$.ror.value / 100);
-        this._eventBus.emit('set-selected-refinery-ror', newRor);
-        this._eventBus.emit('optimize-refinery', {});
+        this.getEventBus().emit('set-selected-refinery-ror', newRor);
+        this.getEventBus().emit('optimize-refinery', {});
       },
 
       onMaxPastureLandChange : function() {
         var maxPastureLand = parseFloat(this.$.maxPastureLand.value / 100);
-        this._eventBus.emit('set-selected-refinery-max-pasture-land', newRor);
-        this._eventBus.emit('optimize-refinery', {});
+        this.getEventBus().emit('set-selected-refinery-max-pasture-land', newRor);
+        this.getEventBus().emit('optimize-refinery', {});
       },
       
       onPriceRecalc : function() {
@@ -283,10 +283,10 @@ var tokml = require('tokml');
         e = e.detail;
 
         if( e.crop ) {
-          this._eventBus.emit('set-price-yield-value', e)
+          this.getEventBus().emit('set-price-yield-value', e)
         }
 
-        this._eventBus.emit('optimize-refinery', {});
+        this.getEventBus().emit('optimize-refinery', {});
       },
 
       setPoplarPrice : function(price) {
@@ -294,11 +294,11 @@ var tokml = require('tokml');
       },
 
       _getJsonExport : function(callback) {
-        this._eventBus.emit('export-json', {handler: callback});
+        this.getEventBus().emit('export-json', {handler: callback});
       },
 
       newRun : function() {
-        this._eventBus.emit('set-map-mode', 'set');
+        this.getEventBus().emit('set-map-mode', 'set');
         window.location.hash = '#map';
       },
 

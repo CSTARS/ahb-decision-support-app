@@ -32,7 +32,7 @@ var utils = require('../utils');
       },
 
       getTreeType : function(callback) {
-        this._eventBus.emit('get-tree-types', {handler: callback});
+        this.getEventBus().emit('get-tree-types', {handler: callback});
       },
       
       back : function() {
@@ -129,7 +129,7 @@ var utils = require('../utils');
       run : function() {
         window.location.hash = '#console';
 
-        this._eventBus.emit('set-selected-tree', this.$.treeInput.value);
+        this.getEventBus().emit('set-selected-tree', this.$.treeInput.value);
 
         var options = {
             lat : this.lat,

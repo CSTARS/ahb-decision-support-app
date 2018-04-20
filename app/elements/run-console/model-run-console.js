@@ -101,11 +101,11 @@ Polymer({
     },
 
     getSelectedRefinery : function(callback) {
-        this._eventBus.emit('get-selected-refinery', {handler: callback});
+        this.getEventBus().emit('get-selected-refinery', {handler: callback});
     },
 
     getParcelSummary : function(callback) {
-        this._eventBus.emit('get-parcels-summary', {handler: callback});
+        this.getEventBus().emit('get-parcels-summary', {handler: callback});
     },
 
     goToResults : function() {

@@ -17,7 +17,7 @@ Polymer({
   },
 
   _getRefineryGatePrice : function(callback) {
-    this._eventBus.emit('get-parcels-refinery-gate-price', {handler: callback});
+    this.getEventBus().emit('get-parcels-refinery-gate-price', {handler: callback});
   },
 
   _onOptimizeEnd : function() {

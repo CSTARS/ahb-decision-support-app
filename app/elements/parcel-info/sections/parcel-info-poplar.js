@@ -44,10 +44,10 @@ Polymer({
   },
 
   getBudget : function(id, handler) {
-    this._eventBus.emit('get-budget', {id, handler});
+    this.getEventBus().emit('get-budget', {id, handler});
   },
 
   getGrowthTime : function(handler) {
-    this._eventBus.emit('get-growth-time', {handler});
+    this.getEventBus().emit('get-growth-time', {handler});
   }
 });

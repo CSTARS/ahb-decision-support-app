@@ -8,6 +8,8 @@ docker/osm2po/transportation-service
 transportation/osrm
 utils/parcelCache/parcelCacheData.txt
 
+.DS_Store
+
 # Logs
 logs
 *.log

@@ -70,6 +70,6 @@ Polymer({
   },
 
   getTonsPerTruck : function(material, handler) {
-    this._eventBus.emit('get-transportation-tons-per-truck', {material, handler});
+    this.getEventBus().emit('get-transportation-tons-per-truck', {material, handler});
   }
 });

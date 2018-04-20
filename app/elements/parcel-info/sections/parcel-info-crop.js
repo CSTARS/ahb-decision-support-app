@@ -29,10 +29,10 @@ Polymer({
   },
 
   getBudget : function(id, handler) {
-    this._eventBus.emit('get-budget', {id, handler});
+    this.getEventBus().emit('get-budget', {id, handler});
   },
 
   getCropPriceAndYield : function(crop, fips, handler) {
-    this._eventBus.emit('get-crop-price-yield', {crop, fips, handler});
+    this.getEventBus().emit('get-crop-price-yield', {crop, fips, handler});
   }
 });

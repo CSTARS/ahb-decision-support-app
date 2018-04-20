@@ -18,7 +18,7 @@ Polymer({
 
   updateMode : function() {
     this.mode = this.$.mode.checked ? 'set' : 'select';
-    this._eventBus.emit('set-map-mode', this.mode);
+    this.getEventBus().emit('set-map-mode', this.mode);
   },
 
   setInfo : function(lat, lng, radius) {
